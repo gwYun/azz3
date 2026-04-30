@@ -118,26 +118,31 @@ def compute_drift_metrics(
     y_pred: np.ndarray,
     season_col: str = "season",
     pre_post_split_season: str = "2022-2023",
+    label_col: str = "transfer_fee",
 ) -> dict[str, Metrics]:
     """Metrics split into pre- and post-cut for drift awareness.
 
-    Returns {"pre_2022": Metrics, "post_2022": Metrics, "all": Metrics}.
+    Returns {"pre": Metrics, "post": Metrics, "all": Metrics}.
     """
-    y_pred_series = pd.Series(y_pred, index=test_df.index)
-    seasons_sorted = sorted(test_df[season_col].unique())
-    cut_idx = seasons_sorted.index(pre_post_split_season) if pre_post_split_season in seasons_sorted else 0
+    test_df = test_df.reset_index(drop=True).copy()
+    y_pred_series = pd.Series(y_pred).reset_index(drop=True)
+
+    if label_col not in test_df.columns:
+        raise KeyError(f"label_col '{label_col}' not in test_df.columns: {list(test_df.columns)[:10]}...")
+
+    seasons_sorted = sorted(test_df[season_col].astype(str).unique())
+    cut_str = str(pre_post_split_season)
+    cut_idx = seasons_sorted.index(cut_str) if cut_str in seasons_sorted else 0
     pre_seasons = set(seasons_sorted[:cut_idx])
     post_seasons = set(seasons_sorted[cut_idx:])
 
+    pre_mask = test_df[season_col].astype(str).isin(pre_seasons)
+    post_mask = test_df[season_col].astype(str).isin(post_seasons)
+
     out: dict[str, Metrics] = {}
-    pre_mask = test_df[season_col].isin(pre_seasons)
-    post_mask = test_df[season_col].isin(post_seasons)
-
-    fee_col = "fee" if "fee" in test_df.columns else test_df.columns[-1]
-
     if pre_mask.any():
-        out["pre_2022"] = compute_metrics(test_df.loc[pre_mask, fee_col], y_pred_series[pre_mask])
+        out["pre"] = compute_metrics(test_df.loc[pre_mask, label_col], y_pred_series[pre_mask])
     if post_mask.any():
-        out["post_2022"] = compute_metrics(test_df.loc[post_mask, fee_col], y_pred_series[post_mask])
-    out["all"] = compute_metrics(test_df[fee_col], y_pred_series)
+        out["post"] = compute_metrics(test_df.loc[post_mask, label_col], y_pred_series[post_mask])
+    out["all"] = compute_metrics(test_df[label_col], y_pred_series)
     return out
