@@ -1,0 +1,11 @@
+season,player_name,from_club,to_club,position,age,actual_fee_eur,predicted_fee_eur,residual_eur,abs_pct_error,top3_stat_improvements
+2021,Jack Grealish,Aston Villa,Manchester City,Left Winger,25,117500000.0,53196328.0,64303672.0,0.547,+Ast:+€12.21M | +Starts_Playing:+€6.34M | -Gls:+€5.27M
+2021,Romelu Lukaku,Inter,Chelsea FC,Centre-Forward,28,113000000.0,49269512.0,63730488.0,0.564,+CrdY:+€6.69M | -MP_Playing:+€4.10M | +Gls_Per:+€2.74M
+2021,Jadon Sancho,Bor. Dortmund,Manchester United,Left Winger,21,85000000.0,58756836.0,26243164.0,0.309,+Starts_Playing:+€5.68M | +npxG_Expected:+€4.17M | +Gls_Per:+€3.79M
+2022,Wesley Fofana,Leicester,Chelsea FC,Centre-Back,21,80400000.0,14813206.0,65586794.0,0.816,+Starts_Playing:+€5.15M | +xG_Expected:+€2.90M | +Mins_Per_90_Playing:+€2.27M
+2022,Casemiro,Real Madrid,Manchester United,Defensive Midfield,30,70650000.0,35430028.0,35219972.0,0.499,+xAG_Expected:+€7.77M | -G+A_Per:+€6.80M | -Ast:+€6.39M
+2022,Alexander Isak,Real Sociedad,Newcastle United,Centre-Forward,22,70000000.0,43070756.0,26929244.0,0.385,-G+A_Per:+€10.45M | -CrdY:+€4.19M | +Starts_Playing:+€3.87M
+2022,Marc Cucurella,Brighton,Chelsea FC,Left-Back,24,65300000.0,7890630.5,57409369.5,0.879,+xG_Expected:+€9.39M | +Starts_Playing:+€4.80M | +Mins_Per_90_Playing:+€3.85M
+2022,Marc Cucurella,Brighton,Chelsea FC,Left-Back,24,65300000.0,12923045.0,52376955.0,0.802,-npxG_Expected:+€11.55M | +xAG_Expected:+€11.37M | -Mins_Per_90_Playing:+€8.40M
+2022,Erling Haaland,Bor. Dortmund,Manchester City,Centre-Forward,21,60000000.0,55569508.0,4430492.0,0.074,+Starts_Playing:+€9.90M | +xAG_Expected:+€6.47M | +MP_Playing:+€4.56M
+2021,Ben White,Brighton,Arsenal FC,Centre-Back,23,58500000.0,19139118.0,39360882.0,0.673,-xAG_Expected:+€35.85M | -Mins_Per_90_Playing:+€14.00M | +Gls_Per:+€10.97M

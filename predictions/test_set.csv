@@ -1,0 +1,115 @@
+season,player_name,from_club,to_club,position,age,actual_fee_eur,predicted_fee_eur,residual_eur,abs_pct_error,top3_stat_improvements
+2021,Jack Grealish,Aston Villa,Manchester City,Left Winger,25,117500000.0,53196328.0,64303672.0,0.547,+Ast:+€12.21M | +Starts_Playing:+€6.34M | -Gls:+€5.27M
+2021,Romelu Lukaku,Inter,Chelsea FC,Centre-Forward,28,113000000.0,49269512.0,63730488.0,0.564,+CrdY:+€6.69M | -MP_Playing:+€4.10M | +Gls_Per:+€2.74M
+2021,Jadon Sancho,Bor. Dortmund,Manchester United,Left Winger,21,85000000.0,58756836.0,26243164.0,0.309,+Starts_Playing:+€5.68M | +npxG_Expected:+€4.17M | +Gls_Per:+€3.79M
+2022,Wesley Fofana,Leicester,Chelsea FC,Centre-Back,21,80400000.0,14813206.0,65586794.0,0.816,+Starts_Playing:+€5.15M | +xG_Expected:+€2.90M | +Mins_Per_90_Playing:+€2.27M
+2022,Casemiro,Real Madrid,Manchester United,Defensive Midfield,30,70650000.0,35430028.0,35219972.0,0.499,+xAG_Expected:+€7.77M | -G+A_Per:+€6.80M | -Ast:+€6.39M
+2022,Alexander Isak,Real Sociedad,Newcastle United,Centre-Forward,22,70000000.0,43070756.0,26929244.0,0.385,-G+A_Per:+€10.45M | -CrdY:+€4.19M | +Starts_Playing:+€3.87M
+2022,Marc Cucurella,Brighton,Chelsea FC,Left-Back,24,65300000.0,7890630.5,57409369.5,0.879,+xG_Expected:+€9.39M | +Starts_Playing:+€4.80M | +Mins_Per_90_Playing:+€3.85M
+2022,Marc Cucurella,Brighton,Chelsea FC,Left-Back,24,65300000.0,12923045.0,52376955.0,0.802,-npxG_Expected:+€11.55M | +xAG_Expected:+€11.37M | -Mins_Per_90_Playing:+€8.40M
+2022,Erling Haaland,Bor. Dortmund,Manchester City,Centre-Forward,21,60000000.0,55569508.0,4430492.0,0.074,+Starts_Playing:+€9.90M | +xAG_Expected:+€6.47M | +MP_Playing:+€4.56M
+2021,Ben White,Brighton,Arsenal FC,Centre-Back,23,58500000.0,19139118.0,39360882.0,0.673,-xAG_Expected:+€35.85M | -Mins_Per_90_Playing:+€14.00M | +Gls_Per:+€10.97M
+2022,Richarlison,Everton,Tottenham Hotspur,Centre-Forward,25,58000000.0,38402580.0,19597420.0,0.338,+G+A_Per:+€11.11M | +Starts_Playing:+€3.79M | -CrdY:+€3.43M
+2022,Raheem Sterling,Man City,Chelsea FC,Left Winger,27,56200000.0,53630952.0,2569048.0,0.046,+Starts_Playing:+€6.22M | -xAG_Expected:+€5.96M | -PKatt:+€3.54M
+2022,Gabriel Jesus,Man City,Arsenal FC,Centre-Forward,25,52200000.0,48360768.0,3839232.0,0.074,+xAG_Expected:+€11.62M | +Starts_Playing:+€5.19M | +Gls_Per:+€3.43M
+2022,Cristian Romero,Atalanta BC,Tottenham Hotspur,Centre-Back,24,50000000.0,40251496.0,9748504.0,0.195,+Starts_Playing:+€12.88M | +xG_Expected:+€6.49M | +CrdY:+€5.33M
+2022,Kalvin Phillips,Leeds,Manchester City,Defensive Midfield,26,49000000.0,7519054.0,41480946.0,0.847,-xAG_Expected:+€10.41M | +Gls_Per:+€5.52M | +Mins_Per_90_Playing:+€5.08M
+2022,Lucas Paquetá,Olympique Lyon,West Ham United,Attacking Midfield,25,42950000.0,54547252.0,-11597252.0,0.27,+xAG_Expected:+€10.21M | +Ast:+€4.88M | +G+A_Per:+€4.41M
+2021,Bruno Guimarães,Olympique Lyon,Newcastle United,Defensive Midfield,24,42100000.0,36981548.0,5118452.0,0.122,-G+A_Per:+€12.72M | +Starts_Playing:+€7.56M | -npxG_Expected:+€3.18M
+2021,Raphaël Varane,Real Madrid,Manchester United,Centre-Back,28,40000000.0,50062736.0,-10062736.0,0.252,+CrdY:+€4.25M | +G_minus_PK_Per:+€3.61M | +Gls:+€3.50M
+2021,Ibrahima Konaté,RB Leipzig,Liverpool FC,Centre-Back,22,40000000.0,13125643.0,26874357.0,0.672,+Mins_Per_90_Playing:+€5.74M | +xG_Expected:+€5.04M | +npxG_Expected:+€3.12M
+2022,Kalidou Koulibaly,SSC Napoli,Chelsea FC,Centre-Back,31,38000000.0,16094543.0,21905457.0,0.576,+Starts_Playing:+€10.68M | +xG_Expected:+€10.16M | -G+A_Per:+€10.11M
+2022,Sven Botman,LOSC Lille,Newcastle United,Centre-Back,22,37000000.0,32684486.0,4315514.0,0.117,+Starts_Playing:+€14.01M | -G+A_Per:+€8.38M | +Mins_Per_90_Playing:+€7.34M
+2022,Gianluca Scamacca,Sassuolo,West Ham United,Centre-Forward,23,36000000.0,20825980.0,15174020.0,0.422,+xAG_Expected:+€14.38M | +G+A_Per:+€7.44M | +Starts_Playing:+€7.33M
+2022,Amadou Onana,LOSC Lille,Everton FC,Defensive Midfield,20,35000000.0,22022578.0,12977422.0,0.371,-xAG_Expected:+€7.24M | -npxG_Expected:+€6.44M | +Starts_Playing:+€4.04M
+2021,Kurt Zouma,Chelsea,West Ham United,Centre-Back,26,35000000.0,24678066.0,10321934.0,0.295,+Starts_Playing:+€14.25M | +Mins_Per_90_Playing:+€10.47M | -G+A_Per:+€9.10M
+2022,Oleksandr Zinchenko,Man City,Arsenal FC,Left-Back,25,35000000.0,17913816.0,17086184.0,0.488,+Ast:+€20.96M | +xAG_Expected:+€11.64M | -MP_Playing:+€7.08M
+2021,Martin Ødegaard,Real Madrid,Arsenal FC,Attacking Midfield,22,35000000.0,18468898.0,16531102.0,0.472,+xG_Expected:+€7.90M | +Starts_Playing:+€4.62M | +Mins_Per_90_Playing:+€3.38M
+2021,Martin Ødegaard,Real Madrid,Arsenal FC,Attacking Midfield,22,35000000.0,18969686.0,16030314.0,0.458,+Mins_Per_90_Playing:+€10.64M | +xG_Expected:+€7.58M | -MP_Playing:+€4.92M
+2022,Nayef Aguerd,Stade Rennais,West Ham United,Centre-Back,26,35000000.0,50077024.0,-15077024.0,0.431,-npxG_Expected:+€6.81M | -MP_Playing:+€6.21M | -G+A_Per:+€4.34M
+2022,Gonçalo Guedes,Valencia,Wolverhampton Wanderers,Left Winger,25,32600000.0,45097660.0,-12497660.0,0.383,+G+A_Per:+€14.61M | -MP_Playing:+€7.13M | +Gls_Per:+€3.32M
+2021,Leon Bailey,Bay. Leverkusen,Aston Villa,Left Winger,23,32000000.0,38018376.0,-6018376.0,0.188,+xAG_Expected:+€11.79M | +Starts_Playing:+€8.69M | +Mins_Per_90_Playing:+€7.12M
+2022,Diego Carlos,Sevilla FC,Aston Villa,Centre-Back,29,31000000.0,38476520.0,-7476520.0,0.241,-xAG_Expected:+€15.55M | -Mins_Per_90_Playing:+€10.60M | -npxG_Expected:+€4.36M
+2021,Chris Wood,Burnley,Newcastle United,Centre-Forward,30,30000000.0,32872624.0,-2872624.0,0.096,-Mins_Per_90_Playing:+€8.10M | +G+A_Per:+€7.73M | -xAG_Expected:+€5.26M
+2021,Lucas Digne,Everton,Aston Villa,Left-Back,28,30000000.0,58030892.0,-28030892.0,0.934,+xG_Expected:+€4.77M | +CrdY:+€4.60M | +Starts_Playing:+€4.19M
+2022,Morgan Gibbs-White,Wolves,Nottingham Forest,Attacking Midfield,22,29500000.0,12595900.0,16904100.0,0.573,+xG_Expected:+€8.42M | +Mins_Per_90_Playing:+€4.74M | +Starts_Playing:+€2.84M
+2021,Danny Ings,Southampton,Aston Villa,Centre-Forward,29,29420000.0,35100776.0,-5680776.0,0.193,+Starts_Playing:+€7.97M | +xAG_Expected:+€6.22M | +npxG_Expected:+€5.32M
+2021,Joe Willock,Arsenal,Newcastle United,Central Midfield,21,29400000.0,23450658.0,5949342.0,0.202,+Mins_Per_90_Playing:+€6.25M | +Starts_Playing:+€5.21M | -npxG_Expected:+€4.36M
+2021,Joe Willock,Arsenal,Newcastle United,Central Midfield,21,29400000.0,19970152.0,9429848.0,0.321,+Starts_Playing:+€7.21M | +Gls_Per:+€2.38M | +CrdY:+€2.01M
+2022,Yves Bissouma,Brighton,Tottenham Hotspur,Central Midfield,25,29200000.0,19965434.0,9234566.0,0.316,+Starts_Playing:+€16.86M | -xAG_Expected:+€8.33M | +Mins_Per_90_Playing:+€6.71M
+2021,Daniel James,Man Utd,Leeds United,Right Winger,23,29100000.0,9963114.0,19136886.0,0.658,+xAG_Expected:+€9.51M | -npxG_Expected:+€7.70M | +Mins_Per_90_Playing:+€7.02M
+2021,Aaron Ramsdale,Sheff Utd,Arsenal FC,Goalkeeper,23,28000000.0,13253996.0,14746004.0,0.527,-xAG_Expected:+€35.11M | -Mins_Per_90_Playing:+€19.16M | -MP_Playing:+€13.78M
+2022,Nathan Collins,Burnley,Wolverhampton Wanderers,Centre-Back,21,24300000.0,28431282.0,-4131282.0,0.17,+xAG_Expected:+€8.41M | +Starts_Playing:+€7.87M | +Mins_Per_90_Playing:+€5.56M
+2022,Dwight McNeil,Burnley,Everton FC,Left Winger,22,24000000.0,23634038.0,365962.0,0.015,-Mins_Per_90_Playing:+€14.54M | -MP_Playing:+€8.60M | +Gls_Per:+€6.40M
+2022,Cheick Doucouré,Lens,Crystal Palace,Defensive Midfield,22,22600000.0,26009132.0,-3409132.0,0.151,-Mins_Per_90_Playing:+€13.30M | -npxG_Expected:+€12.51M | +Gls_Per:+€7.86M
+2022,Maxwel Cornet,Burnley,West Ham United,Left Winger,25,20700000.0,19183238.0,1516762.0,0.073,+Starts_Playing:+€10.15M | -CrdY:+€6.48M | +G_minus_PK_Per:+€4.79M
+2022,Maxwel Cornet,Burnley,West Ham United,Left Winger,25,20700000.0,13182929.0,7517071.0,0.363,+xG_Expected:+€10.01M | +Gls_Per:+€3.08M | +G_minus_PK_Per:+€2.86M
+2022,Taiwo Awoniyi,Union Berlin,Nottingham Forest,Centre-Forward,24,20500000.0,40263976.0,-19763976.0,0.964,+xAG_Expected:+€19.10M | +Gls:+€5.99M | +G_minus_PK_Per:+€5.24M
+2022,Philippe Coutinho,Barcelona,Aston Villa,Left Winger,30,20000000.0,30169312.0,-10169312.0,0.508,+xAG_Expected:+€9.84M | +Starts_Playing:+€6.18M | +Mins_Per_90_Playing:+€4.98M
+2022,Philippe Coutinho,Barcelona,Aston Villa,Left Winger,30,20000000.0,18791948.0,1208052.0,0.06,+Mins_Per_90_Playing:+€5.10M | -npxG_Expected:+€4.81M | +Starts_Playing:+€2.99M
+2022,Neco Williams,Liverpool,Nottingham Forest,Right-Back,21,20000000.0,8144266.5,11855733.5,0.593,+xG_Expected:+€9.59M | +xAG_Expected:+€4.78M | +Gls_Per:+€4.40M
+2021,Boubakary Soumaré,LOSC Lille,Leicester City,Defensive Midfield,22,20000000.0,23701688.0,-3701688.0,0.185,+Gls_Per:+€13.28M | -xAG_Expected:+€10.99M | +Starts_Playing:+€9.84M
+2021,Rodrigo Bentancur,Juventus,Tottenham Hotspur,Central Midfield,24,19000000.0,11034386.0,7965614.0,0.419,+Ast:+€24.21M | +xAG_Expected:+€14.55M | +Starts_Playing:+€12.19M
+2021,Takehiro Tomiyasu,Bologna,Arsenal FC,Right-Back,22,18600000.0,51712896.0,-33112896.0,1.78,-npxG_Expected:+€10.96M | -Gls:+€3.35M | -MP_Playing:+€2.38M
+2022,Sasa Kalajdzic,VfB Stuttgart,Wolverhampton Wanderers,Centre-Forward,25,18000000.0,21103354.0,-3103354.0,0.172,+xAG_Expected:+€15.36M | +Mins_Per_90_Playing:+€6.41M | +Gls:+€4.90M
+2022,Carney Chukwuemeka,Aston Villa,Chelsea FC,Central Midfield,18,18000000.0,5356738.5,12643261.5,0.702,+xAG_Expected:+€13.07M | +xG_Expected:+€6.21M | +Gls_Per:+€4.35M
+2021,Marc Cucurella,Getafe,Brighton & Hove Albion,Left-Back,23,18000000.0,27348184.0,-9348184.0,0.519,-MP_Playing:+€11.16M | -Mins_Per_90_Playing:+€8.32M | -npxG_Expected:+€6.80M
+2022,Issa Diop,West Ham,Fulham FC,Centre-Back,25,17800000.0,14724994.0,3075006.0,0.173,+xG_Expected:+€10.59M | -MP_Playing:+€6.81M | +Mins_Per_90_Playing:+€5.04M
+2022,Pervis Estupiñán,Villarreal,Brighton & Hove Albion,Left-Back,24,17800000.0,21917238.0,-4117238.0,0.231,+xAG_Expected:+€17.08M | +Gls_Per:+€6.47M | +MP_Playing:+€5.32M
+2021,Jannik Vestergaard,Southampton,Leicester City,Centre-Back,29,17600000.0,39018256.0,-21418256.0,1.217,+xG_Expected:+€15.37M | +Starts_Playing:+€13.43M | -npxG_Expected:+€6.98M
+2021,Joachim Andersen,Olympique Lyon,Crystal Palace,Centre-Back,25,17500000.0,16475641.0,1024359.0,0.059,+Starts_Playing:+€7.17M | +CrdY:+€2.52M | +Gls_Per:+€2.23M
+2022,Matt Targett,Aston Villa,Newcastle United,Left-Back,26,17500000.0,23420080.0,-5920080.0,0.338,-MP_Playing:+€5.93M | +Starts_Playing:+€4.86M | +Gls_Per:+€4.78M
+2022,Matt Targett,Aston Villa,Newcastle United,Left-Back,26,17500000.0,21978872.0,-4478872.0,0.256,-MP_Playing:+€4.55M | +xG_Expected:+€4.12M | +Starts_Playing:+€3.14M
+2021,Wout Weghorst,VfL Wolfsburg,Burnley FC,Centre-Forward,29,17500000.0,63821140.0,-46321140.0,2.647,+Gls:+€6.02M | -Mins_Per_90_Playing:+€5.72M | -PK:+€3.83M
+2021,Joachim Andersen,Olympique Lyon,Crystal Palace,Centre-Back,25,17500000.0,23353846.0,-5853846.0,0.335,-npxG_Expected:+€10.36M | +Gls_Per:+€8.34M | -MP_Playing:+€7.41M
+2022,Manuel Akanji,Bor. Dortmund,Manchester City,Centre-Back,27,17500000.0,28548828.0,-11048828.0,0.631,+Starts_Playing:+€13.91M | +G+A_Per:+€5.44M | -MP_Playing:+€4.59M
+2022,Tyler Adams,RB Leipzig,Leeds United,Defensive Midfield,23,17000000.0,8376893.5,8623106.5,0.507,+xAG_Expected:+€11.05M | +Gls_Per:+€10.00M | +MP_Playing:+€8.44M
+2022,Wout Faes,Stade Reims,Leicester City,Centre-Back,24,17000000.0,43657792.0,-26657792.0,1.568,-xAG_Expected:+€17.25M | -Mins_Per_90_Playing:+€16.64M | -MP_Playing:+€9.12M
+2021,Pape Matar Sarr,FC Metz,Tottenham Hotspur,Central Midfield,18,16900000.0,14388204.0,2511796.0,0.149,+MP_Playing:+€8.70M | +Mins_Per_90_Playing:+€7.32M | -G+A_Per:+€7.07M
+2022,Aaron Hickey,Bologna,Brentford FC,Left-Back,20,16500000.0,15169697.0,1330303.0,0.081,-xAG_Expected:+€13.87M | -Mins_Per_90_Playing:+€11.04M | -npxG_Expected:+€7.37M
+2021,Cristiano Ronaldo,Juventus,Manchester United,Centre-Forward,36,15000000.0,56595604.0,-41595604.0,2.773,-CrdY:+€4.18M | +Gls_Per:+€3.19M | -Mins_Per_90_Playing:+€2.92M
+2022,Leander Dendoncker,Wolves,Aston Villa,Defensive Midfield,27,15000000.0,12031769.0,2968231.0,0.198,+Starts_Playing:+€12.99M | -G+A_Per:+€12.89M | -xAG_Expected:+€9.46M
+2022,Mikkel Damsgaard,Sampdoria,Brentford FC,Left Winger,22,15000000.0,5584473.5,9415526.5,0.628,+xAG_Expected:+€8.00M | +Gls_Per:+€4.75M | +xG_Expected:+€3.65M
+2021,Dan Burn,Brighton,Newcastle United,Centre-Back,29,15000000.0,16717770.0,-1717770.0,0.115,+Starts_Playing:+€11.83M | -xAG_Expected:+€9.34M | -MP_Playing:+€6.04M
+2021,Junior Firpo,Barcelona,Leeds United,Left-Back,24,15000000.0,6435784.0,8564216.0,0.571,+xAG_Expected:+€12.22M | +xG_Expected:+€7.57M | +G+A_Per:+€4.52M
+2021,Maxwel Cornet,Olympique Lyon,Burnley FC,Left Winger,24,15000000.0,22155026.0,-7155026.0,0.477,-G+A_Per:+€12.89M | -MP_Playing:+€9.60M | -npxG_Expected:+€9.52M
+2022,Emmanuel Dennis,Watford,Nottingham Forest,Centre-Forward,24,14800000.0,52652712.0,-37852712.0,2.558,+G+A_Per:+€11.63M | +Ast:+€5.44M | +CrdY:+€4.40M
+2021,Kieran Trippier,Atlético Madrid,Newcastle United,Right-Back,31,14000000.0,42044168.0,-28044168.0,2.003,+xG_Expected:+€10.37M | +Ast:+€5.48M | +Starts_Playing:+€4.82M
+2022,Sékou Mara,G. Bordeaux,Southampton FC,Centre-Forward,19,13000000.0,16388716.0,-3388716.0,0.261,+MP_Playing:+€10.83M | +xAG_Expected:+€4.99M | +Gls:+€4.03M
+2022,Orel Mangala,VfB Stuttgart,Nottingham Forest,Central Midfield,24,13000000.0,25790640.0,-12790640.0,0.984,+xAG_Expected:+€23.11M | -G+A_Per:+€9.14M | -MP_Playing:+€8.80M
+2021,Jack Harrison,Man City,Leeds United,Left Winger,24,12800000.0,35046568.0,-22246568.0,1.738,+xAG_Expected:+€11.90M | -Mins_Per_90_Playing:+€9.66M | +G+A_Per:+€7.44M
+2022,Marc Roca,Bayern Munich,Leeds United,Defensive Midfield,25,12000000.0,15219750.0,-3219750.0,0.268,+xG_Expected:+€8.35M | +Gls_Per:+€3.38M | +Mins_Per_90_Playing:+€2.58M
+2022,Pierre-Emerick Aubameyang,Barcelona,Chelsea FC,Centre-Forward,33,12000000.0,28969844.0,-16969844.0,1.414,+Mins_Per_90_Playing:+€5.39M | -MP_Playing:+€4.45M | +Starts_Playing:+€3.51M
+2021,Romain Perraud,Stade Brestois,Southampton FC,Left-Back,23,12000000.0,27321748.0,-15321748.0,1.277,-MP_Playing:+€12.07M | -Mins_Per_90_Playing:+€8.59M | -G+A_Per:+€7.59M
+2022,Chris Richards,Bayern Munich,Crystal Palace,Centre-Back,22,12000000.0,14724828.0,-2724828.0,0.227,+Starts_Playing:+€6.20M | +Mins_Per_90_Playing:+€5.18M | +xAG_Expected:+€5.04M
+2022,Pierre-Emerick Aubameyang,Barcelona,Chelsea FC,Centre-Forward,33,12000000.0,6053962.0,5946038.0,0.496,+Mins_Per_90_Playing:+€8.32M | +xAG_Expected:+€6.67M | -G+A_Per:+€6.47M
+2022,Chris Richards,Bayern Munich,Crystal Palace,Centre-Back,22,12000000.0,2981269.25,9018730.75,0.752,+xG_Expected:+€10.48M | +Starts_Playing:+€4.18M | +CrdY:+€2.71M
+2022,Thilo Kehrer,Paris SG,West Ham United,Centre-Back,25,12000000.0,22833806.0,-10833806.0,0.903,+Mins_Per_90_Playing:+€7.39M | +xG_Expected:+€5.75M | +npxG_Expected:+€4.01M
+2022,Neal Maupay,Brighton,Everton FC,Centre-Forward,26,11800000.0,18334598.0,-6534598.0,0.554,+xAG_Expected:+€20.09M | +Starts_Playing:+€9.58M | -G+A_Per:+€8.24M
+2022,Nick Pope,Burnley,Newcastle United,Goalkeeper,30,11500000.0,22397956.0,-10897956.0,0.948,-xAG_Expected:+€33.98M | -Mins_Per_90_Playing:+€13.26M | -MP_Playing:+€10.09M
+2021,Milot Rashica,Werder Bremen,Norwich City,Right Winger,25,11000000.0,21763544.0,-10763544.0,0.979,-G+A_Per:+€8.60M | -npxG_Expected:+€8.12M | +Mins_Per_90_Playing:+€4.24M
+2021,Jean-Philippe Mateta,1.FSV Mainz 05,Crystal Palace,Centre-Forward,24,11000000.0,20641018.0,-9641018.0,0.876,+Mins_Per_90_Playing:+€6.93M | +G_minus_PK_Per:+€6.62M | +xAG_Expected:+€4.75M
+2021,Jean-Philippe Mateta,1.FSV Mainz 05,Crystal Palace,Centre-Forward,24,11000000.0,11626375.0,-626375.0,0.057,+Starts_Playing:+€6.33M | +xG_Expected:+€4.36M | +Mins_Per_90_Playing:+€2.62M
+2022,Billy Gilmour,Chelsea,Brighton & Hove Albion,Central Midfield,21,10400000.0,17212742.0,-6812742.0,0.655,+Gls_Per:+€11.67M | -xAG_Expected:+€8.43M | +Starts_Playing:+€7.63M
+2021,Yoane Wissa,FC Lorient,Brentford FC,Left Winger,24,10000000.0,30257300.0,-20257300.0,2.026,+xAG_Expected:+€6.81M | -MP_Playing:+€5.77M | +G+A_Per:+€5.53M
+2022,Duje Caleta-Car,Marseille,Southampton FC,Centre-Back,25,10000000.0,28526368.0,-18526368.0,1.853,+Starts_Playing:+€12.13M | -xAG_Expected:+€9.34M | -G+A_Per:+€5.43M
+2021,Imrân Louza,FC Nantes,Watford FC,Central Midfield,22,10000000.0,26714020.0,-16714020.0,1.671,-G+A_Per:+€9.83M | +Starts_Playing:+€8.08M | -xAG_Expected:+€7.36M
+2022,Moussa Niakhaté,1.FSV Mainz 05,Nottingham Forest,Centre-Back,26,10000000.0,38407224.0,-28407224.0,2.841,+Starts_Playing:+€10.52M | -G+A_Per:+€8.66M | -xAG_Expected:+€6.44M
+2022,Giulian Biancone,Troyes,Nottingham Forest,Right-Back,22,10000000.0,24713344.0,-14713344.0,1.471,+Starts_Playing:+€17.26M | -xAG_Expected:+€10.76M | -npxG_Expected:+€5.96M
+2021,Josh Sargent,Werder Bremen,Norwich City,Centre-Forward,21,9500000.0,39796116.0,-30296116.0,3.189,-G+A_Per:+€16.70M | -Ast:+€2.85M | +G_minus_PK_Per:+€2.75M
+2022,Alphonse Areola,Paris SG,West Ham United,Goalkeeper,29,9300000.0,6648777.5,2651222.5,0.285,+xG_Expected:+€10.51M | +Starts_Playing:+€3.12M | +CrdY:+€2.70M
+2022,Remo Freuler,Atalanta BC,Nottingham Forest,Central Midfield,30,9000000.0,11612788.0,-2612788.0,0.29,+Starts_Playing:+€15.19M | -npxG_Expected:+€7.22M | -Mins_Per_90_Playing:+€6.77M
+2022,Omar Richards,Bayern Munich,Nottingham Forest,Left-Back,24,8500000.0,18820430.0,-10320430.0,1.214,+CrdY:+€3.10M | +Mins_Per_90_Playing:+€2.96M | +xG_Expected:+€2.87M
+2021,Lyanco,Torino,Southampton FC,Centre-Back,24,7500000.0,13161148.0,-5661148.0,0.755,+Starts_Playing:+€15.20M | +Gls_Per:+€9.59M | -xAG_Expected:+€5.88M
+2022,Kevin Mbabu,VfL Wolfsburg,Fulham FC,Right-Back,27,5500000.0,16112214.0,-10612214.0,1.929,+MP_Playing:+€9.16M | +Gls_Per:+€7.74M | -xAG_Expected:+€5.33M
+2021,Emmanuel Dennis,Club Brugge,Watford FC,Centre-Forward,23,4000000.0,15307520.0,-11307520.0,2.827,+xG_Expected:+€4.60M | +Starts_Playing:+€3.56M | +Gls_Per:+€2.76M
+2021,Hassane Kamara,OGC Nice,Watford FC,Left-Back,27,4000000.0,20372038.0,-16372038.0,4.093,+xAG_Expected:+€9.36M | -npxG_Expected:+€7.45M | -Mins_Per_90_Playing:+€6.99M
+2021,Pierre Lees-Melou,OGC Nice,Norwich City,Central Midfield,28,3900000.0,21555994.0,-17655994.0,4.527,+Starts_Playing:+€14.69M | -G+A_Per:+€13.74M | -xG_Expected:+€6.09M
+2022,Bernd Leno,Arsenal,Fulham FC,Goalkeeper,30,3600000.0,9506325.0,-5906325.0,1.641,+xG_Expected:+€10.09M | +Starts_Playing:+€5.50M | +Mins_Per_90_Playing:+€3.75M
+2021,Moussa Sissoko,Spurs,Watford FC,Central Midfield,32,3500000.0,23115168.0,-19615168.0,5.604,+xG_Expected:+€8.66M | +MP_Playing:+€8.29M | +Gls_Per:+€7.74M
+2022,Robin Olsen,AS Roma,Aston Villa,Goalkeeper,32,3500000.0,6648777.5,-3148777.5,0.9,+xG_Expected:+€10.51M | +Starts_Playing:+€3.12M | +CrdY:+€2.70M
+2021,Samuel Kalu,G. Bordeaux,Watford FC,Right Winger,24,3000000.0,16767465.0,-13767465.0,4.589,+xAG_Expected:+€6.63M | -CrdY:+€6.57M | +G+A_Per:+€5.64M
+2022,Willy Boly,Wolves,Nottingham Forest,Centre-Back,31,2600000.0,18740782.0,-16140782.0,6.208,+xG_Expected:+€8.70M | +Starts_Playing:+€5.21M | +Mins_Per_90_Playing:+€3.67M
+2021,Craig Dawson,Watford,West Ham United,Centre-Back,31,2300000.0,26115844.0,-23815844.0,10.355,+Starts_Playing:+€15.66M | +MP_Playing:+€8.04M | +Mins_Per_90_Playing:+€6.50M
+2021,Demarai Gray,Bay. Leverkusen,Everton FC,Left Winger,25,2000000.0,3485511.75,-1485511.75,0.743,+xG_Expected:+€9.37M | +Starts_Playing:+€4.26M | +Mins_Per_90_Playing:+€3.05M
+2021,Demarai Gray,Bay. Leverkusen,Everton FC,Left Winger,25,2000000.0,7057813.5,-5057813.5,2.529,+xAG_Expected:+€12.69M | +xG_Expected:+€5.60M | +Mins_Per_90_Playing:+€4.84M

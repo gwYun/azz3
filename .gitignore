@@ -27,5 +27,7 @@ data/review_queue/*.csv
 data/models/*.pkl
 data/models/*.json
 
+# predictions/ artifacts ARE checked in (small, useful as repo demo)
+
 # Notebook outputs
 notebooks/*.ipynb_checkpoints/
