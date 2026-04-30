@@ -1,0 +1,1 @@
+{"run_id": "2026-04-30T14:10:44Z", "model_commit": "1c70b01", "model_path": "/Users/gwyunm1air/Coding/azz3/data/models/xgb_transfer_fee.pkl", "n_train": 437, "n_test": 114, "test_mae_eur": 14790912.416666666, "test_spearman": 0.33152217623822894, "fake_player_predicted_eur": 54477380.0, "run_dir": "predictions/runs/2026-04-30T141044Z"}

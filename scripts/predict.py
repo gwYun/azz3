@@ -1,19 +1,31 @@
 """Generate predictions and write CSVs to predictions/.
 
-Three outputs:
-  1. predictions/test_set.csv — every row in the held-out test set with
-     actual fee, predicted fee, residual, and top-3 stat-improvement targets.
-  2. predictions/sample_top.csv — the 10 highest-fee test transfers as a
-     readable demo slice.
-  3. predictions/fake_player.csv — a synthetic player profile, prediction,
-     and SHAP top-3.
+Each run writes to predictions/runs/{UTC-timestamp}/ AND mirrors the
+files into predictions/latest/ so README links stay stable. Every row
+in every CSV carries `run_id` (UTC ISO datetime) and `model_commit`
+(git short SHA at run time) so trial dates and model versions are
+traceable across runs.
+
+Three outputs per run:
+  1. test_set.csv — every row in the held-out test set with actual,
+     predicted, residual, and top-3 stat-improvement targets.
+  2. sample_top.csv — the 10 highest-fee test transfers (readable demo).
+  3. fake_player.csv (+ fake_player_input_stats.csv) — synthetic profile
+     prediction and SHAP top-3.
+
+Also writes predictions/runs/runs.jsonl — one JSON line per run with
+metadata (run_id, commit, n_train, n_test, mae, spearman). This is the
+audit trail for "which model produced this prediction on what date."
 """
 from __future__ import annotations
 
 import json
 import logging
 import pickle
+import shutil
+import subprocess
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
@@ -33,7 +45,41 @@ from src.data import (  # noqa: E402
 from src.shap_utils import top_k_stat_improvements  # noqa: E402
 
 PREDICTIONS_DIR = config.PROJECT_ROOT / "predictions"
-PREDICTIONS_DIR.mkdir(parents=True, exist_ok=True)
+RUNS_DIR = PREDICTIONS_DIR / "runs"
+LATEST_DIR = PREDICTIONS_DIR / "latest"
+RUNS_DIR.mkdir(parents=True, exist_ok=True)
+LATEST_DIR.mkdir(parents=True, exist_ok=True)
+
+
+def _run_metadata() -> tuple[str, str]:
+    """Return (run_id_iso_utc, git_short_sha). Empty SHA if not in a git repo."""
+    run_id = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    try:
+        sha = subprocess.check_output(
+            ["git", "rev-parse", "--short", "HEAD"],
+            cwd=config.PROJECT_ROOT,
+            stderr=subprocess.DEVNULL,
+        ).decode().strip()
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        sha = ""
+    return run_id, sha
+
+
+def _stamp_df(df: pd.DataFrame, run_id: str, model_commit: str) -> pd.DataFrame:
+    """Prepend `run_id` and `model_commit` columns so every row is auditable."""
+    out = df.copy()
+    out.insert(0, "run_id", run_id)
+    out.insert(1, "model_commit", model_commit)
+    return out
+
+
+def _write_csv_pair(df: pd.DataFrame, name: str, run_dir: Path) -> tuple[Path, Path]:
+    """Write to runs/{ts}/{name} AND mirror to latest/{name}. Returns (run_path, latest_path)."""
+    run_path = run_dir / name
+    latest_path = LATEST_DIR / name
+    df.to_csv(run_path, index=False)
+    shutil.copyfile(run_path, latest_path)
+    return run_path, latest_path
 
 
 def _load_artifacts():
@@ -152,6 +198,12 @@ def predict_fake_player(model, features, medians, train_stds: pd.Series) -> pd.D
 def main() -> int:
     model, features, medians = _load_artifacts()
 
+    run_id, model_commit = _run_metadata()
+    # Per-run dir: predictions/runs/2026-04-30T12:34:56Z/ ...
+    run_dir = RUNS_DIR / run_id.replace(":", "")  # macOS-safe
+    run_dir.mkdir(parents=True, exist_ok=True)
+    log.info("Run %s | commit %s | dir %s", run_id, model_commit or "(no-git)", run_dir)
+
     seasons = list(range(2014, 2023))
     transfers = load_transfers(seasons=seasons)
     stats = load_fbref_player_stats(seasons=seasons + [s + 1 for s in seasons])
@@ -163,22 +215,43 @@ def main() -> int:
     train_stds = train_df[features].std()
 
     log.info("Predicting on full held-out test set...")
-    test_preds = predict_test_set(model, features, medians, joined, train_stds)
-    out_path = PREDICTIONS_DIR / "test_set.csv"
-    test_preds.to_csv(out_path, index=False)
-    log.info("Wrote %s (%d rows)", out_path, len(test_preds))
+    test_preds = _stamp_df(
+        predict_test_set(model, features, medians, joined, train_stds),
+        run_id, model_commit,
+    )
+    run_path, latest_path = _write_csv_pair(test_preds, "test_set.csv", run_dir)
+    log.info("Wrote %s + %s (%d rows)", run_path, latest_path, len(test_preds))
 
-    sample_path = PREDICTIONS_DIR / "sample_top.csv"
-    test_preds.head(10).to_csv(sample_path, index=False)
-    log.info("Wrote %s (top 10 by actual fee)", sample_path)
+    sample = test_preds.head(10).copy()
+    run_path, latest_path = _write_csv_pair(sample, "sample_top.csv", run_dir)
+    log.info("Wrote %s + %s (top 10)", run_path, latest_path)
 
     log.info("Predicting on synthetic fake player...")
     fake_df, fake_stats_df = predict_fake_player(model, features, medians, train_stds)
-    fake_path = PREDICTIONS_DIR / "fake_player.csv"
-    fake_df.to_csv(fake_path, index=False)
-    fake_stats_path = PREDICTIONS_DIR / "fake_player_input_stats.csv"
-    fake_stats_df.to_csv(fake_stats_path, index=False)
-    log.info("Wrote %s + %s", fake_path, fake_stats_path)
+    fake_df = _stamp_df(fake_df, run_id, model_commit)
+    fake_stats_df = _stamp_df(fake_stats_df, run_id, model_commit)
+    _write_csv_pair(fake_df, "fake_player.csv", run_dir)
+    _write_csv_pair(fake_stats_df, "fake_player_input_stats.csv", run_dir)
+
+    # Audit log: one JSON line per run.
+    n_train = int((joined["season"].astype(str).isin(train_seasons)).sum())
+    n_test = len(test_preds)
+    overall_mae = float((test_preds["actual_fee_eur"] - test_preds["predicted_fee_eur"]).abs().mean())
+    spearman = float(test_preds["actual_fee_eur"].corr(test_preds["predicted_fee_eur"], method="spearman"))
+    audit = {
+        "run_id": run_id,
+        "model_commit": model_commit,
+        "model_path": str(config.MODELS_DIR / "xgb_transfer_fee.pkl"),
+        "n_train": n_train,
+        "n_test": n_test,
+        "test_mae_eur": overall_mae,
+        "test_spearman": spearman,
+        "fake_player_predicted_eur": float(fake_df["predicted_fee_eur"].iloc[0]),
+        "run_dir": str(run_dir.relative_to(config.PROJECT_ROOT)),
+    }
+    with open(RUNS_DIR / "runs.jsonl", "a") as f:
+        f.write(json.dumps(audit) + "\n")
+    log.info("Audit row appended to %s", RUNS_DIR / "runs.jsonl")
 
     print("\n" + "=" * 80)
     print("TOP 10 — held-out test set, actual vs predicted fee")

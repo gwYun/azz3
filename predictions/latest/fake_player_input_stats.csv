@@ -1,0 +1,2 @@
+run_id,model_commit,MP_Playing,Starts_Playing,Min_Playing,Mins_Per_90_Playing,Gls,Ast,G_minus_PK,PK,PKatt,CrdY,CrdR,Gls_Per,Ast_Per,G+A_Per,G_minus_PK_Per,G+A_minus_PK_Per,xG_Expected,npxG_Expected,xAG_Expected,npxG+xAG_Expected,xG_Per,xAG_Per,xG+xAG_Per,npxG_Per,npxG+xAG_Per
+2026-04-30T14:10:44Z,1c70b01,32,28,2520,28.0,9,6,9,0,0,4,0,0.32,0.21,0.54,0.32,0.54,7.8,7.8,5.2,13.0,0.28,0.19,0.47,0.28,0.47
