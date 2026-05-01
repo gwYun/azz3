@@ -60,6 +60,10 @@ data/                # local cache, .gitignored
 ### Weekend 3
 - Internal demo, screenshare to teammates
 
+## Reading the predictions report
+
+Every run of `scripts/predict.py` writes a human-friendly `report.md` next to the CSVs (in both `predictions/latest/` and the timestamped `predictions/runs/{ts}/`). For a full walk-through of every column, stat, and SHAP output — including what xG / xAG / npxG mean, how each feature affects the prediction, and the model's known defects — see **[docs/report-guide.md](docs/report-guide.md)**.
+
 ## Tests
 
 ```bash

@@ -185,6 +185,9 @@ def write_report_md(
 
     md = f"""# Prediction Report — `{run_id}`
 
+> New to this report? See **[docs/report-guide.md](../../../docs/report-guide.md)**
+> for what every column, stat, and SHAP output means.
+
 | Field | Value |
 | --- | --- |
 | Run ID (UTC) | `{run_id}` |
