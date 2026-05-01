@@ -1,0 +1,7 @@
+run_id,model_commit,name,position,age,predicted_fee_eur,predicted_fee_eur_human,top3_stat_improvements
+2026-05-01T08:27:22Z,8f56342,"Breakout Right Winger, 23yo",Right Winger,23,54477380.0,€54.5M,+G+A_Per:+€10.95M | -CrdY:+€2.85M | +Ast:+€2.67M
+2026-05-01T08:27:22Z,8f56342,"Veteran Striker, 31yo",Centre-Forward,31,33141502.0,€33.1M,+Starts_Playing:+€10.44M | -CrdY:+€9.67M | +Gls:+€9.37M
+2026-05-01T08:27:22Z,8f56342,"Playmaking Midfielder, 28yo",Attacking Midfielder,28,58628368.0,€58.6M,+CrdY:+€15.50M | +G+A_Per:+€10.96M | +Gls:+€10.17M
+2026-05-01T08:27:22Z,8f56342,"Defensive Midfielder, 26yo",Defensive Midfielder,26,16739305.0,€16.7M,-npxG_Expected:+€10.60M | -xAG_Expected:+€8.53M | +Starts_Playing:+€6.78M
+2026-05-01T08:27:22Z,8f56342,"Centre-Back, 27yo",Centre-Back,27,20156520.0,€20.2M,-xAG_Expected:+€17.85M | -Mins_Per_90_Playing:+€10.37M | -npxG_Expected:+€9.39M
+2026-05-01T08:27:22Z,8f56342,"Lottery-Ticket Wonderkid, 18yo",Left Winger,18,15732307.0,€15.7M,+xAG_Expected:+€18.07M | +Ast:+€12.07M | -CrdY:+€2.93M

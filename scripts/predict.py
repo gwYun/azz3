@@ -134,13 +134,13 @@ def write_report_md(
     model_commit: str,
     test_preds: pd.DataFrame,
     fake_df: pd.DataFrame,
-    fake_stats: dict,
+    fakes_raw: list[dict],
     audit: dict,
 ) -> tuple[Path, Path]:
     """Compose a human-friendly markdown report for this run.
 
     Layout: header (run metadata), headline metrics, top-10 + best-5 + worst-5
-    tables, fake player section. Mirrored to latest/report.md.
+    tables, multi-archetype fake player section. Mirrored to latest/report.md.
     """
     overall_mae = audit["test_mae_eur"]
     spearman = audit["test_spearman"]
@@ -164,8 +164,24 @@ def write_report_md(
         ("top3_stat_improvements", "Top-3 stat improvements (Δ predicted fee)"),
     ]
 
-    fake_row = fake_df.iloc[0]
-    fake_input_lines = "\n".join(f"  - **{k}:** {v}" for k, v in fake_stats.items())
+    # Build the fake-players summary table (one row per archetype).
+    fake_table_cols = [
+        ("name", "Profile"),
+        ("position", "Position"),
+        ("age", "Age"),
+        ("predicted_fee_eur", "Predicted fee"),
+        ("top3_stat_improvements", "Top-3 stat improvements (Δ predicted fee)"),
+    ]
+    fake_table_md = _markdown_table(fake_df, fake_table_cols)
+
+    # Render the per-archetype input stats as collapsible <details> blocks.
+    fake_details_blocks: list[str] = []
+    for fake in fakes_raw:
+        stat_lines = "\n".join(f"  - **{k}:** {v}" for k, v in fake["stats"].items())
+        fake_details_blocks.append(
+            f"<details><summary><b>{fake['name']}</b> &mdash; {fake['position']}, {fake['age']}yo &mdash; input stats</summary>\n\n{stat_lines}\n\n</details>"
+        )
+    fake_details_md = "\n\n".join(fake_details_blocks)
 
     md = f"""# Prediction Report — `{run_id}`
 
@@ -195,24 +211,19 @@ def write_report_md(
 
 {_markdown_table(worst5, table_cols)}
 
-## Synthetic fake-player
+## Synthetic fake players
 
-> A 23-year-old right winger with a strong-but-not-elite season. The point is
-> to validate the model produces sensible predictions on inputs that aren't in
-> the training set, and that the SHAP top-3 surfaces the kind of stat-improvements
-> a young attacker would actually be advised to chase.
+Six distinct archetypes covering different positions, ages, and stat profiles.
+The point is to (a) sanity-check the model's response across player types,
+(b) surface where it's well-calibrated vs where it isn't (defenders are a
+known soft spot), and (c) demonstrate the SHAP "improve this stat" output
+for each archetype.
 
-| Field | Value |
-| --- | --- |
-| Name | {fake_row['name']} |
-| Position | {fake_row['position']} |
-| Age | {fake_row['age']} |
-| Predicted fee | **{_eur(float(fake_row['predicted_fee_eur']))}** |
-| Top-3 stat improvements | `{fake_row['top3_stat_improvements']}` |
+{fake_table_md}
 
-**Input stats used:**
+### Input stats used per archetype
 
-{fake_input_lines}
+{fake_details_md}
 
 ---
 
@@ -276,66 +287,121 @@ def predict_test_set(model, features, medians, joined: pd.DataFrame, train_stds:
     return out.sort_values("actual_fee_eur", ascending=False).reset_index(drop=True)
 
 
-def make_fake_player(features: list[str], medians: pd.Series) -> dict:
-    """Synthesize a 23-year-old high-output forward profile.
-
-    Roughly: a Saka/Foden/Saint-Maximin shape — decent minutes, ~13 G+A,
-    healthy xG and progressive contribution. All stat values are in the
-    realistic range for a Big-5 starter season.
+def make_fake_players() -> list[dict]:
+    """A small roster of distinct archetypes covering different positions,
+    ages, and stat profiles. Each entry is a complete `stats` dict matching
+    the FBref standard-table feature set.
     """
-    return {
-        "name": "Fictional Forward, 23yo",
-        "position": "Right Winger",
-        "age": 23,
-        "stats": {
-            "MP_Playing": 32,
-            "Starts_Playing": 28,
-            "Min_Playing": 2520,
-            "Mins_Per_90_Playing": 28.0,
-            "Gls": 9,
-            "Ast": 6,
-            "G_minus_PK": 9,
-            "PK": 0,
-            "PKatt": 0,
-            "CrdY": 4,
-            "CrdR": 0,
-            "Gls_Per": 0.32,
-            "Ast_Per": 0.21,
-            "G+A_Per": 0.54,
-            "G_minus_PK_Per": 0.32,
-            "G+A_minus_PK_Per": 0.54,
-            "xG_Expected": 7.8,
-            "npxG_Expected": 7.8,
-            "xAG_Expected": 5.2,
-            "npxG+xAG_Expected": 13.0,
-            "xG_Per": 0.28,
-            "xAG_Per": 0.19,
-            "xG+xAG_Per": 0.47,
-            "npxG_Per": 0.28,
-            "npxG+xAG_Per": 0.47,
+    return [
+        {
+            "name": "Breakout Right Winger, 23yo",
+            "position": "Right Winger",
+            "age": 23,
+            "stats": {
+                "MP_Playing": 32, "Starts_Playing": 28, "Min_Playing": 2520, "Mins_Per_90_Playing": 28.0,
+                "Gls": 9, "Ast": 6, "G_minus_PK": 9, "PK": 0, "PKatt": 0, "CrdY": 4, "CrdR": 0,
+                "Gls_Per": 0.32, "Ast_Per": 0.21, "G+A_Per": 0.54,
+                "G_minus_PK_Per": 0.32, "G+A_minus_PK_Per": 0.54,
+                "xG_Expected": 7.8, "npxG_Expected": 7.8, "xAG_Expected": 5.2, "npxG+xAG_Expected": 13.0,
+                "xG_Per": 0.28, "xAG_Per": 0.19, "xG+xAG_Per": 0.47,
+                "npxG_Per": 0.28, "npxG+xAG_Per": 0.47,
+            },
         },
-    }
+        {
+            "name": "Veteran Striker, 31yo",
+            "position": "Centre-Forward",
+            "age": 31,
+            "stats": {
+                "MP_Playing": 30, "Starts_Playing": 26, "Min_Playing": 2300, "Mins_Per_90_Playing": 25.6,
+                "Gls": 18, "Ast": 3, "G_minus_PK": 16, "PK": 2, "PKatt": 3, "CrdY": 3, "CrdR": 0,
+                "Gls_Per": 0.70, "Ast_Per": 0.12, "G+A_Per": 0.82,
+                "G_minus_PK_Per": 0.62, "G+A_minus_PK_Per": 0.74,
+                "xG_Expected": 16.2, "npxG_Expected": 13.9, "xAG_Expected": 2.1, "npxG+xAG_Expected": 16.0,
+                "xG_Per": 0.63, "xAG_Per": 0.08, "xG+xAG_Per": 0.71,
+                "npxG_Per": 0.54, "npxG+xAG_Per": 0.62,
+            },
+        },
+        {
+            "name": "Playmaking Midfielder, 28yo",
+            "position": "Attacking Midfielder",
+            "age": 28,
+            "stats": {
+                "MP_Playing": 35, "Starts_Playing": 33, "Min_Playing": 2970, "Mins_Per_90_Playing": 33.0,
+                "Gls": 6, "Ast": 13, "G_minus_PK": 5, "PK": 1, "PKatt": 1, "CrdY": 5, "CrdR": 0,
+                "Gls_Per": 0.18, "Ast_Per": 0.39, "G+A_Per": 0.57,
+                "G_minus_PK_Per": 0.15, "G+A_minus_PK_Per": 0.55,
+                "xG_Expected": 5.5, "npxG_Expected": 4.7, "xAG_Expected": 9.8, "npxG+xAG_Expected": 14.5,
+                "xG_Per": 0.17, "xAG_Per": 0.30, "xG+xAG_Per": 0.47,
+                "npxG_Per": 0.14, "npxG+xAG_Per": 0.44,
+            },
+        },
+        {
+            "name": "Defensive Midfielder, 26yo",
+            "position": "Defensive Midfielder",
+            "age": 26,
+            "stats": {
+                "MP_Playing": 33, "Starts_Playing": 31, "Min_Playing": 2790, "Mins_Per_90_Playing": 31.0,
+                "Gls": 1, "Ast": 2, "G_minus_PK": 1, "PK": 0, "PKatt": 0, "CrdY": 9, "CrdR": 1,
+                "Gls_Per": 0.03, "Ast_Per": 0.06, "G+A_Per": 0.10,
+                "G_minus_PK_Per": 0.03, "G+A_minus_PK_Per": 0.10,
+                "xG_Expected": 0.9, "npxG_Expected": 0.9, "xAG_Expected": 1.6, "npxG+xAG_Expected": 2.5,
+                "xG_Per": 0.03, "xAG_Per": 0.05, "xG+xAG_Per": 0.08,
+                "npxG_Per": 0.03, "npxG+xAG_Per": 0.08,
+            },
+        },
+        {
+            "name": "Centre-Back, 27yo",
+            "position": "Centre-Back",
+            "age": 27,
+            "stats": {
+                "MP_Playing": 34, "Starts_Playing": 33, "Min_Playing": 2970, "Mins_Per_90_Playing": 33.0,
+                "Gls": 2, "Ast": 1, "G_minus_PK": 2, "PK": 0, "PKatt": 0, "CrdY": 6, "CrdR": 1,
+                "Gls_Per": 0.06, "Ast_Per": 0.03, "G+A_Per": 0.09,
+                "G_minus_PK_Per": 0.06, "G+A_minus_PK_Per": 0.09,
+                "xG_Expected": 1.5, "npxG_Expected": 1.5, "xAG_Expected": 0.6, "npxG+xAG_Expected": 2.1,
+                "xG_Per": 0.05, "xAG_Per": 0.02, "xG+xAG_Per": 0.07,
+                "npxG_Per": 0.05, "npxG+xAG_Per": 0.07,
+            },
+        },
+        {
+            "name": "Lottery-Ticket Wonderkid, 18yo",
+            "position": "Left Winger",
+            "age": 18,
+            "stats": {
+                "MP_Playing": 22, "Starts_Playing": 14, "Min_Playing": 1300, "Mins_Per_90_Playing": 14.4,
+                "Gls": 5, "Ast": 4, "G_minus_PK": 5, "PK": 0, "PKatt": 0, "CrdY": 2, "CrdR": 0,
+                "Gls_Per": 0.35, "Ast_Per": 0.28, "G+A_Per": 0.62,
+                "G_minus_PK_Per": 0.35, "G+A_minus_PK_Per": 0.62,
+                "xG_Expected": 4.0, "npxG_Expected": 4.0, "xAG_Expected": 3.2, "npxG+xAG_Expected": 7.2,
+                "xG_Per": 0.28, "xAG_Per": 0.22, "xG+xAG_Per": 0.50,
+                "npxG_Per": 0.28, "npxG+xAG_Per": 0.50,
+            },
+        },
+    ]
 
 
-def predict_fake_player(model, features, medians, train_stds: pd.Series) -> pd.DataFrame:
-    fake = make_fake_player(features, medians)
-    row = pd.Series({**medians.to_dict(), **fake["stats"]})  # fill any missing with medians
-    X = pd.DataFrame([row[features].values], columns=features)
-    pred = float(model.predict(X)[0])
-    top3 = top_k_stat_improvements(model, row, features, train_stds, k=3)
-
-    df = pd.DataFrame([{
-        "name": fake["name"],
-        "position": fake["position"],
-        "age": fake["age"],
-        "predicted_fee_eur": pred,
-        "predicted_fee_eur_human": f"€{pred/1e6:.1f}M",
-        "top3_stat_improvements": _format_top3(top3),
-    }])
-
-    # Per-stat input dump as a separate flattened CSV for transparency.
-    stats_df = pd.DataFrame([fake["stats"]])
-    return df, stats_df
+def predict_fake_players(
+    model, features, medians, train_stds: pd.Series
+) -> tuple[pd.DataFrame, pd.DataFrame, list[dict]]:
+    """Predict on every fake-player profile. Returns (predictions_df, input_stats_df, raw_list)."""
+    fakes = make_fake_players()
+    pred_rows = []
+    stats_rows = []
+    for fake in fakes:
+        row = pd.Series({**medians.to_dict(), **fake["stats"]})
+        X = pd.DataFrame([row[features].values], columns=features)
+        pred = float(model.predict(X)[0])
+        top3 = top_k_stat_improvements(model, row, features, train_stds, k=3)
+        pred_rows.append({
+            "name": fake["name"],
+            "position": fake["position"],
+            "age": fake["age"],
+            "predicted_fee_eur": pred,
+            "predicted_fee_eur_human": f"€{pred/1e6:.1f}M",
+            "top3_stat_improvements": _format_top3(top3),
+        })
+        stats_rows.append({"name": fake["name"], **fake["stats"]})
+    return pd.DataFrame(pred_rows), pd.DataFrame(stats_rows), fakes
 
 
 def main() -> int:
@@ -369,12 +435,12 @@ def main() -> int:
     run_path, latest_path = _write_csv_pair(sample, "sample_top.csv", run_dir)
     log.info("Wrote %s + %s (top 10)", run_path, latest_path)
 
-    log.info("Predicting on synthetic fake player...")
-    fake_df, fake_stats_df = predict_fake_player(model, features, medians, train_stds)
+    log.info("Predicting on synthetic fake players (6 archetypes)...")
+    fake_df, fake_stats_df, fakes_raw = predict_fake_players(model, features, medians, train_stds)
     fake_df = _stamp_df(fake_df, run_id, model_commit)
     fake_stats_df = _stamp_df(fake_stats_df, run_id, model_commit)
-    _write_csv_pair(fake_df, "fake_player.csv", run_dir)
-    _write_csv_pair(fake_stats_df, "fake_player_input_stats.csv", run_dir)
+    _write_csv_pair(fake_df, "fake_players.csv", run_dir)
+    _write_csv_pair(fake_stats_df, "fake_players_input_stats.csv", run_dir)
 
     # Audit log: one JSON line per run.
     n_train = int((joined["season"].astype(str).isin(train_seasons)).sum())
@@ -389,7 +455,10 @@ def main() -> int:
         "n_test": n_test,
         "test_mae_eur": overall_mae,
         "test_spearman": spearman,
-        "fake_player_predicted_eur": float(fake_df["predicted_fee_eur"].iloc[0]),
+        "fake_players": [
+            {"name": r["name"], "predicted_eur": float(r["predicted_fee_eur"])}
+            for _, r in fake_df.iterrows()
+        ],
         "run_dir": str(run_dir.relative_to(config.PROJECT_ROOT)),
     }
     with open(RUNS_DIR / "runs.jsonl", "a") as f:
@@ -397,9 +466,8 @@ def main() -> int:
     log.info("Audit row appended to %s", RUNS_DIR / "runs.jsonl")
 
     # Human-friendly report.
-    fake_stats_dict = make_fake_player(features, medians)["stats"]
     run_md, latest_md = write_report_md(
-        run_dir, run_id, model_commit, test_preds, fake_df, fake_stats_dict, audit
+        run_dir, run_id, model_commit, test_preds, fake_df, fakes_raw, audit
     )
     log.info("Wrote %s + %s", run_md, latest_md)
 
