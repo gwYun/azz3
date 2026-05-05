@@ -1,0 +1,36 @@
+{
+  "features": [
+    "MP_Playing",
+    "Starts_Playing",
+    "Mins_Per_90_Playing",
+    "Gls",
+    "Ast",
+    "PK",
+    "PKatt",
+    "CrdY",
+    "CrdR",
+    "Gls_Per",
+    "G+A_Per",
+    "G_minus_PK_Per",
+    "xG_Expected",
+    "npxG_Expected",
+    "xAG_Expected"
+  ],
+  "medians": {
+    "MP_Playing": 28.0,
+    "Starts_Playing": 23.0,
+    "Mins_Per_90_Playing": 23.3,
+    "Gls": 2.0,
+    "Ast": 1.0,
+    "PK": 0.0,
+    "PKatt": 0.0,
+    "CrdY": 3.0,
+    "CrdR": 0.0,
+    "Gls_Per": 0.08,
+    "G+A_Per": 0.16,
+    "G_minus_PK_Per": 0.08,
+    "xG_Expected": 1.6,
+    "npxG_Expected": 1.6,
+    "xAG_Expected": 1.45
+  }
+}

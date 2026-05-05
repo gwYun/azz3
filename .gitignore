@@ -31,3 +31,14 @@ data/models/*.json
 
 # Notebook outputs
 notebooks/*.ipynb_checkpoints/
+
+# Vercel local state (org/project IDs, pulled env). IDs go into GitHub Actions
+# secrets, not into the repo. .env.local is environment-specific and never committed.
+web/.vercel/
+web/.env.local
+web/.env*.local
+
+# Yarn 4 install state — keep yarn.lock, ignore everything else yarn writes.
+web/.yarn/cache/
+web/.yarn/install-state.gz
+web/.pnp.*

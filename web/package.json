@@ -1,0 +1,15 @@
+{
+  "name": "azz3-web",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Vercel deployment spike for the azz3 transfer-fee predictor.",
+  "packageManager": "yarn@4.5.1",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "echo 'no Node build yet'",
+    "deploy": "vercel --prod",
+    "deploy:preview": "vercel"
+  }
+}
