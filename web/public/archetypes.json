@@ -1,0 +1,134 @@
+[
+  {
+    "name": "Breakout Right Winger, 23yo",
+    "position": "Right Winger",
+    "age": 23,
+    "features": {
+      "MP_Playing": 32.0,
+      "Starts_Playing": 28.0,
+      "Mins_Per_90_Playing": 28.0,
+      "Gls": 9.0,
+      "Ast": 6.0,
+      "PK": 0.0,
+      "PKatt": 0.0,
+      "CrdY": 4.0,
+      "CrdR": 0.0,
+      "Gls_Per": 0.32,
+      "G+A_Per": 0.54,
+      "G_minus_PK_Per": 0.32,
+      "xG_Expected": 7.8,
+      "npxG_Expected": 7.8,
+      "xAG_Expected": 5.2
+    }
+  },
+  {
+    "name": "Veteran Striker, 31yo",
+    "position": "Centre-Forward",
+    "age": 31,
+    "features": {
+      "MP_Playing": 30.0,
+      "Starts_Playing": 26.0,
+      "Mins_Per_90_Playing": 25.6,
+      "Gls": 18.0,
+      "Ast": 3.0,
+      "PK": 2.0,
+      "PKatt": 3.0,
+      "CrdY": 3.0,
+      "CrdR": 0.0,
+      "Gls_Per": 0.7,
+      "G+A_Per": 0.82,
+      "G_minus_PK_Per": 0.62,
+      "xG_Expected": 16.2,
+      "npxG_Expected": 13.9,
+      "xAG_Expected": 2.1
+    }
+  },
+  {
+    "name": "Playmaking Midfielder, 28yo",
+    "position": "Attacking Midfielder",
+    "age": 28,
+    "features": {
+      "MP_Playing": 35.0,
+      "Starts_Playing": 33.0,
+      "Mins_Per_90_Playing": 33.0,
+      "Gls": 6.0,
+      "Ast": 13.0,
+      "PK": 1.0,
+      "PKatt": 1.0,
+      "CrdY": 5.0,
+      "CrdR": 0.0,
+      "Gls_Per": 0.18,
+      "G+A_Per": 0.57,
+      "G_minus_PK_Per": 0.15,
+      "xG_Expected": 5.5,
+      "npxG_Expected": 4.7,
+      "xAG_Expected": 9.8
+    }
+  },
+  {
+    "name": "Defensive Midfielder, 26yo",
+    "position": "Defensive Midfielder",
+    "age": 26,
+    "features": {
+      "MP_Playing": 33.0,
+      "Starts_Playing": 31.0,
+      "Mins_Per_90_Playing": 31.0,
+      "Gls": 1.0,
+      "Ast": 2.0,
+      "PK": 0.0,
+      "PKatt": 0.0,
+      "CrdY": 9.0,
+      "CrdR": 1.0,
+      "Gls_Per": 0.03,
+      "G+A_Per": 0.1,
+      "G_minus_PK_Per": 0.03,
+      "xG_Expected": 0.9,
+      "npxG_Expected": 0.9,
+      "xAG_Expected": 1.6
+    }
+  },
+  {
+    "name": "Centre-Back, 27yo",
+    "position": "Centre-Back",
+    "age": 27,
+    "features": {
+      "MP_Playing": 34.0,
+      "Starts_Playing": 33.0,
+      "Mins_Per_90_Playing": 33.0,
+      "Gls": 2.0,
+      "Ast": 1.0,
+      "PK": 0.0,
+      "PKatt": 0.0,
+      "CrdY": 6.0,
+      "CrdR": 1.0,
+      "Gls_Per": 0.06,
+      "G+A_Per": 0.09,
+      "G_minus_PK_Per": 0.06,
+      "xG_Expected": 1.5,
+      "npxG_Expected": 1.5,
+      "xAG_Expected": 0.6
+    }
+  },
+  {
+    "name": "Lottery-Ticket Wonderkid, 18yo",
+    "position": "Left Winger",
+    "age": 18,
+    "features": {
+      "MP_Playing": 22.0,
+      "Starts_Playing": 14.0,
+      "Mins_Per_90_Playing": 14.4,
+      "Gls": 5.0,
+      "Ast": 4.0,
+      "PK": 0.0,
+      "PKatt": 0.0,
+      "CrdY": 2.0,
+      "CrdR": 0.0,
+      "Gls_Per": 0.35,
+      "G+A_Per": 0.62,
+      "G_minus_PK_Per": 0.35,
+      "xG_Expected": 4.0,
+      "npxG_Expected": 4.0,
+      "xAG_Expected": 3.2
+    }
+  }
+]

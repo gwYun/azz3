@@ -15,6 +15,10 @@ env/
 build/
 dist/
 
+# Next.js route folder collides with the global build/ rule above.
+!web/app/build/
+!web/app/build/**
+
 # soccerdata cache + raw pulls
 data/cache/
 data/raw/

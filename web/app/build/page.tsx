@@ -1,0 +1,342 @@
+"use client";
+
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useT } from "@/lib/i18n-context";
+import { useToast } from "@/lib/toast-context";
+import {
+  ApiError,
+  loadModelInfo,
+  predict,
+} from "@/lib/api";
+import { listBuilds, saveBuild, suggestName } from "@/lib/storage";
+import { buildShareUrl, decodeShareHash } from "@/lib/url-share";
+import type { Archetype, FeatureVector, ModelInfo, Perturbation } from "@/lib/types";
+import { StatSlider } from "@/components/StatSlider";
+import { FeeDisplay } from "@/components/FeeDisplay";
+import { CounterfactualList } from "@/components/CounterfactualList";
+import { SaveBuildButton } from "@/components/SaveBuildButton";
+
+// Per Issue 1A locked decision: 8 substantive features by default; 7 nuisance
+// features hidden behind "Show all stats" toggle.
+const SUBSTANTIVE: ReadonlySet<string> = new Set([
+  "Gls", "Ast", "xG_Expected", "npxG_Expected", "xAG_Expected",
+  "Gls_Per", "G+A_Per", "G_minus_PK_Per",
+]);
+
+const NUISANCE: ReadonlySet<string> = new Set([
+  "MP_Playing", "Starts_Playing", "Mins_Per_90_Playing",
+  "PK", "PKatt", "CrdY", "CrdR",
+]);
+
+// Section grouping for the substantive sliders. Order = display order.
+const SECTIONS: Array<{ key: "scoring" | "creation" | "efficiency"; features: string[] }> = [
+  { key: "scoring",    features: ["Gls", "xG_Expected", "npxG_Expected"] },
+  { key: "creation",   features: ["Ast", "xAG_Expected"] },
+  { key: "efficiency", features: ["Gls_Per", "G+A_Per", "G_minus_PK_Per"] },
+];
+
+const DECIMALS: Record<string, number> = {
+  Gls_Per: 2, "G+A_Per": 2, G_minus_PK_Per: 2,
+  xG_Expected: 1, npxG_Expected: 1, xAG_Expected: 1, Mins_Per_90_Playing: 1,
+};
+
+function decimals(feat: string): number {
+  return DECIMALS[feat] ?? 0;
+}
+
+const DEBOUNCE_MS = 200;
+
+export default function BuildPage() {
+  const t = useT();
+  const toast = useToast();
+
+  // Model + archetypes load
+  const [info, setInfo] = useState<ModelInfo | null>(null);
+  const [archetypes, setArchetypes] = useState<Archetype[]>([]);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  // Build state
+  const [features, setFeatures] = useState<FeatureVector>({});
+  const [showAll, setShowAll] = useState(false);
+  const [archetypeName, setArchetypeName] = useState<string>("");
+
+  // Prediction state
+  const [fee, setFee] = useState<number | null>(null);
+  const [perturbations, setPerturbations] = useState<Perturbation[] | null>(null);
+  const [predictLoading, setPredictLoading] = useState(false);
+  const [predictError, setPredictError] = useState<string | null>(null);
+  const [hasInteracted, setHasInteracted] = useState(false);
+
+  const debounceRef = useRef<number | null>(null);
+  const inFlightRef = useRef(0);
+
+  // Load model-info + archetypes once on mount; honor URL hash for shared builds.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const m = await loadModelInfo();
+        if (cancelled) return;
+        setInfo(m);
+
+        // Try archetypes (best-effort — page works without them)
+        try {
+          const r = await fetch("/archetypes.json", { cache: "force-cache" });
+          if (r.ok) {
+            const data = (await r.json()) as Archetype[];
+            if (!cancelled) setArchetypes(data);
+          }
+        } catch {
+          // ignore — archetypes optional
+        }
+
+        // Hydrate from URL hash if present, else from medians.
+        const hashFeatures = decodeShareHash(window.location.hash, m);
+        const initial: FeatureVector = hashFeatures ?? Object.fromEntries(
+          m.features.map((f) => [f, m.medians[f] ?? 0])
+        );
+        if (!cancelled) {
+          setFeatures(initial);
+          // Pull initial prediction (median or hash)
+          runPredict(initial, /*userTriggered*/ false);
+          if (hashFeatures) setHasInteracted(true);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setLoadError(err instanceof Error ? err.message : "Failed to load model info");
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const runPredict = useCallback(async (vec: FeatureVector, userTriggered: boolean) => {
+    setPredictLoading(true);
+    setPredictError(null);
+    const reqId = ++inFlightRef.current;
+    try {
+      const r = await predict(vec);
+      if (reqId !== inFlightRef.current) return; // a newer request is in flight
+      setFee(r.predicted_fee_eur);
+      setPerturbations(r.top_3_perturbations);
+    } catch (err) {
+      if (reqId !== inFlightRef.current) return;
+      const msg =
+        err instanceof ApiError ? err.message : err instanceof Error ? err.message : "unknown";
+      setPredictError(msg);
+      // Don't clobber prior fee on transient failure; keep what's on screen.
+    } finally {
+      if (reqId === inFlightRef.current) setPredictLoading(false);
+    }
+    // Suppress unused-var warning in dev builds.
+    void userTriggered;
+  }, []);
+
+  // Debounce slider changes — fire 200ms after last drag (D15).
+  const setFeature = useCallback(
+    (feat: string, value: number) => {
+      setHasInteracted(true);
+      setArchetypeName(""); // unset — they're customizing
+      setFeatures((prev) => {
+        const next = { ...prev, [feat]: value };
+        if (debounceRef.current) window.clearTimeout(debounceRef.current);
+        debounceRef.current = window.setTimeout(() => {
+          runPredict(next, true);
+        }, DEBOUNCE_MS);
+        return next;
+      });
+    },
+    [runPredict]
+  );
+
+  const onArchetypeChange = useCallback(
+    (name: string) => {
+      const a = archetypes.find((x) => x.name === name);
+      if (!a) return;
+      setArchetypeName(name);
+      setHasInteracted(true);
+      setFeatures(a.features);
+      runPredict(a.features, true);
+    },
+    [archetypes, runPredict]
+  );
+
+  const onSave = useCallback(
+    (name: string) => {
+      if (!info || fee == null) return;
+      const result = saveBuild({
+        name,
+        features,
+        predicted_fee_eur: fee,
+        feature_set_hash: info.feature_set_hash,
+      });
+      if (!result.ok) {
+        toast.show(result.reason);
+        return;
+      }
+      toast.show(t("toast.saved", { name }), {
+        link: { label: t("toast.saved.link"), href: "/saved" },
+      });
+    },
+    [features, fee, info, t, toast]
+  );
+
+  const onShare = useCallback(async () => {
+    if (!info) return;
+    const url = buildShareUrl(features, info);
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.show(t("toast.copied"), { durationMs: 2000 });
+    } catch {
+      // Fallback: still show in toast for manual copy
+      toast.show(url, { durationMs: 8000 });
+    }
+  }, [features, info, t, toast]);
+
+  const defaultSaveName = useMemo(() => {
+    if (!info) return "Build";
+    const existing = listBuilds().length;
+    return suggestName({ features }, existing);
+  }, [features, info]);
+
+  // Render gates
+  if (loadError) {
+    return (
+      <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+        Failed to load: {loadError}
+      </div>
+    );
+  }
+  if (!info) {
+    return <p className="text-sm text-neutral-500">{t("loading")}</p>;
+  }
+
+  // Compose visible features.
+  const visibleSubstantive = SECTIONS.flatMap((s) =>
+    s.features.filter((f) => SUBSTANTIVE.has(f))
+  );
+  const visibleNuisance = showAll
+    ? Array.from(NUISANCE).filter((f) => info.features.includes(f))
+    : [];
+
+  return (
+    <div className="grid gap-10 md:grid-cols-[1fr_360px]">
+      {/* Left column: hero fee + controls + sliders */}
+      <div className="space-y-8">
+        <div>
+          <FeeDisplay fee={fee} loading={predictLoading} />
+          {predictError ? (
+            <div className="mt-3 flex items-center gap-3 rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
+              <span>{t("build.error.predict")}</span>
+              <button
+                type="button"
+                onClick={() => runPredict(features, true)}
+                className="underline underline-offset-2"
+              >
+                {t("build.error.retry")}
+              </button>
+            </div>
+          ) : null}
+        </div>
+
+        {/* Archetype + actions */}
+        <div className="flex flex-wrap items-end gap-3 border-t border-neutral-200 pt-6">
+          <label className="block">
+            <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-neutral-500">
+              {t("build.archetype.label")}
+            </span>
+            <select
+              className="input-text w-64"
+              value={archetypeName}
+              onChange={(e) => onArchetypeChange(e.currentTarget.value)}
+            >
+              <option value="">{t("build.archetype.placeholder")}</option>
+              {archetypes.map((a) => (
+                <option key={a.name} value={a.name}>
+                  {a.name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <SaveBuildButton
+            defaultName={defaultSaveName}
+            onSave={onSave}
+            disabled={fee == null}
+          />
+          <button type="button" className="btn-secondary" onClick={onShare}>
+            {t("build.share.button")}
+          </button>
+        </div>
+
+        {/* Sliders */}
+        <div className="space-y-8">
+          {SECTIONS.map((section) => (
+            <section key={section.key}>
+              <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-500">
+                {t(`build.section.${section.key}`)}
+              </h3>
+              <div className="grid gap-5 sm:grid-cols-2">
+                {section.features.map((feat) => (
+                  <StatSlider
+                    key={feat}
+                    feature={feat}
+                    value={features[feat] ?? info.medians[feat] ?? 0}
+                    stat={info.feature_stats[feat]!}
+                    decimals={decimals(feat)}
+                    onChange={(v) => setFeature(feat, v)}
+                  />
+                ))}
+              </div>
+            </section>
+          ))}
+
+          {/* Show-all toggle */}
+          <div className="border-t border-neutral-200 pt-5">
+            <button
+              type="button"
+              className="btn-ghost"
+              onClick={() => setShowAll((v) => !v)}
+              aria-expanded={showAll}
+            >
+              {showAll ? t("build.showAllStats.hide") : t("build.showAllStats.show")}
+            </button>
+          </div>
+
+          {showAll && visibleNuisance.length > 0 ? (
+            <section>
+              <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-500">
+                {t("build.section.nuisance")}
+              </h3>
+              <div className="grid gap-5 sm:grid-cols-2">
+                {visibleNuisance.map((feat) => (
+                  <StatSlider
+                    key={feat}
+                    feature={feat}
+                    value={features[feat] ?? info.medians[feat] ?? 0}
+                    stat={info.feature_stats[feat]!}
+                    decimals={decimals(feat)}
+                    onChange={(v) => setFeature(feat, v)}
+                  />
+                ))}
+              </div>
+            </section>
+          ) : null}
+        </div>
+      </div>
+
+      {/* Right column: counterfactuals */}
+      <aside className="space-y-3 md:sticky md:top-24 md:self-start">
+        <h2 className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
+          {t("build.counterfactuals.title")}
+        </h2>
+        <CounterfactualList
+          perturbations={perturbations}
+          empty={!hasInteracted && !predictLoading && perturbations == null}
+        />
+      </aside>
+    </div>
+  );
+}

@@ -1,15 +1,40 @@
 {
   "name": "azz3-web",
   "private": true,
-  "version": "0.0.0",
-  "description": "Vercel deployment spike for the azz3 transfer-fee predictor.",
+  "version": "0.1.0",
+  "description": "Transfer-fee predictor playground — Next.js + Vercel Python serverless.",
   "packageManager": "yarn@4.5.1",
   "engines": {
     "node": ">=20"
   },
   "scripts": {
-    "build": "echo 'no Node build yet'",
+    "dev": "next dev -p 3000",
+    "build": "next build",
+    "start": "next start -p 3000",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "deploy": "vercel --prod",
     "deploy:preview": "vercel"
+  },
+  "dependencies": {
+    "next": "14.2.18",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "20.14.10",
+    "@types/react": "18.3.3",
+    "@types/react-dom": "18.3.0",
+    "@vitejs/plugin-react": "4.3.4",
+    "autoprefixer": "10.4.20",
+    "eslint": "8.57.1",
+    "eslint-config-next": "14.2.18",
+    "happy-dom": "15.11.7",
+    "postcss": "8.4.49",
+    "tailwindcss": "3.4.17",
+    "typescript": "5.6.3",
+    "vitest": "2.1.8"
   }
 }

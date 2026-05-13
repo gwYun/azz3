@@ -1,2 +1,18 @@
 .vercel
 .env*.local
+
+# Next.js build output
+.next/
+out/
+next-env.d.ts
+
+# Dependencies
+node_modules/
+.yarn/cache/
+.yarn/install-state.gz
+.pnp.*
+
+# IDE
+.vscode/
+.idea/
+tsconfig.tsbuildinfo

@@ -1,0 +1,107 @@
+{
+  "feature_stats": {
+    "MP_Playing": {
+      "p5": 5.0,
+      "p95": 38.0,
+      "sd": 9.0
+    },
+    "Starts_Playing": {
+      "p5": 0.0,
+      "p95": 36.0,
+      "sd": 11.0
+    },
+    "Mins_Per_90_Playing": {
+      "p5": 1.0,
+      "p95": 35.0,
+      "sd": 10.0
+    },
+    "Gls": {
+      "p5": 0.0,
+      "p95": 18.0,
+      "sd": 4.5
+    },
+    "Ast": {
+      "p5": 0.0,
+      "p95": 9.0,
+      "sd": 2.5
+    },
+    "PK": {
+      "p5": 0.0,
+      "p95": 5.0,
+      "sd": 1.2
+    },
+    "PKatt": {
+      "p5": 0.0,
+      "p95": 6.0,
+      "sd": 1.4
+    },
+    "CrdY": {
+      "p5": 0.0,
+      "p95": 11.0,
+      "sd": 2.8
+    },
+    "CrdR": {
+      "p5": 0.0,
+      "p95": 1.0,
+      "sd": 0.4
+    },
+    "Gls_Per": {
+      "p5": 0.0,
+      "p95": 0.65,
+      "sd": 0.18
+    },
+    "G+A_Per": {
+      "p5": 0.0,
+      "p95": 0.95,
+      "sd": 0.25
+    },
+    "G_minus_PK_Per": {
+      "p5": 0.0,
+      "p95": 0.55,
+      "sd": 0.16
+    },
+    "xG_Expected": {
+      "p5": 0.1,
+      "p95": 16.0,
+      "sd": 4.0
+    },
+    "npxG_Expected": {
+      "p5": 0.1,
+      "p95": 14.0,
+      "sd": 3.5
+    },
+    "xAG_Expected": {
+      "p5": 0.1,
+      "p95": 8.5,
+      "sd": 2.2
+    }
+  },
+  "feature_groups": {
+    "finishing_volume": [
+      "Gls",
+      "xG_Expected",
+      "npxG_Expected",
+      "Gls_Per",
+      "G_minus_PK_Per"
+    ],
+    "creation": [
+      "Ast",
+      "xAG_Expected",
+      "G+A_Per"
+    ],
+    "availability": [
+      "MP_Playing",
+      "Starts_Playing",
+      "Mins_Per_90_Playing"
+    ],
+    "discipline": [
+      "CrdY",
+      "CrdR"
+    ],
+    "set_pieces": [
+      "PK",
+      "PKatt"
+    ]
+  },
+  "feature_set_hash": "cdddd09e"
+}
