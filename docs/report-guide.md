@@ -1,18 +1,13 @@
-# Report Guide — How to read `predictions/latest/report.md`
+# 리포트 가이드 — `predictions/latest/report.md` 읽는 법
 
-A reader-friendly walk-through of every section, every number, and every stat
-in a prediction report. Pair this with any `report.md` produced by
-`scripts/predict.py`.
+예측 리포트의 모든 섹션, 모든 숫자, 모든 스탯에 대한 친절한 가이드.
+`scripts/predict.py`가 생성한 어떤 `report.md`와도 함께 보기 좋도록 작성됨.
 
-The pitch in one paragraph: a model trained on 437 historical Big-5 transfers
-predicts what a player would have sold for, given their FBref stats from the
-season before the move. For each player it also reports SHAP-style
-counterfactuals — "if this stat had been ~1 SD higher, the predicted fee
-would have moved by €X." That's the *which stat to improve* feature.
+한 문단으로 요약: 437건의 Big-5 이적 데이터로 학습된 모델이, 이적 직전 시즌의 FBref 스탯을 바탕으로 선수가 얼마에 팔렸을지를 예측함. 각 선수에 대해 SHAP 스타일 반사실(counterfactual)도 함께 리포트함 — "이 스탯이 약 1 SD 더 높았다면 예측 이적료가 €X만큼 움직였을 것이다." 이것이 *어느 스탯을 개선할 것인가* 기능임.
 
 ---
 
-## 1. The header
+## 1. 헤더
 
 ```
 # Prediction Report — `2026-05-01T08:27:22Z`
@@ -23,262 +18,174 @@ would have moved by €X." That's the *which stat to improve* feature.
 | Model commit | `8f56342` |
 ```
 
-**Run ID (UTC)** — the exact moment the prediction script ran. Stamped on every
-row in every CSV in this run, so you can trace any prediction back to the
-exact bytes that produced it. Reports for previous runs live under
-`predictions/runs/<run_id>/`.
+**Run ID (UTC)** — 예측 스크립트가 실행된 정확한 시점. 이 실행의 모든 CSV 모든 행에 스탬프되어, 어떤 예측이든 그 예측을 만든 정확한 바이트로 되짚어 갈 수 있음. 이전 실행의 리포트는 `predictions/runs/<run_id>/` 아래에 보관됨.
 
-**Model commit** — the short git SHA of the project HEAD at run time. Same
-prediction with the same data on different commits = different model. The
-commit lets you check `git log <sha>` to see exactly what code produced the
-prediction.
+**Model commit** — 실행 시점의 프로젝트 HEAD의 짧은 git SHA. 동일 데이터·다른 커밋 = 다른 모델. 이 커밋으로 `git log <sha>`를 보면 정확히 어떤 코드가 그 예측을 만들었는지 확인 가능.
 
-**Train rows / Test rows** — how many transfers were in each split.
-- Train: transfers from 2014-2020 windows (older → learn from).
-- Test: 2021-2022 windows (held out → judge on).
-- Player-disjoint: any player who appears in both train and test gets dropped
-  from test, so the model can't cheat by remembering specific players.
+**Train rows / Test rows** — 각 분할에 들어간 이적 건수.
+- Train: 2014-2020 윈도우의 이적 건 (오래된 데이터 → 학습 대상).
+- Test: 2021-2022 윈도우 (홀드아웃 → 평가 대상).
+- 선수 disjoint: train과 test에 모두 등장하는 선수는 test에서 제거됨 — 모델이 특정 선수를 외워서 부정행위하는 것을 막기 위함.
 
-**Test MAE** — Mean Absolute Error in €. The average gap between the model's
-prediction and the actual disclosed fee, across all test transfers. Lower
-is better. Today's number is around €14M, which is roughly the median actual
-fee — meaning the model is calibrated near the typical mid-tier transfer
-but loses accuracy at the extremes.
+**Test MAE** — €로 표현된 평균 절대 오차(Mean Absolute Error). 모든 테스트 이적에 대한 모델 예측과 실제 공개 이적료 사이 평균 차이. 낮을수록 좋음. 오늘의 값은 약 €14M인데, 이는 대략 실제 이적료의 중앙값과 비슷한 수준 — 모델이 전형적인 중간급 이적 근처에서 calibrate되어 있지만 양극단에서는 정확도가 떨어진다는 의미.
 
-**Test Spearman ρ (rho)** — a *ranking* metric, not an absolute one. Asks:
-"if the model says player A is more expensive than player B, is it right?"
-- ρ = 1.0 → perfect ranking.
-- ρ = 0.0 → random.
-- ρ ≈ 0.33 (today's number) → right about ⅔ of the time.
+**Test Spearman ρ (rho)** — 절대값이 아니라 *랭킹* 지표. "모델이 선수 A가 선수 B보다 비싸다고 했을 때, 실제로 맞는가?"를 묻는 값.
+- ρ = 1.0 → 완벽한 랭킹.
+- ρ = 0.0 → 랜덤.
+- ρ ≈ 0.33 (오늘의 값) → 약 ⅔ 정도 맞음.
 
-Spearman is the more honest read for this MVP. The model under-predicts
-elite transfers in absolute € (so MAE looks bad on Grealish/Lukaku) but
-still puts them above mid-tier players in the rank order (so ρ is still
-positive). For the "improve this stat to raise predicted fee" UX, ranking
-signal is what matters.
+이 MVP에서는 Spearman이 더 정직한 지표임. 모델은 엘리트급 이적의 절대 €를 과소예측함 (그래서 Grealish/Lukaku에서 MAE가 나쁘게 보임) 하지만, 그래도 중간급 선수보다는 랭크상 위에 놓음 (그래서 ρ는 양수 유지). "이 스탯을 개선해 예측 이적료를 올린다" UX에서는 랭킹 신호가 핵심임.
 
 ---
 
-## 2. The three result tables
+## 2. 세 가지 결과 테이블
 
-### Top 10 highest-fee held-out transfers
+### 가장 비싼 홀드아웃 이적 Top 10
 
-Sorted by *actual* fee, descending. Lets you eye-test "where does the model
-do well on the marquee transfers?" Today's run shows Haaland at 7% error
-(model nailed him) and Grealish at 55% (model under-predicts elite).
+*실제* 이적료 내림차순 정렬. "주요 이적에서 모델은 어디서 잘하는가?"를 한눈에 보기 위함. 오늘 실행에선 Haaland가 오차 7% (모델이 거의 정확), Grealish는 55% (모델이 엘리트를 과소예측).
 
-### 5 best predictions
+### 가장 잘 맞춘 예측 5개
 
-Sorted by *absolute % error*, ascending. The closest to perfect, regardless
-of fee size. These are the cases where the model's calibration matched
-reality. Often dominated by mid-tier mid-attacker transfers — exactly where
-the training distribution is densest.
+*절대 % 오차* 오름차순 정렬. 이적료 크기와 무관하게 완벽에 가장 가까운 케이스들. 모델의 보정이 현실과 맞아떨어진 경우들. 보통 학습 분포가 가장 밀집된 중간급 미드/공격수 이적이 차지함.
 
-### 5 worst predictions
+### 가장 못 맞춘 예측 5개
 
-Same sort, descending. The model's biggest misses. Two common patterns
-appear here:
-- **Bargain veterans** (e.g., Craig Dawson €2.3M actual, model predicts
-  €26M). The model has a "minutes + age" baseline that says "this guy
-  played 33 starts, that's worth €15M+". The market disagreed because the
-  veteran was on a free or near-free deal — context the stats can't see.
-- **Defenders priced like attackers** (e.g., Wesley Fofana, Marc
-  Cucurella). The model has no defensive features (LASSO/RFE/MI dropped
-  them), so it tries to price defenders using attacking stats and gets
-  them very wrong.
+동일한 정렬, 내림차순. 모델의 최대 미스. 여기서는 두 가지 패턴이 자주 등장:
+- **염가 베테랑** (예: Craig Dawson 실제 €2.3M, 모델 예측 €26M). 모델은 "출장 시간 + 나이" 베이스라인이 있어서 "33경기 선발, 즉 €15M+짜리"라고 판단함. 시장은 동의하지 않았는데, 베테랑이 자유 계약 또는 그에 준하는 거래였기 때문 — 스탯으로는 보이지 않는 컨텍스트임.
+- **공격수처럼 가격 매겨진 수비수** (예: Wesley Fofana, Marc Cucurella). 모델에 수비 특성이 없음 (LASSO/RFE/MI가 모두 떨어뜨림)이라, 공격 스탯으로 수비수 가격을 매기려다 크게 어긋남.
 
-### What every column means
+### 각 컬럼의 의미
 
-| Column | What it is |
+| 컬럼 | 무엇인가 |
 | --- | --- |
-| **Season** | Transfer window year. `2022` = summer 2022. |
-| **Player** | Player name. |
-| **To** | Destination club. |
-| **Actual** | The real disclosed transfer fee in €, from Transfermarkt. |
-| **Predicted** | The model's predicted fee in €. |
-| **Err %** | `\|actual - predicted\| / actual`. Lower is better. >100% means the model was off by more than the actual fee. |
-| **Top-3 stat improvements** | The three stats whose ±1 SD perturbation would have moved the predicted fee most. Format: `±FeatureName:+€XM`. The sign before the feature name is the *direction of improvement* (the sign that raised the predicted fee). The € number is *how much higher* the prediction would have been. |
+| **Season** | 이적 윈도우 연도. `2022` = 2022 여름. |
+| **Player** | 선수 이름. |
+| **To** | 행선지 클럽. |
+| **Actual** | Transfermarkt 기반 실제 공개 이적료 (€). |
+| **Predicted** | 모델 예측 이적료 (€). |
+| **Err %** | `\|actual - predicted\| / actual`. 낮을수록 좋음. 100% 초과 = 모델이 실제 이적료 이상으로 빗나감. |
+| **Top-3 stat improvements** | ±1 SD 섭동을 가했을 때 예측 이적료를 가장 많이 움직였을 스탯 3개. 형식: `±FeatureName:+€XM`. 특성 이름 앞의 부호는 *개선 방향* (예측 이적료를 올린 부호). € 숫자는 *얼마나 더 높았을지*. |
 
 ---
 
-## 3. The synthetic fake-players section
+## 3. 가상 선수 섹션
 
-Six made-up player profiles covering different archetypes (forward, veteran
-striker, playmaker, defensive mid, centre-back, wonderkid). Each profile is
-a complete FBref-standard stats dict.
+서로 다른 아키타입 6개로 만들어진 가상 선수 프로필 (공격수, 베테랑 스트라이커, 플레이메이커, 수비형 미드, 센터백, 원더키드). 각 프로필은 완전한 FBref 표준 스탯 딕셔너리.
 
-Why these exist:
-1. **Sanity check on out-of-sample shapes.** Real test-set players come from
-   transfer history. Fake players let us probe arbitrary points in stat
-   space and see if the model behaves sensibly.
-2. **Calibration map.** Reading the predictions across archetypes shows
-   *where* the model is well-calibrated and where it isn't. Today's run
-   shows the playmaking-mid and breakout-winger getting the highest
-   predictions (€55-60M range), the centre-back getting €20M (low for a
-   real-world top-tier CB), and the lottery-ticket wonderkid getting €15M
-   (low because actual wonderkids like Mbappé/Pedri got €40M+).
-3. **SHAP sanity.** The top-3 improvements per archetype should make
-   intuitive football sense. Forward → improve goals/xG. Playmaker →
-   improve assists/xAG. If the SHAP output instead points at "reduce
-   minutes played" for an attacker, the model has learned something weird.
+이게 존재하는 이유:
+1. **분포 외(out-of-sample) 형태에 대한 sanity check.** 실제 테스트 셋 선수들은 이적 이력에서 나옴. 가상 선수는 스탯 공간의 임의 지점을 찔러보고 모델이 합리적으로 반응하는지 보기 위함.
+2. **보정(calibration) 지도.** 아키타입 전반의 예측치를 읽으면 모델이 *어디서* 잘 보정돼 있고 어디서 안 되어 있는지가 보임. 오늘 실행에서는 플레이메이킹 미드와 브레이크아웃 윙어가 가장 높은 예측 (€55-60M 범위)을 받음, 센터백은 €20M (실제 톱티어 CB 기준 낮음), 복권형 원더키드는 €15M (Mbappé/Pedri 같은 실제 원더키드는 €40M+이었으므로 낮음).
+3. **SHAP sanity.** 아키타입별 top-3 개선안은 직관적인 축구 상식에 맞아야 함. 공격수 → 골/xG 개선. 플레이메이커 → 어시스트/xAG 개선. 만약 공격수에 대해 "출장 시간 줄이기"가 SHAP 출력으로 나온다면 모델이 이상한 걸 학습한 것임.
 
 ---
 
-## 4. The features — what each stat means and how it affects fee
+## 4. 특성 — 각 스탯의 의미와 이적료에 미치는 영향
 
-Every prediction is a function of these 15 features (selected by the
-LASSO + RFE + Mutual-Information ensemble in `src/features.py`). They split
-into **playing-time stats**, **counting stats**, **per-90 rates**, and
-**expected-goal advanced stats**.
+모든 예측은 이 15개 특성의 함수임 (`src/features.py`의 LASSO + RFE + 상호정보량 앙상블이 선택). **출장 시간 스탯**, **카운팅 스탯**, **90분당 비율**, **xG 계열 고급 스탯**으로 나뉨.
 
-### Playing-time stats
+### 출장 시간 스탯
 
-| Stat | Meaning | Typical Big-5 starter range | How it affects predicted fee |
+| 스탯 | 의미 | Big-5 주전 일반 범위 | 예측 이적료에 미치는 영향 |
 | --- | --- | --- | --- |
-| **`MP_Playing`** | Matches Played | 25-38 | Higher → mostly higher predicted fee. The model treats "is this player a regular starter" as a major positive signal. Failing here is one of the model's defects on rotation forwards. |
-| **`Starts_Playing`** | Starts (not subs) | 18-34 | Same direction as MP, but more discriminating. A super-sub with 30 MP / 8 starts gets priced lower than a 30 MP / 28 starts profile. |
-| **`Min_Playing`** | Total minutes | 1500-3200 | Same direction. Useful for catching rotation/sub patterns MP misses. |
-| **`Mins_Per_90_Playing`** | Total minutes ÷ 90, basically full-90s played | 16-34 | Smoothest minutes proxy. The model often picks this up as the cleanest "did this guy play a lot" signal. |
+| **`MP_Playing`** | 출장 경기 수 | 25-38 | 높을수록 대체로 예측 이적료가 높음. "이 선수가 꾸준한 주전인가"를 큰 양의 신호로 다룸. 로테이션 공격수에 대한 모델 결함이 여기서 발생. |
+| **`Starts_Playing`** | 선발 경기 수 (교체 출장 제외) | 18-34 | MP와 같은 방향이지만 더 변별적임. 30경기/8선발 슈퍼서브는 30경기/28선발 프로필보다 가격이 낮게 책정됨. |
+| **`Min_Playing`** | 총 출장 시간 (분) | 1500-3200 | 같은 방향. MP가 놓치는 로테이션/교체 패턴을 잡는 데 유용. |
+| **`Mins_Per_90_Playing`** | 총 분 ÷ 90, 사실상 풀게임 환산 출장 | 16-34 | 가장 매끈한 출장 시간 프록시. "이 선수가 많이 뛰었는가"를 가장 깔끔하게 보여주는 신호로 모델이 자주 골라냄. |
 
-These four are highly correlated. The model uses them together as an
-"availability + trust" cluster. Players who don't play don't get bought
-expensively (with rare exceptions for wonderkids — which the model misses).
+이 네 가지는 상관관계가 매우 높음. 모델은 이들을 묶어서 "출장성 + 신뢰" 클러스터로 사용함. 안 뛰는 선수는 비싸게 사지 않음 (원더키드 예외 — 모델이 놓치는 케이스).
 
-### Counting stats
+### 카운팅 스탯
 
-| Stat | Meaning | Typical Big-5 forward range | How it affects predicted fee |
+| 스탯 | 의미 | Big-5 공격수 일반 범위 | 예측 이적료에 미치는 영향 |
 | --- | --- | --- | --- |
-| **`Gls`** | Goals scored | 4-25 | Strong positive driver, especially for forwards. The single biggest non-playing-time feature for attackers. |
-| **`Ast`** | Assists | 2-12 | Strong positive driver, especially for playmakers. The model often picks Ast as the top SHAP improvement for midfielders. |
-| **`G_minus_PK`** | Non-penalty goals | 3-20 | Same direction as Gls but more honest about "real" goalscoring (penalties are easier and depend on team penalty-taker designation). |
-| **`PK`** / **`PKatt`** | Penalties scored / attempted | 0-5 | Weak signal alone, but identifies penalty-takers. Non-penalty-takers get 0 here regardless of skill. |
-| **`CrdY`** | Yellow cards | 2-9 | Mild *negative* signal. The model sometimes surfaces "reduce yellow cards" as a top SHAP improvement, especially for defensive mids. |
-| **`CrdR`** | Red cards | 0-1 | Almost always 0. When 1+, the model penalizes mildly. |
+| **`Gls`** | 골 | 4-25 | 강한 양의 동인, 특히 공격수에서. 공격수에서 출장 시간 외 단일 최대 특성. |
+| **`Ast`** | 어시스트 | 2-12 | 강한 양의 동인, 특히 플레이메이커에서. 미드필더에서 Ast가 top SHAP 개선안으로 자주 뽑힘. |
+| **`G_minus_PK`** | 페널티 제외 골 | 3-20 | Gls와 같은 방향이지만 "진짜" 골 생산에 대해 더 정직 (페널티는 더 쉽고 팀의 페널티 키커 지정에 의존). |
+| **`PK`** / **`PKatt`** | 페널티 성공 / 시도 | 0-5 | 단독으로는 약한 신호지만 페널티 키커 식별에 유용. 비-키커는 실력과 무관하게 0. |
+| **`CrdY`** | 옐로 카드 | 2-9 | 약한 *음의* 신호. 특히 수비형 미드에서 "옐로 카드 줄이기"가 top SHAP 개선안으로 종종 나옴. |
+| **`CrdR`** | 레드 카드 | 0-1 | 거의 항상 0. 1 이상일 때 모델이 약간 페널티 부여. |
 
-### Per-90 rate stats
+### 90분당 비율 스탯
 
-These normalize counting stats by minutes played, so a sub who scores once
-per game looks better than a starter who scores once every 5 games.
+카운팅 스탯을 출장 시간으로 정규화 — 경기당 1골 넣는 교체 출장 선수가, 5경기당 1골 넣는 주전보다 좋아 보이게 만듦.
 
-| Stat | Meaning | "Good" (Big-5 starter) | How it affects predicted fee |
+| 스탯 | 의미 | "괜찮은" 수준 (Big-5 주전) | 예측 이적료에 미치는 영향 |
 | --- | --- | --- | --- |
-| **`Gls_Per`** | Goals per 90 | Forwards: 0.5+, midfielders: 0.2+ | Strong positive for attackers. |
-| **`Ast_Per`** | Assists per 90 | Playmakers: 0.3+ | Strong positive for playmakers. |
-| **`G+A_Per`** | (Goals + Assists) per 90 | 0.5+ for any starter attacker | The cleanest "attacking output" signal. The model picks this as a top SHAP improvement for both wingers and playmakers. |
-| **`G_minus_PK_Per`** | Non-pen goals per 90 | 0.5+ for elite forwards | More penalty-independent version of Gls_Per. |
-| **`G+A_minus_PK_Per`** | (Goals + Assists - PK goals) per 90 | 0.5+ | The "honest" attacking output. |
+| **`Gls_Per`** | 90분당 골 | 공격수: 0.5+, 미드필더: 0.2+ | 공격수에 강한 양의 신호. |
+| **`Ast_Per`** | 90분당 어시스트 | 플레이메이커: 0.3+ | 플레이메이커에 강한 양의 신호. |
+| **`G+A_Per`** | 90분당 (골 + 어시스트) | 주전 공격 자원이면 0.5+ | 가장 깔끔한 "공격 생산" 신호. 윙어와 플레이메이커 모두에서 top SHAP 개선안으로 뽑힘. |
+| **`G_minus_PK_Per`** | 90분당 비-페널티 골 | 엘리트 공격수 0.5+ | 페널티 독립적인 Gls_Per 버전. |
+| **`G+A_minus_PK_Per`** | 90분당 (골 + 어시스트 - PK골) | 0.5+ | "정직한" 공격 생산. |
 
-### Expected-goal (xG / xAG) stats — the analytics core
+### xG / xAG 스탯 — 어낼리틱스 코어
 
-xG and xAG are the modern football analytics consensus for "shot/chance
-quality independent of finishing luck." They take a player's SHOTS (or
-key passes) and assign each one a probability of becoming a goal, then sum
-those probabilities. A player with 0.30 xG/90 is *expected* to score about
-one goal every 3 games, regardless of whether they actually did.
+xG와 xAG는 현대 축구 어낼리틱스에서 "마무리 운과 무관한 슛/찬스의 질"에 대한 합의된 지표임. 선수의 슛(또는 키패스) 각각에 골이 될 확률을 부여한 뒤 더함. 0.30 xG/90인 선수는 실제로 넣었든 못 넣었든 *기대상* 3경기당 1골 정도를 넣을 사람.
 
-The model leans on these heavily because they correlate with future goals
-better than past goals do — and the transfer market knows this.
+모델은 이 값들에 크게 의존함 — 과거 골보다 미래 골과의 상관이 더 높고, 이적 시장도 이를 아는 까닭임.
 
-| Stat | Meaning | "Good" (Big-5 starter) | How it affects predicted fee |
+| 스탯 | 의미 | "괜찮은" 수준 (Big-5 주전) | 예측 이적료에 미치는 영향 |
 | --- | --- | --- | --- |
-| **`xG_Expected`** | Total xG from non-penalty + penalty shots, season total | 8-20 for elite forwards | Strong positive driver. |
-| **`npxG_Expected`** | Non-penalty xG | 7-15 | "Real" xG without the PK boost. The cleanest "underlying goal threat" measure. |
-| **`xAG_Expected`** | Expected Assists (Goals from key passes), season total | 5-12 for playmakers | Strong positive for creators. |
-| **`npxG+xAG_Expected`** | npxG + xAG, the headline "creation + finishing" combined number | 12-25 | Often called the "everything attacking" stat. Single best summary of an attacker's output. |
-| **`xG_Per`** | xG per 90 | 0.4-0.7 for top forwards | Per-90 version. |
-| **`xAG_Per`** | xAG per 90 | 0.2-0.4 for playmakers | Per-90 version. |
-| **`xG+xAG_Per`** | xG + xAG per 90 | 0.5-1.0 for elite attackers | The single most predictive per-90 number for attacking output. |
-| **`npxG_Per`** | Non-pen xG per 90 | 0.3-0.6 | Per-90 npxG. |
-| **`npxG+xAG_Per`** | (npxG + xAG) per 90 | 0.5-0.9 | Per-90 of the combined creation/finishing metric. |
+| **`xG_Expected`** | 비페널티 + 페널티 슛에서 나온 시즌 총 xG | 엘리트 공격수 8-20 | 강한 양의 동인. |
+| **`npxG_Expected`** | 비페널티 xG | 7-15 | PK 부스트가 없는 "진짜" xG. 가장 깔끔한 "기저 골 위협" 측정치. |
+| **`xAG_Expected`** | 시즌 총 기대 어시스트 (키패스에서 나온 골) | 플레이메이커 5-12 | 창조형 자원에 강한 양의 신호. |
+| **`npxG+xAG_Expected`** | npxG + xAG, "창조 + 마무리" 헤드라인 수치 | 12-25 | "공격 전부" 스탯으로 자주 부름. 한 공격수의 산출을 가장 잘 요약하는 단일 지표. |
+| **`xG_Per`** | 90분당 xG | 톱 공격수 0.4-0.7 | 90분당 버전. |
+| **`xAG_Per`** | 90분당 xAG | 플레이메이커 0.2-0.4 | 90분당 버전. |
+| **`xG+xAG_Per`** | 90분당 xG + xAG | 엘리트 공격수 0.5-1.0 | 공격 산출에 대한 90분당 가장 예측력 높은 수치. |
+| **`npxG_Per`** | 90분당 비페널티 xG | 0.3-0.6 | 90분당 npxG. |
+| **`npxG+xAG_Per`** | 90분당 (npxG + xAG) | 0.5-0.9 | 결합 창조/마무리 지표의 90분당 버전. |
 
 ---
 
-## 5. Reading the SHAP top-3
+## 5. SHAP top-3 읽는 법
 
-For every prediction, the model also reports the three stat changes that
-would have moved the predicted fee most. Format:
+각 예측마다 모델은 예측 이적료를 가장 많이 움직였을 스탯 변경 3개를 함께 리포트함. 형식:
 
 ```
 +G+A_Per:+€10.95M | -CrdY:+€2.85M | +Ast:+€2.67M
 ```
 
-- **The leading sign** (`+` or `-`) is the *direction of improvement*: the
-  sign that, when applied to a ±1 SD perturbation of that stat, raised the
-  predicted fee. So `-CrdY` means *fewer* yellow cards is the improvement.
-- **The € figure** is the predicted fee change — *how much higher* the
-  prediction would have been if that stat moved by 1 standard deviation in
-  the indicated direction.
-- **±1 SD** is calibrated to the training-set spread for that feature. So
-  "improve xG by 1 SD" is roughly "go from a typical attacker's xG to a
-  noticeably better attacker's xG."
+- **선행 부호** (`+` 또는 `-`) 는 *개선 방향*: ±1 SD 섭동을 가했을 때 예측 이적료를 올린 부호. 즉 `-CrdY`는 옐로 카드를 *줄이는* 것이 개선이라는 의미.
+- **€ 수치** 는 예측 이적료 변화량 — 해당 스탯이 표시된 방향으로 1 표준편차만큼 움직였다면 예측이 *얼마만큼 더 높았을지*.
+- **±1 SD** 는 학습 셋에서의 해당 특성의 분포로 보정됨. 즉 "xG를 1 SD 개선"은 대략 "평범한 공격수의 xG에서 눈에 띄게 더 좋은 공격수의 xG로 이동" 정도.
 
-What you can read from a top-3:
-- **Position fit.** Forward → top-3 should include xG/Gls/G+A. Playmaker →
-  Ast/xAG. If a forward's top-3 says "improve xAG", the model's signal is
-  telling you the player would price up if they passed more.
-- **Improvement direction.** `+xG` is intuitive (score more is better).
-  `-CrdY` is also intuitive (fewer cards looks more reliable). But
-  occasionally `-Min_Playing` or `-MP_Playing` shows up — the model is
-  saying "fewer minutes" raises the prediction. That's usually a sign of
-  a non-monotonic xgboost partition; treat it as a model artifact, not
-  career advice.
+top-3에서 읽을 수 있는 것:
+- **포지션 적합성.** 공격수 → top-3에 xG/Gls/G+A가 있어야 함. 플레이메이커 → Ast/xAG. 만약 공격수 top-3에 "xAG 개선"이 있으면, 모델은 이 선수가 패스를 더 했다면 더 비쌌을 거라고 보고 있는 것.
+- **개선 방향.** `+xG`는 직관적 (더 많이 넣는 게 좋음). `-CrdY`도 직관적 (카드 적을수록 안정적). 하지만 가끔 `-Min_Playing` 또는 `-MP_Playing`이 등장 — 모델이 "출장 시간을 줄이면" 예측이 오른다고 말하는 것. 대개 이는 xgboost의 비-단조 분할 결과로, 모델 아티팩트로 다뤄야지 커리어 조언으로 받아들이면 안 됨.
 
 ---
 
-## 6. Known model defects to watch for
+## 6. 알려진 모델 결함 (주의해서 볼 것)
 
-Three patterns repeat across runs. They're documented here so the report's
-weird-looking lines aren't surprising:
+세 가지 패턴이 모든 실행에서 반복됨. 리포트의 이상해 보이는 줄들이 놀랍지 않도록 여기에 기록함:
 
-1. **Elite-tier underprediction.** Grealish €117M actual → €53M predicted.
-   The training distribution is centered around €13M with very few €80M+
-   examples. Tree-based regression with squared loss + sparse upper-tail =
-   predictions get pulled toward the bulk. Fix: log-transform the target,
-   or quantile regression, or more training data.
-2. **Defender misvaluation.** Cucurella, Fofana, centre-back archetype.
-   Feature selection dropped defensive stats. The model has no anchor for
-   defender value and tries to price defenders using attacking stats —
-   gets them very wrong in both directions. Fix: per-position-group models.
-3. **Bargain veterans priced high.** Craig Dawson £2M actual → €26M
-   predicted. Model sees "33 starts, 27 years old" and treats it as a
-   premium-tier signal. Fix: include age × playing-time interaction
-   features, or train on a wider fee distribution including bargain deals.
+1. **엘리트급 과소예측.** Grealish 실제 €117M → 예측 €53M. 학습 분포가 €13M 근방에 모여 있고 €80M+ 사례는 매우 적음. 제곱 손실 + 상단 분포 희소 + 트리 회귀 = 예측이 본 덩어리 쪽으로 끌려감. 해결: 타깃 log 변환, 또는 분위 회귀, 또는 더 많은 학습 데이터.
+2. **수비수 가치 오평가.** Cucurella, Fofana, 센터백 아키타입. 특성 선택이 수비 스탯을 떨어뜨려, 모델에 수비수 가치 앵커가 없음 — 공격 스탯으로 수비수를 가격 매기려다 양방향 모두 크게 어긋남. 해결: 포지션 그룹별 모델.
+3. **염가 베테랑이 비싸게 평가됨.** Craig Dawson 실제 £2M → 예측 €26M. 모델은 "33선발, 27세"를 보고 프리미엄급 신호로 다룸. 해결: 나이 × 출장 시간 상호작용 특성을 추가하거나, 염가 거래를 포함한 더 넓은 이적료 분포로 학습.
 
 ---
 
-## 7. How to reproduce a run
+## 7. 실행 재현 방법
 
 ```bash
 source .venv/bin/activate
-python scripts/sanity_check.py    # confirms data layer still works
-python scripts/train.py           # retrain (writes data/models/*.pkl)
-python scripts/predict.py         # generate this report
+python scripts/sanity_check.py    # 데이터 레이어가 여전히 동작하는지 확인
+python scripts/train.py           # 재학습 (data/models/*.pkl 생성)
+python scripts/predict.py         # 이 리포트 생성
 ```
 
-After `predict.py`, look at:
-- `predictions/latest/report.md` — this document's target.
-- `predictions/latest/test_set.csv` — full per-row predictions.
-- `predictions/runs/<this-run>/...` — frozen copy of everything.
-- `predictions/runs/runs.jsonl` — append-only audit log of every run ever.
+`predict.py` 실행 후 확인할 곳:
+- `predictions/latest/report.md` — 이 문서가 대상으로 하는 파일.
+- `predictions/latest/test_set.csv` — 전체 행별 예측.
+- `predictions/runs/<this-run>/...` — 모든 것의 동결 사본.
+- `predictions/runs/runs.jsonl` — 모든 실행의 append-only 감사 로그.
 
-Each row in every CSV carries a `run_id` (UTC ISO timestamp) and
-`model_commit` (git short SHA) prefix, so you can answer "which model
-produced this prediction on what date" without leaving the file.
+모든 CSV의 각 행에는 `run_id` (UTC ISO 타임스탬프)와 `model_commit` (git 짧은 SHA) 접두가 따라붙어, 파일을 떠나지 않고도 "어떤 모델이 언제 이 예측을 만들었는가"에 답할 수 있음.
 
 ---
 
-## 8. What this report is *not*
+## 8. 이 리포트가 *아닌* 것
 
-- **Not career advice.** SHAP outputs are *historical associations* —
-  "players who looked like this got paid like this." A real player who
-  improves their xG by 1 SD might or might not get the predicted bump,
-  depending on age, club prestige, agent network, and dozens of other
-  things the model can't see.
-- **Not a transfer-market signal.** This is a side project trained on 437
-  rows of public Transfermarkt fees. Any sports-agent or club analytics
-  team has way more data and way more signal than this. The point of the
-  project is the SHAP "which stat to improve" UX, not the absolute
-  predictions.
-- **Not currently calibrated to 2024+ markets.** Training data ends at
-  2022 transfers via the upstream `worldfootballR_data` snapshot. Use the
-  predictions as a within-era *ranking* tool, not as a live market call.
+- **커리어 조언이 아님.** SHAP 출력은 *역사적 연관성* — "이런 모습의 선수들은 이렇게 돈 받았다." 실제 선수가 xG를 1 SD 개선한다고 해도 예측된 만큼 오른다는 보장은 없음 — 나이, 클럽 명성, 에이전트 네트워크 등 모델이 보지 못하는 수많은 요인에 달려 있음.
+- **이적 시장 신호가 아님.** 이건 공개된 Transfermarkt 이적료 437행으로 학습한 사이드 프로젝트임. 어떤 스포츠 에이전트나 클럽 어낼리틱스 팀이든 훨씬 더 많은 데이터와 신호를 갖고 있음. 프로젝트의 핵심은 SHAP "어느 스탯을 개선할 것인가" UX이지 절대 예측이 아님.
+- **2024년 이후 시장에는 보정되어 있지 않음.** 학습 데이터는 업스트림 `worldfootballR_data` 스냅샷의 2022년 이적까지임. 예측은 시기 내 *랭킹* 도구로 쓰되, 실시간 시장 콜로는 쓰지 말 것.

@@ -1,25 +1,22 @@
-# Prediction Report — `2026-05-01T08:33:51Z`
+# 예측 리포트 — `2026-05-01T08:33:51Z`
 
-> New to this report? See **[docs/report-guide.md](../../../docs/report-guide.md)**
-> for what every column, stat, and SHAP output means.
+> 이 리포트가 처음이라면 **[docs/report-guide.md](../../../docs/report-guide.md)** 참조 — 모든 컬럼·스탯·SHAP 출력의 의미를 설명함.
 
-| Field | Value |
+| 필드 | 값 |
 | --- | --- |
 | Run ID (UTC) | `2026-05-01T08:33:51Z` |
 | Model commit | `ceb8195` |
-| Model | xgboost regressor on transfer fee (EUR) |
-| Train rows | 437 |
-| Test rows | 114 |
+| 모델 | 이적료(EUR)에 대한 xgboost 회귀기 |
+| 학습 행 수 | 437 |
+| 테스트 행 수 | 114 |
 | Test MAE | **€14.8M** |
 | Test Spearman ρ | **0.332** |
 
-> Spearman ρ ≈ 0.33 means the model ranks transfers correctly about
-> 67% of the time (random = 50%). Useful as a relative
-> ranking signal; absolute predictions tend to underestimate elite-tier transfers.
+> Spearman ρ ≈ 0.33 → 모델이 약 67%의 비율로 이적을 올바르게 랭킹한다는 의미 (랜덤 = 50%). 상대 랭킹 신호로 유용; 절대 예측은 엘리트급 이적을 과소평가하는 경향이 있음.
 
-## Top 10 highest-fee held-out transfers
+## 가장 비싼 홀드아웃 이적 Top 10
 
-| Season | Player | To | Actual | Predicted | Err % | Top-3 stat improvements (Δ predicted fee) |
+| 시즌 | 선수 | 행선지 | 실제 | 예측 | 오차 % | Top-3 스탯 개선안 (Δ 예측 이적료) |
 | --- | --- | --- | --- | --- | --- | --- |
 | 2021 | Jack Grealish | Manchester City | €117.5M | €53.2M | 55% | +Ast:+€12.21M \| +Starts_Playing:+€6.34M \| -Gls:+€5.27M |
 | 2021 | Romelu Lukaku | Chelsea FC | €113.0M | €49.3M | 56% | +CrdY:+€6.69M \| -MP_Playing:+€4.10M \| +Gls_Per:+€2.74M |
@@ -32,9 +29,9 @@
 | 2022 | Erling Haaland | Manchester City | €60.0M | €55.6M | 7% | +Starts_Playing:+€9.90M \| +xAG_Expected:+€6.47M \| +MP_Playing:+€4.56M |
 | 2021 | Ben White | Arsenal FC | €58.5M | €19.1M | 67% | -xAG_Expected:+€35.85M \| -Mins_Per_90_Playing:+€14.00M \| +Gls_Per:+€10.97M |
 
-## 5 best predictions (lowest %error)
+## 가장 잘 맞춘 예측 5개 (가장 낮은 %오차)
 
-| Season | Player | To | Actual | Predicted | Err % | Top-3 stat improvements (Δ predicted fee) |
+| 시즌 | 선수 | 행선지 | 실제 | 예측 | 오차 % | Top-3 스탯 개선안 (Δ 예측 이적료) |
 | --- | --- | --- | --- | --- | --- | --- |
 | 2022 | Dwight McNeil | Everton FC | €24.0M | €23.6M | 2% | -Mins_Per_90_Playing:+€14.54M \| -MP_Playing:+€8.60M \| +Gls_Per:+€6.40M |
 | 2022 | Raheem Sterling | Chelsea FC | €56.2M | €53.6M | 5% | +Starts_Playing:+€6.22M \| -xAG_Expected:+€5.96M \| -PKatt:+€3.54M |
@@ -42,9 +39,9 @@
 | 2021 | Joachim Andersen | Crystal Palace | €17.5M | €16.5M | 6% | +Starts_Playing:+€7.17M \| +CrdY:+€2.52M \| +Gls_Per:+€2.23M |
 | 2022 | Philippe Coutinho | Aston Villa | €20.0M | €18.8M | 6% | +Mins_Per_90_Playing:+€5.10M \| -npxG_Expected:+€4.81M \| +Starts_Playing:+€2.99M |
 
-## 5 worst predictions (highest %error)
+## 가장 못 맞춘 예측 5개 (가장 높은 %오차)
 
-| Season | Player | To | Actual | Predicted | Err % | Top-3 stat improvements (Δ predicted fee) |
+| 시즌 | 선수 | 행선지 | 실제 | 예측 | 오차 % | Top-3 스탯 개선안 (Δ 예측 이적료) |
 | --- | --- | --- | --- | --- | --- | --- |
 | 2021 | Craig Dawson | West Ham United | €2.3M | €26.1M | 1035% | +Starts_Playing:+€15.66M \| +MP_Playing:+€8.04M \| +Mins_Per_90_Playing:+€6.50M |
 | 2022 | Willy Boly | Nottingham Forest | €2.6M | €18.7M | 621% | +xG_Expected:+€8.70M \| +Starts_Playing:+€5.21M \| +Mins_Per_90_Playing:+€3.67M |
@@ -52,26 +49,23 @@
 | 2021 | Samuel Kalu | Watford FC | €3.0M | €16.8M | 459% | +xAG_Expected:+€6.63M \| -CrdY:+€6.57M \| +G+A_Per:+€5.64M |
 | 2021 | Pierre Lees-Melou | Norwich City | €3.9M | €21.6M | 453% | +Starts_Playing:+€14.69M \| -G+A_Per:+€13.74M \| -xG_Expected:+€6.09M |
 
-## Synthetic fake players
+## 가상 선수
 
-Six distinct archetypes covering different positions, ages, and stat profiles.
-The point is to (a) sanity-check the model's response across player types,
-(b) surface where it's well-calibrated vs where it isn't (defenders are a
-known soft spot), and (c) demonstrate the SHAP "improve this stat" output
-for each archetype.
+서로 다른 포지션·나이·스탯 프로필을 가진 6개의 아키타입.
+목적은 (a) 선수 타입 전반에서 모델 반응을 sanity-check, (b) 모델이 잘 보정된 곳과 그렇지 않은 곳(수비수는 알려진 약점)을 드러내기, (c) 아키타입별 SHAP "이 스탯을 개선하라" 출력을 보여주기.
 
-| Profile | Position | Age | Predicted fee | Top-3 stat improvements (Δ predicted fee) |
+| 프로필 | 포지션 | 나이 | 예측 이적료 | Top-3 스탯 개선안 (Δ 예측 이적료) |
 | --- | --- | --- | --- | --- |
-| Breakout Right Winger, 23yo | Right Winger | 23 | €54.5M | +G+A_Per:+€10.95M \| -CrdY:+€2.85M \| +Ast:+€2.67M |
-| Veteran Striker, 31yo | Centre-Forward | 31 | €33.1M | +Starts_Playing:+€10.44M \| -CrdY:+€9.67M \| +Gls:+€9.37M |
-| Playmaking Midfielder, 28yo | Attacking Midfielder | 28 | €58.6M | +CrdY:+€15.50M \| +G+A_Per:+€10.96M \| +Gls:+€10.17M |
-| Defensive Midfielder, 26yo | Defensive Midfielder | 26 | €16.7M | -npxG_Expected:+€10.60M \| -xAG_Expected:+€8.53M \| +Starts_Playing:+€6.78M |
-| Centre-Back, 27yo | Centre-Back | 27 | €20.2M | -xAG_Expected:+€17.85M \| -Mins_Per_90_Playing:+€10.37M \| -npxG_Expected:+€9.39M |
-| Lottery-Ticket Wonderkid, 18yo | Left Winger | 18 | €15.7M | +xAG_Expected:+€18.07M \| +Ast:+€12.07M \| -CrdY:+€2.93M |
+| 브레이크아웃 라이트 윙어, 23세 | Right Winger | 23 | €54.5M | +G+A_Per:+€10.95M \| -CrdY:+€2.85M \| +Ast:+€2.67M |
+| 베테랑 스트라이커, 31세 | Centre-Forward | 31 | €33.1M | +Starts_Playing:+€10.44M \| -CrdY:+€9.67M \| +Gls:+€9.37M |
+| 플레이메이킹 미드필더, 28세 | Attacking Midfielder | 28 | €58.6M | +CrdY:+€15.50M \| +G+A_Per:+€10.96M \| +Gls:+€10.17M |
+| 수비형 미드필더, 26세 | Defensive Midfielder | 26 | €16.7M | -npxG_Expected:+€10.60M \| -xAG_Expected:+€8.53M \| +Starts_Playing:+€6.78M |
+| 센터백, 27세 | Centre-Back | 27 | €20.2M | -xAG_Expected:+€17.85M \| -Mins_Per_90_Playing:+€10.37M \| -npxG_Expected:+€9.39M |
+| 복권형 원더키드, 18세 | Left Winger | 18 | €15.7M | +xAG_Expected:+€18.07M \| +Ast:+€12.07M \| -CrdY:+€2.93M |
 
-### Input stats used per archetype
+### 아키타입별 입력 스탯
 
-<details><summary><b>Breakout Right Winger, 23yo</b> &mdash; Right Winger, 23yo &mdash; input stats</summary>
+<details><summary><b>브레이크아웃 라이트 윙어, 23세</b> &mdash; Right Winger, 23세 &mdash; 입력 스탯</summary>
 
   - **MP_Playing:** 32
   - **Starts_Playing:** 28
@@ -101,7 +95,7 @@ for each archetype.
 
 </details>
 
-<details><summary><b>Veteran Striker, 31yo</b> &mdash; Centre-Forward, 31yo &mdash; input stats</summary>
+<details><summary><b>베테랑 스트라이커, 31세</b> &mdash; Centre-Forward, 31세 &mdash; 입력 스탯</summary>
 
   - **MP_Playing:** 30
   - **Starts_Playing:** 26
@@ -131,7 +125,7 @@ for each archetype.
 
 </details>
 
-<details><summary><b>Playmaking Midfielder, 28yo</b> &mdash; Attacking Midfielder, 28yo &mdash; input stats</summary>
+<details><summary><b>플레이메이킹 미드필더, 28세</b> &mdash; Attacking Midfielder, 28세 &mdash; 입력 스탯</summary>
 
   - **MP_Playing:** 35
   - **Starts_Playing:** 33
@@ -161,7 +155,7 @@ for each archetype.
 
 </details>
 
-<details><summary><b>Defensive Midfielder, 26yo</b> &mdash; Defensive Midfielder, 26yo &mdash; input stats</summary>
+<details><summary><b>수비형 미드필더, 26세</b> &mdash; Defensive Midfielder, 26세 &mdash; 입력 스탯</summary>
 
   - **MP_Playing:** 33
   - **Starts_Playing:** 31
@@ -191,7 +185,7 @@ for each archetype.
 
 </details>
 
-<details><summary><b>Centre-Back, 27yo</b> &mdash; Centre-Back, 27yo &mdash; input stats</summary>
+<details><summary><b>센터백, 27세</b> &mdash; Centre-Back, 27세 &mdash; 입력 스탯</summary>
 
   - **MP_Playing:** 34
   - **Starts_Playing:** 33
@@ -221,7 +215,7 @@ for each archetype.
 
 </details>
 
-<details><summary><b>Lottery-Ticket Wonderkid, 18yo</b> &mdash; Left Winger, 18yo &mdash; input stats</summary>
+<details><summary><b>복권형 원더키드, 18세</b> &mdash; Left Winger, 18세 &mdash; 입력 스탯</summary>
 
   - **MP_Playing:** 22
   - **Starts_Playing:** 14
@@ -253,4 +247,4 @@ for each archetype.
 
 ---
 
-*Generated by `scripts/predict.py`. CSV equivalents in this same directory and in `predictions/latest/`. Audit trail: `predictions/runs/runs.jsonl`.*
+*`scripts/predict.py`에 의해 생성됨. 같은 디렉토리와 `predictions/latest/`에 CSV 동등본 있음. 감사 추적: `predictions/runs/runs.jsonl`.*

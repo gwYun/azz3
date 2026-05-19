@@ -1,58 +1,58 @@
 # TODOS
 
-Items captured from /plan-eng-review on 2026-05-05 (branch: main).
+2026-05-05일에 /plan-eng-review에서 도출된 항목 (브랜치: main).
 
-## Deferred from web playground design (already documented in design doc as v2)
+## 웹 플레이그라운드 설계에서 보류된 항목 (설계 문서에 v2로 이미 기재됨)
 
-- Real-player templating (pick Saka, mutate his stats) — design says v2.
-- Mobile sliders for <768px viewport — design ships desktop-only with a banner.
-- Glossary v2: per-position typical ranges + FBref doc links per stat.
-- Build export-as-JSON — drop unless a teammate asks.
-- Vercel password protection / Cloudflare Access — defer until someone wants it private.
+- 실제 선수 템플릿화 (Saka를 선택해 스탯을 변형하기) — 설계 문서상 v2.
+- <768px 뷰포트용 모바일 슬라이더 — 데스크탑 전용으로 배너와 함께 출시.
+- 용어집 v2: 포지션별 일반적 범위 + 스탯별 FBref 문서 링크.
+- 빌드 JSON 내보내기 — 팀원이 요청하지 않는 한 드롭.
+- Vercel 비밀번호 보호 / Cloudflare Access — 누군가 비공개를 원할 때까지 보류.
 
-Design doc reference: `~/.gstack/projects/azz3/gwyunm1air-main-design-20260505-144914.md`
+설계 문서 참조: `~/.gstack/projects/azz3/gwyunm1air-main-design-20260505-144914.md`
 
-## Surfaced by /plan-eng-review 2026-05-05
+## /plan-eng-review 2026-05-05에서 도출된 항목
 
-### Retrain model with richer features + position dummies
+### 더 풍부한 특성 + 포지션 더미를 포함해 모델 재학습
 
-**What:** Retrain xgboost on a feature set that includes xA, progressive carries, progressive passes, defensive stats (tackles, interceptions, blocks per 90), and one-hot position group dummies. Target n >= 300 by widening to more leagues / seasons.
+**무엇:** xA, 전진 캐리(progressive carries), 전진 패스, 수비 스탯(태클, 인터셉트, 90분당 블록), 그리고 포지션 그룹 원-핫 더미를 포함하는 특성 집합으로 xgboost를 재학습. 더 많은 리그/시즌으로 확대해 n >= 300 목표.
 
-**Why:** Current model is the structural reason the playground UX has to compromise — 15 features (most counting-stat nuisance), n=96, MAE €14M, Spearman 0.31. Two locked compromises trace directly to this:
-- T1 (eng review): "+€5M from 1 SD bump" is dominated by noise; ships with a calibration tooltip instead of honest range UX.
-- T3 (eng review): single-stat compare-swap was abandoned for correlated-group swap because xG/npxG/Gls collinearity makes single-stat extrapolation off-distribution.
+**왜:** 현재 모델이 플레이그라운드 UX가 타협해야만 했던 구조적 이유 — 특성 15개(대부분 counting-stat 잡음), n=96, MAE €14M, Spearman 0.31. 두 가지 결정된 타협이 이 한계에서 직접 비롯됨:
+- T1 (eng review): "1 SD 상승 시 +€5M"은 노이즈가 지배적이므로, 정직한 범위 UX 대신 보정(calibration) 툴팁과 함께 출시.
+- T3 (eng review): 단일 스탯 비교 스왑을 포기하고 상관관계 그룹 스왑으로 전환했는데, 그 이유는 xG/npxG/Gls 공선성 때문에 단일 스탯 외삽이 분포 외(out-of-distribution)가 되기 때문.
 
-A stronger model dissolves both compromises. Sub-€10M MAE makes point-estimate UX honest. Position dummies unlock the design's original position-selector vision.
+더 강한 모델이면 두 타협 모두 해소됨. MAE가 €10M 미만으로 떨어지면 점추정 UX가 정직해짐. 포지션 더미가 있으면 디자인 원안의 포지션 선택 UI도 풀림.
 
-**Pros:**
-- Unlocks design's original UX (position selector, ~30 features, defender/midfielder archetypes).
-- Counterfactuals become defensible to a stats-literate teammate.
-- Compare-view deciding-stat could go back to single-stat swap (in-distribution).
+**장점:**
+- 디자인 원안의 UX(포지션 선택, 약 30개 특성, 수비수/미드필더 아키타입)가 풀림.
+- 반사실(counterfactual)이 통계에 밝은 팀원 앞에서 변호 가능해짐.
+- 비교 뷰에서의 "결정적 스탯"이 다시 단일 스탯 스왑(in-distribution)으로 돌아갈 수 있음.
 
-**Cons:**
-- ~1 weekend of work.
-- Re-runs feature_set_hash invalidation — all teammates' saved builds go read-only on first visit after retrain (schemaVersion machinery doing its job, but a one-time UX cost).
+**단점:**
+- 약 1주차 분량의 작업.
+- feature_set_hash 무효화가 재가동됨 — 모든 팀원의 저장된 빌드가 재학습 후 첫 방문 시 read-only로 전환됨 (schemaVersion 메커니즘이 의도대로 작동하는 것이지만, 1회성 UX 비용 발생).
 
-**Context:** `src/model.py`, `src/features.py`, `data/models/selected_features.json`. After retrain, `scripts/export_for_web.py` regenerates all web artifacts.
+**컨텍스트:** `src/model.py`, `src/features.py`, `data/models/selected_features.json`. 재학습 후에는 `scripts/export_for_web.py`가 모든 웹 아티팩트를 재생성함.
 
-**Depends on:** nothing — fully unblocked. Best done after the playground ships and teammates have given feedback on what features they wished the model captured.
+**의존성:** 없음 — 완전히 풀려 있음. 플레이그라운드가 먼저 출시되고 팀원들이 어떤 특성을 모델이 포착했으면 좋겠는지에 대해 피드백을 준 뒤에 진행하는 것이 가장 좋음.
 
-### Strategic alternative (not a TODO, escalated for /plan-ceo-review consideration)
+### 전략적 대안 (TODO 아님, /plan-ceo-review 검토를 위해 별도 에스컬레이션)
 
-Outside voice flagged "Guess the Transfer Fee" game as a fundamentally different demo idea using the same model artifacts: show real test-set player lines, teammates guess fee, reveal model's prediction + actual. Reframes weak model accuracy as the demo's interesting hook (model losing to humans = "I beat the algorithm on Saka" group-chat moment). Not added here as a TODO because it's a product-direction question, not a deferrable engineering task. If you want to evaluate it as an alternative or successor product, run `/plan-ceo-review`.
+외부에서 같은 모델 아티팩트를 활용한 근본적으로 다른 데모 아이디어로 "이적료 맞추기 게임"을 제안함: 실제 테스트 셋 선수 라인업을 보여주고, 팀원들이 이적료를 추측한 뒤 모델의 예측 + 실제 이적료를 공개. 약한 모델 정확도를 데모의 흥미 포인트로 재구성 (사람한테 지는 모델 = "Saka 예측에서 내가 알고리즘 이김"이라는 그룹챗 모먼트). 보류 가능한 엔지니어링 과제가 아니라 제품 방향성 문제이므로 여기에 TODO로 추가하지 않음. 대안 또는 후속 제품으로 평가하고 싶다면 `/plan-ceo-review` 실행.
 
-## Surfaced by /plan-design-review 2026-05-05
+## /plan-design-review 2026-05-05에서 도출된 항목
 
-### Run /design-consultation to produce a real DESIGN.md
+### /design-consultation을 실행하여 실제 DESIGN.md를 생성
 
-**What:** Run the `/design-consultation` skill to produce a full DESIGN.md (typography hierarchy rules, color story with semantic naming, motion language, brand voice + tone guidelines, component vocabulary).
+**무엇:** `/design-consultation` 스킬을 실행해 완전한 DESIGN.md를 생성 (타이포그래피 위계 규칙, 의미 기반 네이밍이 있는 컬러 스토리, 모션 언어, 브랜드 보이스 + 톤 가이드라인, 컴포넌트 어휘).
 
-**Why:** Today the playground has a thin inline token set: accent #2C8C5F (football pitch green), Inter (body) + Inter Tight (display), 4-base spacing, neutral Tailwind ramp. Enough to ship the demo. But if any other surface gets built (separate landing page, future tournament/season comparison view, mobile experience), the inline tokens won't extend coherently — they were chosen for one screen.
+**왜:** 현재 플레이그라운드는 얇은 인라인 토큰 셋만 가짐: 액센트 #2C8C5F (축구 피치 그린), Inter (본문) + Inter Tight (디스플레이), 4 base 스페이싱, 중립 Tailwind 램프. 데모 출시에는 충분함. 그러나 다른 표면(별도 랜딩 페이지, 향후 토너먼트/시즌 비교 뷰, 모바일 경험)이 만들어진다면 인라인 토큰은 일관성 있게 확장되지 않음 — 한 화면 기준으로 선택된 값들이기 때문.
 
-**Pros:** Future surfaces inherit a real design language; tone/voice gets explicit instead of implicit; reduces "what should this color/spacing be" questions during implementation.
+**장점:** 미래 표면들이 실제 디자인 언어를 상속받음; 톤/보이스가 암묵적이 아닌 명시적으로 정의됨; 구현 중 "이 색/스페이싱은 뭐로 해야 하나" 질문이 줄어듦.
 
-**Cons:** ~30-45 min run; produces a doc that may be over-engineered for a 5-teammate playground that may never grow.
+**단점:** 약 30-45분 실행 시간; 5명짜리 플레이그라운드(아마 안 커질 수도 있음)에 비해 과잉 엔지니어링된 문서가 나올 수 있음.
 
-**Context:** Inline tokens locked in this design review (see plan). DESIGN.md would supersede or formalize them.
+**컨텍스트:** 이번 디자인 리뷰에서 확정된 인라인 토큰 (플랜 참고). DESIGN.md가 이를 대체하거나 공식화하게 됨.
 
-**Depends on:** nothing — fully unblocked. Best done if the playground grows beyond the 5-teammate demo.
+**의존성:** 없음 — 완전히 풀려 있음. 플레이그라운드가 5명짜리 데모를 넘어 성장할 때 진행하는 것이 가장 좋음.
