@@ -38,60 +38,113 @@ from scripts.predict import make_fake_players  # noqa: E402
 MODEL_PKL = config.MODELS_DIR / "xgb_transfer_fee.pkl"
 FEATS_JSON = config.MODELS_DIR / "selected_features.json"
 
-# Hand-picked Premier League norms. P5/P95 set slider ranges; SD drives the
-# +1 SD counterfactual perturbation. These are subject-matter estimates, not
-# computed statistics — the training feature dataframe isn't persisted.
-FEATURE_NORMS: dict[str, dict[str, float]] = {
-    "MP_Playing":          {"p5": 5.0,   "p95": 38.0,  "sd": 9.0},
-    "Starts_Playing":      {"p5": 0.0,   "p95": 36.0,  "sd": 11.0},
-    "Mins_Per_90_Playing": {"p5": 1.0,   "p95": 35.0,  "sd": 10.0},
-    "Gls":                 {"p5": 0.0,   "p95": 18.0,  "sd": 4.5},
-    "Ast":                 {"p5": 0.0,   "p95": 9.0,   "sd": 2.5},
-    "PK":                  {"p5": 0.0,   "p95": 5.0,   "sd": 1.2},
-    "PKatt":               {"p5": 0.0,   "p95": 6.0,   "sd": 1.4},
-    "CrdY":                {"p5": 0.0,   "p95": 11.0,  "sd": 2.8},
-    "CrdR":                {"p5": 0.0,   "p95": 1.0,   "sd": 0.4},
-    "Gls_Per":             {"p5": 0.0,   "p95": 0.65,  "sd": 0.18},
-    "G+A_Per":             {"p5": 0.0,   "p95": 0.95,  "sd": 0.25},
-    "G_minus_PK_Per":      {"p5": 0.0,   "p95": 0.55,  "sd": 0.16},
-    "xG_Expected":         {"p5": 0.1,   "p95": 16.0,  "sd": 4.0},
-    "npxG_Expected":       {"p5": 0.1,   "p95": 14.0,  "sd": 3.5},
-    "xAG_Expected":        {"p5": 0.1,   "p95": 8.5,   "sd": 2.2},
-}
+# Feature norms are now derived from training-set medians + stds persisted
+# in selected_features.json (see _compute_feature_stats). Hand-picked norms
+# are gone — the model schema is too wide (23+ features across 6 FBref tables
+# plus engineered fields) and the persisted training stats are authoritative.
 
 WEB_API_MODEL = ROOT / "web" / "api" / "model"
 WEB_PUBLIC = ROOT / "web" / "public"
 WEB_API_MODEL.mkdir(parents=True, exist_ok=True)
 WEB_PUBLIC.mkdir(parents=True, exist_ok=True)
 
-# Correlated-feature groups for the compare-view deciding-group math.
-# Locked in plan-eng-review tension T3: single-stat swap is mathematically
-# broken on collinear features (xG/npxG/Gls all measure "this player scores").
-# Compare swaps groups (all members at once) so input vectors stay in-distribution.
-FEATURE_GROUPS = {
-    "finishing_volume": ["Gls", "xG_Expected", "npxG_Expected", "Gls_Per", "G_minus_PK_Per"],
-    "creation": ["Ast", "xAG_Expected", "G+A_Per"],
-    "availability": ["MP_Playing", "Starts_Playing", "Mins_Per_90_Playing"],
-    "discipline": ["CrdY", "CrdR"],
-    "set_pieces": ["PK", "PKatt"],
-}
+# Correlated-feature groups for the compare-view "decide-as-a-group" math.
+# Locked in plan-eng-review tension T3: single-stat swap is broken on collinear
+# features. With the enriched feature set we group by FBref table suffix
+# (_shoot/_pass/_poss/_def/_misc) plus engineered families (profile, valuation,
+# position). Group membership is computed from the actual feature list so
+# adding/removing features doesn't require touching this map.
+
+def _group_for(feature: str) -> str:
+    if feature in {"prior_market_value_eur"}:
+        return "valuation"
+    if feature.startswith("pos_"):
+        return "position"
+    if feature in {"age_years", "age_sq", "peak_distance",
+                   "contract_years_remaining", "tenure_at_selling_club_years"}:
+        return "profile"
+    if feature.endswith("_shoot"):
+        return "finishing"
+    if feature.endswith("_pass"):
+        return "passing"
+    if feature.endswith("_poss"):
+        return "possession"
+    if feature.endswith("_def"):
+        return "defending"
+    if feature.endswith("_misc"):
+        return "misc"
+    # Standard-table fallbacks
+    if feature in {"MP_Playing", "Starts_Playing", "Mins_Per_90_Playing", "Min_Playing"}:
+        return "availability"
+    if feature in {"CrdY", "CrdR"}:
+        return "discipline"
+    if feature in {"Gls", "Gls_Per", "G_minus_PK", "G_minus_PK_Per", "G+A_Per", "G+A_minus_PK_Per"}:
+        return "finishing"
+    if feature in {"Ast", "Ast_Per", "xAG_Expected", "xAG_Per"}:
+        return "creation"
+    if feature in {"PK", "PKatt"}:
+        return "set_pieces"
+    return "other"
 
 
-def _compute_feature_stats(features: list[str]) -> dict[str, dict[str, float]]:
-    """For each model feature, return hand-picked PL-norm P5/P95/SD."""
-    missing = [f for f in features if f not in FEATURE_NORMS]
-    if missing:
-        raise SystemExit(f"FEATURE_NORMS missing entries for: {missing}")
-    return {f: dict(FEATURE_NORMS[f]) for f in features}
+def _build_feature_groups(features: list[str]) -> dict[str, list[str]]:
+    groups: dict[str, list[str]] = {}
+    for f in features:
+        groups.setdefault(_group_for(f), []).append(f)
+    return groups
 
 
-def _archetype_payload(features: list[str], medians: dict[str, float]) -> list[dict]:
+def _compute_feature_stats(
+    features: list[str],
+    medians: dict[str, float],
+    stds: dict[str, float],
+) -> dict[str, dict[str, float]]:
+    """Derive P5/P95/SD per feature from training-time medians + stds.
+
+    P5 ≈ median - 2*sd  (clamped at 0 for nonnegative-by-construction stats)
+    P95 ≈ median + 2*sd
+    SD  = persisted training std
+    """
+    nonneg_prefixes = ("MP_", "Min_", "Mins_", "Starts_", "Gls", "Ast", "PK", "Crd",
+                       "xG_", "npxG_", "xA", "Sh_", "SoT_", "Tkl", "Cmp_", "Att_",
+                       "Won_", "Lost_", "Press_", "Touch", "Carry", "Carries", "Prog",
+                       "Rec_", "Final_", "Recov", "Int_", "Clr_", "Blocks_",
+                       "Dist_", "TotDist", "PrgDist", "Live_", "Targ_",
+                       "prior_market_value_eur", "age_years", "age_sq",
+                       "contract_years_remaining", "tenure_at_selling_club_years",
+                       "peak_distance", "seasons_in_big5_prior", "min_prior",
+                       "xg_per90", "xag_per90", "from_", "pos_", "foot_",
+                       "window_winter", "nat_is_")
+    out = {}
+    for f in features:
+        sd = float(stds.get(f, 1.0))
+        med = float(medians.get(f, 0.0))
+        p5 = med - 2 * sd
+        p95 = med + 2 * sd
+        if f.startswith(nonneg_prefixes):
+            p5 = max(0.0, p5)
+        out[f] = {"p5": p5, "p95": p95, "sd": sd}
+    return out
+
+
+def _archetype_payload(
+    features: list[str],
+    medians: dict[str, float],
+    inverse_rename: dict[str, str],
+) -> list[dict]:
     """Project the 6 archetypes from scripts/predict.py onto the model's feature
-    set, filling missing keys with the training-set median.
+    set, filling missing keys with the training-set median. Fake stats are
+    keyed by ORIGINAL feature names; the model expects xgb-safe names.
     """
     out: list[dict] = []
     for fake in make_fake_players():
-        full = {feat: float(fake["stats"].get(feat, medians[feat])) for feat in features}
+        full = {}
+        for feat in features:
+            orig = inverse_rename.get(feat, feat)
+            if orig in fake["stats"]:
+                full[feat] = float(fake["stats"][orig])
+            else:
+                full[feat] = float(medians.get(feat, 0.0))
         out.append({
             "name": fake["name"],
             "position": fake["position"],
@@ -124,16 +177,18 @@ def main() -> None:
 
     feats = json.loads(FEATS_JSON.read_text())
     features: list[str] = feats["features"]
-    medians: dict[str, float] = {k: float(v) for k, v in feats["medians"].items()}
+    # Medians are persisted keyed by ORIGINAL feature names; stds by xgb-safe.
+    # Build aligned dicts keyed by the xgb-safe names used in `features`.
+    rename_map: dict[str, str] = feats.get("rename_map", {})
+    inverse_rename = {v: k for k, v in rename_map.items()}
+    medians_raw: dict[str, float] = {k: float(v) for k, v in feats["medians"].items()}
+    stds_raw: dict[str, float] = {k: float(v) for k, v in feats.get("stds", {}).items()}
+    medians: dict[str, float] = {f: float(medians_raw.get(inverse_rename.get(f, f), 0.0)) for f in features}
+    stds: dict[str, float] = {f: float(stds_raw.get(f, 1.0)) for f in features}
 
-    feature_stats = _compute_feature_stats(features)
-    archetypes = _archetype_payload(features, medians)
-
-    # Validate feature groups: every group member must be a model feature.
-    for group, members in FEATURE_GROUPS.items():
-        unknown = [m for m in members if m not in features]
-        if unknown:
-            raise SystemExit(f"feature group {group!r} references unknown features: {unknown}")
+    feature_groups = _build_feature_groups(features)
+    feature_stats = _compute_feature_stats(features, medians, stds)
+    archetypes = _archetype_payload(features, medians, inverse_rename)
 
     # Build the public model-info payload first (frontend), then hash it together
     # with model.json bytes to lock the schemaVersion.
@@ -141,7 +196,7 @@ def main() -> None:
         "features": features,
         "medians": medians,
         "feature_stats": feature_stats,
-        "feature_groups": FEATURE_GROUPS,
+        "feature_groups": feature_groups,
         # feature_set_hash gets injected after we hash this payload + model bytes
     }
     public_info = WEB_PUBLIC / "model-info.json"
@@ -166,14 +221,14 @@ def main() -> None:
     out_stats = WEB_API_MODEL / "feature_stats.json"
     out_stats.write_text(json.dumps({
         "feature_stats": feature_stats,
-        "feature_groups": FEATURE_GROUPS,
+        "feature_groups": feature_groups,
         "feature_set_hash": feature_set_hash,
     }, indent=2))
 
     print(f"wrote {out_model} ({out_model.stat().st_size} bytes)")
     print(f"wrote {out_features} ({len(features)} features)")
     print(f"wrote {out_stats} ({len(feature_stats)} feature stats)")
-    print(f"wrote {public_info} ({len(features)} features, {len(FEATURE_GROUPS)} groups)")
+    print(f"wrote {public_info} ({len(features)} features, {len(feature_groups)} groups)")
     print(f"wrote {public_archetypes} ({len(archetypes)} archetypes)")
     print(f"feature_set_hash = {feature_set_hash}")
 

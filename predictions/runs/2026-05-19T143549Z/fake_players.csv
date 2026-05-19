@@ -1,0 +1,7 @@
+run_id,model_commit,name,position,age,predicted_fee_eur,predicted_fee_eur_human,top3_stat_improvements
+2026-05-19T14:35:49Z,e428a8b,"브레이크아웃 라이트 윙어, 23세",Right Winger,23,64664844.89601936,€64.7M,+prior_market_value_eur:+€18.12M | +SoT_per_90_Standard_shoot:+€12.94M | -Sh_Standard_shoot:+€10.28M
+2026-05-19T14:35:49Z,e428a8b,"베테랑 스트라이커, 31세",Centre-Forward,31,37825149.85312996,€37.8M,+SoT_per_90_Standard_shoot:+€16.13M | -age_years:+€14.05M | +Min_Playing:+€11.33M
+2026-05-19T14:35:49Z,e428a8b,"플레이메이킹 미드필더, 28세",Attacking Midfielder,28,70736405.0596136,€70.7M,-age_years:+€30.68M | +SoT_per_90_Standard_shoot:+€22.46M | +prior_market_value_eur:+€5.42M
+2026-05-19T14:35:49Z,e428a8b,"수비형 미드필더, 26세",Defensive Midfielder,26,59980901.084211305,€60.0M,+prior_market_value_eur:+€25.99M | +MP_Playing:+€12.19M | +tenure_at_selling_club_years:+€10.53M
+2026-05-19T14:35:49Z,e428a8b,"센터백, 27세",Centre-Back,27,75769473.66000801,€75.8M,+MP_Playing:+€11.12M | -age_years:+€10.61M | -peak_distance:+€4.89M
+2026-05-19T14:35:49Z,e428a8b,"복권형 원더키드, 18세",Left Winger,18,44969397.420573585,€45.0M,+SoT_per_90_Standard_shoot:+€15.49M | +prior_market_value_eur:+€8.48M | +Min_Playing:+€7.35M

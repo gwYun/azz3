@@ -1,11 +1,11 @@
 """Export a curated set of real-player feature presets to web/public/players.json.
 
-Reuses the same join pipeline as scripts/predict.py so the 15 features served
+Reuses the enriched join pipeline from scripts/train.py so the features served
 to the build-page dropdown match exactly what the model was trained on.
 
 Curated allow-list of notable Premier-League transfers (2021–2022) — picked
-because they're recognizable to the audience and span positions/ages. Players
-that don't join cleanly (missing prior-season FBref row) are skipped with a log.
+because they're recognizable and span positions/ages. Players that don't join
+cleanly (missing prior-season FBref row) are skipped with a log.
 """
 from __future__ import annotations
 
@@ -19,16 +19,12 @@ import pandas as pd
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from src import config  # noqa: E402
-from src.data import (  # noqa: E402
-    join_transfers_with_prior_season_stats,
-    load_fbref_player_stats,
-    load_transfers,
-)
+from scripts.predict import _load_artifacts, _prepare_feature_frame  # noqa: E402
+from scripts.train import prepare_dataset  # noqa: E402
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 log = logging.getLogger("export_real_players")
 
-# (player_name, season) tuples — season matches the `season` column in big5_transfers.rds.
 CURATED_PLAYERS: list[tuple[str, int]] = [
     ("Jack Grealish", 2021),
     ("Romelu Lukaku", 2021),
@@ -45,48 +41,39 @@ CURATED_PLAYERS: list[tuple[str, int]] = [
 ]
 
 
-def _load_features() -> tuple[list[str], dict[str, float]]:
-    with open(config.MODELS_DIR / "selected_features.json") as f:
-        meta = json.load(f)
-    return meta["features"], meta["medians"]
-
-
 def main() -> int:
-    features, medians = _load_features()
-    medians_series = pd.Series(medians)
-
-    seasons = list(range(2014, 2023))
-    transfers = load_transfers(seasons=seasons)
-    stats = load_fbref_player_stats(seasons=seasons + [s + 1 for s in seasons])
-    joined = join_transfers_with_prior_season_stats(transfers, stats, age_tolerance=2)
-    joined[features] = joined[features].fillna(medians_series)
+    art = _load_artifacts()
+    joined = prepare_dataset()
+    X_all = _prepare_feature_frame(art, joined)
 
     out: list[dict] = []
     seen: set[tuple[str, int]] = set()
     for name, season in CURATED_PLAYERS:
-        match = joined[
-            (joined["player_name"] == name) & (joined["season"].astype(int) == season)
-        ]
-        if match.empty:
+        mask = (joined["player_name"] == name) & (joined["season"].astype(int) == season)
+        match_meta = joined[mask]
+        match_X = X_all[mask]
+        if match_meta.empty:
             log.warning("no join match for %s (%s) — skipping", name, season)
             continue
-        # Some players (e.g. Cucurella) end up duplicated by the name+age join.
-        # Pick the row with the most minutes played — the buyer's primary stats source.
-        row = match.sort_values("Mins_Per_90_Playing", ascending=False).iloc[0]
+        # Pick the row with the most minutes (primary stats source if duped).
+        order = match_meta["Mins_Per_90_Playing"].fillna(0).sort_values(ascending=False).index
+        idx = order[0]
+        row_meta = match_meta.loc[idx]
+        row_X = match_X.loc[idx]
         key = (name, season)
         if key in seen:
             continue
         seen.add(key)
 
-        feats = {f: float(row[f]) for f in features}
+        feats = {f: float(row_X[f]) for f in art.features}
         out.append({
             "name": name,
             "season": int(season),
-            "age": int(row["player_age"]) if pd.notna(row["player_age"]) else None,
-            "position": str(row.get("player_position", "")),
-            "from_club": str(row.get("club_2", "")),
-            "to_club": str(row.get("team_name", "")),
-            "actual_fee_eur": float(row["transfer_fee"]),
+            "age": int(row_meta["player_age"]) if pd.notna(row_meta["player_age"]) else None,
+            "position": str(row_meta.get("player_position", "")),
+            "from_club": str(row_meta.get("club_2", "")),
+            "to_club": str(row_meta.get("team_name", "")),
+            "actual_fee_eur": float(row_meta["transfer_fee"]),
             "features": feats,
         })
 

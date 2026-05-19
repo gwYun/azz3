@@ -1,10 +1,10 @@
-# 예측 리포트 — `2026-05-19T14:37:04Z`
+# 예측 리포트 — `2026-05-19T14:32:19Z`
 
 > 이 리포트가 처음이라면 **[docs/report-guide.md](../../../docs/report-guide.md)** 참조.
 
 | 필드 | 값 |
 | --- | --- |
-| Run ID (UTC) | `2026-05-19T14:37:04Z` |
+| Run ID (UTC) | `2026-05-19T14:32:19Z` |
 | Model commit | `e428a8b` |
 | 모델 | 이적료(EUR)에 대한 xgboost 회귀기 (log-deflated 타깃) |
 | 학습 행 수 | 437 |
@@ -16,47 +16,47 @@
 
 | 시즌 | 선수 | 행선지 | 실제 | 예측 | 오차 % | Top-3 스탯 개선안 (Δ 예측 이적료) |
 | --- | --- | --- | --- | --- | --- | --- |
-| 2021 | Jack Grealish | Manchester City | €117.5M | €74.2M | 37% | +SoT_per_90_Standard_shoot:+€16.97M \| -G+A_minus_PK_Per:+€6.57M \| +Min_Playing:+€4.33M |
-| 2021 | Romelu Lukaku | Chelsea FC | €113.0M | €65.8M | 42% | +Sh_Standard_shoot:+€12.35M \| +G+A_minus_PK_Per:+€8.18M \| +SoT_per_90_Standard_shoot:+€6.62M |
-| 2021 | Jadon Sancho | Manchester United | €85.0M | €60.8M | 29% | +SoT_per_90_Standard_shoot:+€22.35M \| +Ast_Per:+€12.46M \| -age_years:+€11.03M |
+| 2021 | Jack Grealish | Manchester City | €117.5M | €74.2M | 37% | +SoT_per_90_Standard_shoot:+€17.65M \| +Ast_Per:+€12.94M \| +Cmp_percent_Long_pass:+€6.04M |
+| 2021 | Romelu Lukaku | Chelsea FC | €113.0M | €65.8M | 42% | +Ast_Per:+€14.32M \| +Rec_percent_Receiving_poss:+€11.39M \| -Sh_Standard_shoot:+€10.47M |
+| 2021 | Jadon Sancho | Manchester United | €85.0M | €60.8M | 29% | +SoT_per_90_Standard_shoot:+€21.70M \| +Ast_Per:+€12.46M \| -age_years:+€11.03M |
 | 2022 | Wesley Fofana | Chelsea FC | €80.4M | €86.0M | 7% | +prior_market_value_eur:+€15.15M \| +Min_Playing:+€12.91M \| +Rec_percent_Receiving_poss:+€10.78M |
-| 2022 | Casemiro | Manchester United | €70.7M | €34.4M | 51% | -age_years:+€21.45M \| +prior_market_value_eur:+€9.26M \| -SoT_percent_Standard_shoot:+€7.34M |
-| 2022 | Alexander Isak | Newcastle United | €70.0M | €46.2M | 34% | -age_years:+€13.96M \| +G+A_minus_PK_Per:+€8.11M \| +Rec_percent_Receiving_poss:+€6.31M |
-| 2022 | Marc Cucurella | Chelsea FC | €65.3M | €27.3M | 58% | +Min_Playing:+€14.15M \| +MP_Playing:+€13.55M \| -tenure_at_selling_club_years:+€10.57M |
-| 2022 | Marc Cucurella | Chelsea FC | €65.3M | €48.8M | 25% | +prior_market_value_eur:+€18.33M \| -SoT_percent_Standard_shoot:+€9.35M \| -age_years:+€4.87M |
-| 2022 | Erling Haaland | Manchester City | €60.0M | €66.2M | 10% | -age_years:+€12.50M \| +G+A_minus_PK_Per:+€9.86M \| +MP_Playing:+€8.52M |
-| 2021 | Ben White | Arsenal FC | €58.5M | €53.3M | 9% | +Sh_Standard_shoot:+€13.50M \| +prior_market_value_eur:+€9.99M \| -MP_Playing:+€8.20M |
+| 2022 | Casemiro | Manchester United | €70.7M | €34.4M | 51% | -age_years:+€21.45M \| +Ast_Per:+€11.17M \| +prior_market_value_eur:+€9.26M |
+| 2022 | Alexander Isak | Newcastle United | €70.0M | €46.2M | 34% | +Ast_Per:+€18.95M \| +G+A_minus_PK_Per:+€16.18M \| +prior_market_value_eur:+€15.99M |
+| 2022 | Marc Cucurella | Chelsea FC | €65.3M | €27.3M | 58% | +Min_Playing:+€14.15M \| +MP_Playing:+€13.55M \| -tenure_at_selling_club_years:+€11.09M |
+| 2022 | Marc Cucurella | Chelsea FC | €65.3M | €48.8M | 25% | +prior_market_value_eur:+€25.08M \| +Ast_Per:+€17.22M \| -SoT_percent_Standard_shoot:+€6.91M |
+| 2022 | Erling Haaland | Manchester City | €60.0M | €66.2M | 10% | +Rec_percent_Receiving_poss:+€16.08M \| -age_years:+€12.50M \| +Ast_Per:+€11.22M |
+| 2021 | Ben White | Arsenal FC | €58.5M | €53.3M | 9% | +prior_market_value_eur:+€16.24M \| -MP_Playing:+€8.20M \| -age_years:+€7.56M |
 
 ## 가장 잘 맞춘 예측 5개 (가장 낮은 %오차)
 
 | 시즌 | 선수 | 행선지 | 실제 | 예측 | 오차 % | Top-3 스탯 개선안 (Δ 예측 이적료) |
 | --- | --- | --- | --- | --- | --- | --- |
 | 2022 | Cristian Romero | Tottenham Hotspur | €50.0M | €49.3M | 1% | +contract_years_remaining:+€19.03M \| +Min_Playing:+€8.35M \| +MP_Playing:+€7.19M |
-| 2021 | Bruno Guimarães | Newcastle United | €42.1M | €40.4M | 4% | -age_years:+€11.33M \| +Min_Playing:+€4.97M \| +Cmp_percent_Short_pass:+€4.80M |
-| 2021 | Daniel James | Leeds United | €29.1M | €27.3M | 6% | +prior_market_value_eur:+€13.43M \| -age_years:+€8.00M \| +SoT_per_90_Standard_shoot:+€7.09M |
+| 2021 | Bruno Guimarães | Newcastle United | €42.1M | €40.4M | 4% | +prior_market_value_eur:+€16.49M \| +Ast_Per:+€13.13M \| -age_years:+€11.33M |
+| 2021 | Daniel James | Leeds United | €29.1M | €27.3M | 6% | +prior_market_value_eur:+€15.41M \| -age_years:+€8.00M \| +SoT_per_90_Standard_shoot:+€7.45M |
 | 2022 | Wesley Fofana | Chelsea FC | €80.4M | €86.0M | 7% | +prior_market_value_eur:+€15.15M \| +Min_Playing:+€12.91M \| +Rec_percent_Receiving_poss:+€10.78M |
-| 2022 | Philippe Coutinho | Aston Villa | €20.0M | €21.4M | 7% | +prior_market_value_eur:+€16.25M \| -age_years:+€10.31M \| +Ast_Per:+€3.51M |
+| 2022 | Philippe Coutinho | Aston Villa | €20.0M | €21.4M | 7% | +prior_market_value_eur:+€21.65M \| -age_years:+€10.31M \| +Ast_Per:+€6.92M |
 
 ## 가장 못 맞춘 예측 5개 (가장 높은 %오차)
 
 | 시즌 | 선수 | 행선지 | 실제 | 예측 | 오차 % | Top-3 스탯 개선안 (Δ 예측 이적료) |
 | --- | --- | --- | --- | --- | --- | --- |
-| 2022 | Bernd Leno | Fulham FC | €3.6M | €22.0M | 511% | +prior_market_value_eur:+€28.37M \| -age_years:+€16.40M \| +Cmp_Long_pass:+€2.30M |
-| 2021 | Samuel Kalu | Watford FC | €3.0M | €14.0M | 366% | +prior_market_value_eur:+€16.91M \| -age_years:+€5.15M \| +SoT_per_90_Standard_shoot:+€3.97M |
-| 2021 | Hassane Kamara | Watford FC | €4.0M | €18.6M | 365% | +prior_market_value_eur:+€14.41M \| -SoT_percent_Standard_shoot:+€3.26M \| +tenure_at_selling_club_years:+€2.00M |
-| 2022 | Duje Caleta-Car | Southampton FC | €10.0M | €44.2M | 342% | +prior_market_value_eur:+€14.04M \| +contract_years_remaining:+€10.07M \| -Sh_Standard_shoot:+€8.31M |
-| 2021 | Pierre Lees-Melou | Norwich City | €3.9M | €15.7M | 301% | +prior_market_value_eur:+€5.63M \| +G+A_minus_PK_Per:+€5.06M \| +contract_years_remaining:+€3.83M |
+| 2022 | Bernd Leno | Fulham FC | €3.6M | €22.0M | 511% | +prior_market_value_eur:+€45.37M \| -age_years:+€16.40M \| +Cmp_percent_Long_pass:+€10.41M |
+| 2021 | Samuel Kalu | Watford FC | €3.0M | €14.0M | 366% | +prior_market_value_eur:+€20.56M \| -age_years:+€5.15M \| +SoT_per_90_Standard_shoot:+€3.97M |
+| 2021 | Hassane Kamara | Watford FC | €4.0M | €18.6M | 365% | +prior_market_value_eur:+€26.07M \| -SoT_percent_Standard_shoot:+€3.26M \| +A_minus_xA_pass:+€2.32M |
+| 2022 | Duje Caleta-Car | Southampton FC | €10.0M | €44.2M | 342% | +prior_market_value_eur:+€26.45M \| +contract_years_remaining:+€10.07M \| -Sh_Standard_shoot:+€8.31M |
+| 2021 | Pierre Lees-Melou | Norwich City | €3.9M | €15.7M | 301% | +prior_market_value_eur:+€13.33M \| +G+A_minus_PK_Per:+€3.91M \| +contract_years_remaining:+€3.83M |
 
 ## 가상 선수 (2022 시즌 기준 인플레이션 반영)
 
 | 프로필 | 포지션 | 나이 | 예측 이적료 | Top-3 스탯 개선안 (Δ 예측 이적료) |
 | --- | --- | --- | --- | --- |
-| 브레이크아웃 라이트 윙어, 23세 | Right Winger | 23 | €64.7M | +prior_market_value_eur:+€18.12M \| +SoT_per_90_Standard_shoot:+€12.94M \| -Sh_Standard_shoot:+€10.28M |
-| 베테랑 스트라이커, 31세 | Centre-Forward | 31 | €37.8M | +SoT_per_90_Standard_shoot:+€16.13M \| -age_years:+€14.05M \| +Min_Playing:+€11.33M |
-| 플레이메이킹 미드필더, 28세 | Attacking Midfielder | 28 | €70.7M | -age_years:+€30.68M \| +SoT_per_90_Standard_shoot:+€22.46M \| +prior_market_value_eur:+€5.42M |
-| 수비형 미드필더, 26세 | Defensive Midfielder | 26 | €60.0M | +prior_market_value_eur:+€25.99M \| +MP_Playing:+€12.19M \| +tenure_at_selling_club_years:+€10.53M |
-| 센터백, 27세 | Centre-Back | 27 | €75.8M | +MP_Playing:+€11.12M \| -age_years:+€10.61M \| -peak_distance:+€4.89M |
-| 복권형 원더키드, 18세 | Left Winger | 18 | €45.0M | +SoT_per_90_Standard_shoot:+€15.49M \| +prior_market_value_eur:+€8.48M \| +Min_Playing:+€7.35M |
+| 브레이크아웃 라이트 윙어, 23세 | Right Winger | 23 | €64.7M | -age_years:+€25.89M \| +SoT_per_90_Standard_shoot:+€21.81M \| +Ast_Per:+€20.90M |
+| 베테랑 스트라이커, 31세 | Centre-Forward | 31 | €37.8M | -age_years:+€27.22M \| +SoT_per_90_Standard_shoot:+€18.00M \| +Ast_Per:+€14.27M |
+| 플레이메이킹 미드필더, 28세 | Attacking Midfielder | 28 | €70.7M | -age_years:+€62.63M \| +SoT_per_90_Standard_shoot:+€29.28M \| +Ast_Per:+€15.73M |
+| 수비형 미드필더, 26세 | Defensive Midfielder | 26 | €60.0M | -age_years:+€30.04M \| +contract_years_remaining:+€15.63M \| +MP_Playing:+€12.19M |
+| 센터백, 27세 | Centre-Back | 27 | €75.8M | -age_years:+€46.24M \| +Ast_Per:+€14.00M \| +Cmp_percent_Short_pass:+€11.67M |
+| 복권형 원더키드, 18세 | Left Winger | 18 | €45.0M | +SoT_per_90_Standard_shoot:+€16.59M \| +Min_Playing:+€11.66M \| +Cmp_percent_Short_pass:+€11.05M |
 
 ### 아키타입별 입력 스탯
 

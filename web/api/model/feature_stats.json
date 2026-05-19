@@ -1,107 +1,163 @@
 {
   "feature_stats": {
     "MP_Playing": {
-      "p5": 5.0,
-      "p95": 38.0,
-      "sd": 9.0
+      "p5": 6.944670621913783,
+      "p95": 49.05532937808621,
+      "sd": 10.527664689043108
     },
-    "Starts_Playing": {
-      "p5": 0.0,
-      "p95": 36.0,
-      "sd": 11.0
-    },
-    "Mins_Per_90_Playing": {
-      "p5": 1.0,
-      "p95": 35.0,
-      "sd": 10.0
-    },
-    "Gls": {
-      "p5": 0.0,
-      "p95": 18.0,
-      "sd": 4.5
-    },
-    "Ast": {
-      "p5": 0.0,
-      "p95": 9.0,
-      "sd": 2.5
-    },
-    "PK": {
-      "p5": 0.0,
-      "p95": 5.0,
-      "sd": 1.2
-    },
-    "PKatt": {
-      "p5": 0.0,
-      "p95": 6.0,
-      "sd": 1.4
-    },
-    "CrdY": {
-      "p5": 0.0,
-      "p95": 11.0,
-      "sd": 2.8
+    "Min_Playing": {
+      "p5": 135.0314334791733,
+      "p95": 4058.9685665208267,
+      "sd": 980.9842832604133
     },
     "CrdR": {
       "p5": 0.0,
-      "p95": 1.0,
-      "sd": 0.4
+      "p95": 0.922295378808562,
+      "sd": 0.461147689404281
     },
-    "Gls_Per": {
+    "Ast_Per": {
       "p5": 0.0,
-      "p95": 0.65,
-      "sd": 0.18
+      "p95": 0.31091821146544235,
+      "sd": 0.12045910573272117
     },
-    "G+A_Per": {
+    "G+A_minus_PK_Per": {
+      "p5": -0.4540727173604552,
+      "p95": 0.7740727173604552,
+      "sd": 0.3070363586802276
+    },
+    "Sh_Standard_shoot": {
       "p5": 0.0,
-      "p95": 0.95,
-      "sd": 0.25
+      "p95": 59.49059941706887,
+      "sd": 19.745299708534436
     },
-    "G_minus_PK_Per": {
+    "SoT_percent_Standard_shoot": {
+      "p5": 11.010888453700137,
+      "p95": 55.58911154629986,
+      "sd": 11.14455577314993
+    },
+    "SoT_per_90_Standard_shoot": {
       "p5": 0.0,
-      "p95": 0.55,
-      "sd": 0.16
+      "p95": 1.3652404416039254,
+      "sd": 0.5201202208019627
     },
-    "xG_Expected": {
-      "p5": 0.1,
-      "p95": 16.0,
-      "sd": 4.0
+    "Dist_Standard_shoot": {
+      "p5": 11.19528479818943,
+      "p95": 22.604715201810567,
+      "sd": 2.8523576009052847
     },
-    "npxG_Expected": {
-      "p5": 0.1,
-      "p95": 14.0,
-      "sd": 3.5
+    "Cmp_percent_Short_pass": {
+      "p5": 78.67861544309686,
+      "p95": 94.52138455690313,
+      "sd": 3.9606922784515706
     },
-    "xAG_Expected": {
-      "p5": 0.1,
-      "p95": 8.5,
-      "sd": 2.2
+    "Cmp_Long_pass": {
+      "p5": 0.0,
+      "p95": 208.08715928136138,
+      "sd": 63.54357964068069
+    },
+    "Cmp_percent_Long_pass": {
+      "p5": 41.838867465726565,
+      "p95": 78.36113253427344,
+      "sd": 9.130566267136718
+    },
+    "Ast_pass": {
+      "p5": 0.0,
+      "p95": 3.7934214972551548,
+      "sd": 1.3967107486275774
+    },
+    "A_minus_xA_pass": {
+      "p5": -1.215738573895697,
+      "p95": 1.215738573895697,
+      "sd": 0.6078692869478485
+    },
+    "Rec_percent_Receiving_poss": {
+      "p5": 73.29807848120376,
+      "p95": 108.10192151879625,
+      "sd": 8.700960759398125
+    },
+    "prior_market_value_eur": {
+      "p5": 0.0,
+      "p95": 35434735.5097373,
+      "sd": 13717367.754868647
+    },
+    "age_years": {
+      "p5": 17.483397708076033,
+      "p95": 30.516602291923967,
+      "sd": 3.258301145961983
+    },
+    "peak_distance": {
+      "p5": 0.0,
+      "p95": 7.224257521148509,
+      "sd": 2.1121287605742545
+    },
+    "contract_years_remaining": {
+      "p5": 3.1299692897013993,
+      "p95": 10.8700307102986,
+      "sd": 1.9350153551493003
+    },
+    "tenure_at_selling_club_years": {
+      "p5": 0.0,
+      "p95": 7.149171914626461,
+      "sd": 2.5745859573132304
+    },
+    "pos_forward": {
+      "p5": 0.0,
+      "p95": 0.9048536363908454,
+      "sd": 0.4524268181954227
+    },
+    "pos_midfielder": {
+      "p5": 0.0,
+      "p95": 0.9325273213632451,
+      "sd": 0.46626366068162256
+    },
+    "pos_defender": {
+      "p5": 0.0,
+      "p95": 0.9411548590251664,
+      "sd": 0.4705774295125832
     }
   },
   "feature_groups": {
-    "finishing_volume": [
-      "Gls",
-      "xG_Expected",
-      "npxG_Expected",
-      "Gls_Per",
-      "G_minus_PK_Per"
-    ],
-    "creation": [
-      "Ast",
-      "xAG_Expected",
-      "G+A_Per"
-    ],
     "availability": [
       "MP_Playing",
-      "Starts_Playing",
-      "Mins_Per_90_Playing"
+      "Min_Playing"
     ],
     "discipline": [
-      "CrdY",
       "CrdR"
     ],
-    "set_pieces": [
-      "PK",
-      "PKatt"
+    "creation": [
+      "Ast_Per"
+    ],
+    "finishing": [
+      "G+A_minus_PK_Per",
+      "Sh_Standard_shoot",
+      "SoT_percent_Standard_shoot",
+      "SoT_per_90_Standard_shoot",
+      "Dist_Standard_shoot"
+    ],
+    "passing": [
+      "Cmp_percent_Short_pass",
+      "Cmp_Long_pass",
+      "Cmp_percent_Long_pass",
+      "Ast_pass",
+      "A_minus_xA_pass"
+    ],
+    "possession": [
+      "Rec_percent_Receiving_poss"
+    ],
+    "valuation": [
+      "prior_market_value_eur"
+    ],
+    "profile": [
+      "age_years",
+      "peak_distance",
+      "contract_years_remaining",
+      "tenure_at_selling_club_years"
+    ],
+    "position": [
+      "pos_forward",
+      "pos_midfielder",
+      "pos_defender"
     ]
   },
-  "feature_set_hash": "cdddd09e"
+  "feature_set_hash": "233385c6"
 }

@@ -1,10 +1,10 @@
-# 예측 리포트 — `2026-05-19T14:37:04Z`
+# 예측 리포트 — `2026-05-19T14:35:49Z`
 
 > 이 리포트가 처음이라면 **[docs/report-guide.md](../../../docs/report-guide.md)** 참조.
 
 | 필드 | 값 |
 | --- | --- |
-| Run ID (UTC) | `2026-05-19T14:37:04Z` |
+| Run ID (UTC) | `2026-05-19T14:35:49Z` |
 | Model commit | `e428a8b` |
 | 모델 | 이적료(EUR)에 대한 xgboost 회귀기 (log-deflated 타깃) |
 | 학습 행 수 | 437 |

@@ -91,6 +91,48 @@ def load_fbref_player_stats(
     return df.reset_index(drop=True)
 
 
+# Cols that recur across the six FBref tables (Comp, Nation, Pos, Age, Born,
+# Mins_Per_90, Url). We keep them from the standard table and drop the dupes
+# elsewhere — same player-season has identical metadata across tables.
+_FBREF_OVERLAP_DROP = ["Comp", "Nation", "Pos", "Age", "Born", "Mins_Per_90", "Url"]
+_FBREF_JOIN_KEYS = ["Season_End_Year", "Squad", "Player"]
+_FBREF_AUX_TABLES = [
+    ("big5_player_shooting.rds", "_shoot"),
+    ("big5_player_passing.rds", "_pass"),
+    ("big5_player_possession.rds", "_poss"),
+    ("big5_player_defense.rds", "_def"),
+    ("big5_player_misc.rds", "_misc"),
+]
+
+
+def load_fbref_all_stats(seasons: list[int] | None = None) -> pd.DataFrame:
+    """Merge standard + shooting + passing + possession + defense + misc.
+
+    Joins on (Season_End_Year, Squad, Player). Non-standard tables have their
+    non-key columns suffixed (e.g., 'Int' -> 'Int_def' / 'Int_misc') to avoid
+    collisions. Returns one row per (player-season-club).
+    """
+    paths = download_wfr_data()
+    base = _read_rds(paths["big5_player_standard.rds"])
+    if seasons is not None:
+        base = base[base["Season_End_Year"].isin(seasons)]
+
+    for fname, suffix in _FBREF_AUX_TABLES:
+        sup = _read_rds(paths[fname])
+        if seasons is not None:
+            sup = sup[sup["Season_End_Year"].isin(seasons)]
+        sup = sup.drop(columns=[c for c in _FBREF_OVERLAP_DROP if c in sup.columns], errors="ignore")
+        rename = {c: f"{c}{suffix}" for c in sup.columns if c not in _FBREF_JOIN_KEYS}
+        sup = sup.rename(columns=rename)
+        # Some aux tables have multiple rows per join key when a player switched
+        # mid-season (rare). Keep the row with the most non-null aux columns.
+        if sup.duplicated(_FBREF_JOIN_KEYS).any():
+            sup["_nonnull"] = sup.notna().sum(axis=1)
+            sup = sup.sort_values("_nonnull", ascending=False).drop_duplicates(_FBREF_JOIN_KEYS).drop(columns="_nonnull")
+        base = base.merge(sup, on=_FBREF_JOIN_KEYS, how="left")
+    return base.reset_index(drop=True)
+
+
 def load_transfers(
     seasons: list[int] | None = None,
     inbound_pl_only: bool = True,
@@ -129,6 +171,33 @@ def load_player_vals(seasons: list[int] | None = None) -> pd.DataFrame:
     if seasons is not None:
         df = df[df["season_start_year"].isin(seasons)]
     return df.reset_index(drop=True)
+
+
+def load_player_vals_for_join(seasons: list[int] | None = None) -> pd.DataFrame:
+    """Player vals reduced + parsed, deduped to one row per (player_url, season_start_year).
+
+    Picks the row with the highest market value when a player has multiple
+    snapshots in the same season (mid-season club switch).
+    """
+    df = load_player_vals(seasons=seasons)
+    keep = [
+        "player_url", "season_start_year",
+        "player_height_mtrs", "player_foot",
+        "contract_expiry", "date_joined",
+        "player_market_value_euro",
+    ]
+    out = df[keep].copy()
+    out["player_height_mtrs"] = pd.to_numeric(out["player_height_mtrs"], errors="coerce")
+    foot = out["player_foot"].astype(str).str.strip().str.lower()
+    out["player_foot"] = foot.where(foot.isin(["right", "left", "both"]))
+    out["contract_expiry_year"] = pd.to_datetime(out["contract_expiry"], errors="coerce").dt.year
+    out["date_joined_year"] = pd.to_datetime(out["date_joined"], errors="coerce").dt.year
+    out = out.drop(columns=["contract_expiry", "date_joined"])
+
+    # Dedupe: keep highest market value per (player_url, season_start_year).
+    out = out.sort_values("player_market_value_euro", ascending=False, na_position="last")
+    out = out.drop_duplicates(["player_url", "season_start_year"]).reset_index(drop=True)
+    return out
 
 
 def _normalize_name(s: pd.Series) -> pd.Series:
@@ -188,3 +257,40 @@ def join_transfers_with_prior_season_stats(
 
     base = base[age_diff <= age_tolerance].copy()
     return base.reset_index(drop=True)
+
+
+def attach_prior_player_vals(joined: pd.DataFrame, vals: pd.DataFrame) -> pd.DataFrame:
+    """Left-join player_vals snapshot from the season immediately before the transfer.
+
+    Transfer season "2014" (summer 2014 window) is preceded by season_start_year=2013
+    (the 2013/14 season). Joins on player_url + that mapping.
+
+    Adds columns:
+      prior_market_value_eur, player_height_mtrs, player_foot,
+      contract_years_remaining, tenure_at_selling_club_years
+    """
+    if "player_url" not in joined.columns:
+        raise KeyError("joined frame missing player_url; load_transfers must have run")
+
+    j = joined.copy()
+    j["_val_season_start"] = j["season"].astype(int) - 1
+
+    v = vals.copy()
+    v = v.rename(columns={"season_start_year": "_val_season_start"})
+
+    out = j.merge(
+        v,
+        on=["player_url", "_val_season_start"],
+        how="left",
+        suffixes=("", "_v"),
+    )
+
+    transfer_year = out["season"].astype(int)
+    out["prior_market_value_eur"] = pd.to_numeric(out["player_market_value_euro"], errors="coerce")
+    out["contract_years_remaining"] = pd.to_numeric(out["contract_expiry_year"], errors="coerce") - transfer_year
+    out["tenure_at_selling_club_years"] = transfer_year - pd.to_numeric(out["date_joined_year"], errors="coerce")
+
+    out = out.drop(columns=[
+        "player_market_value_euro", "contract_expiry_year", "date_joined_year", "_val_season_start",
+    ], errors="ignore")
+    return out.reset_index(drop=True)
