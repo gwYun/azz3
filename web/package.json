@@ -9,6 +9,8 @@
   },
   "scripts": {
     "dev": "next dev -p 3000",
+    "dev:python": "../.venv/bin/python scripts/dev_python_server.py",
+    "dev:full": "concurrently -k -n next,py -c blue,green \"yarn dev\" \"yarn dev:python\"",
     "build": "next build",
     "start": "next start -p 3000",
     "lint": "next lint",
@@ -29,6 +31,7 @@
     "@types/react-dom": "18.3.0",
     "@vitejs/plugin-react": "4.3.4",
     "autoprefixer": "10.4.20",
+    "concurrently": "^9.2.1",
     "eslint": "8.57.1",
     "eslint-config-next": "14.2.18",
     "happy-dom": "15.11.7",
