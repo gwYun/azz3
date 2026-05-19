@@ -19,14 +19,14 @@ const jetbrains = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "azz3 — transfer-fee predictor",
-  description: "Drag the sliders, see the fee, send a build.",
+  title: "azz3 — 이적료 예측기",
+  description: "슬라이더를 움직여 이적료를 확인하고, 만든 빌드를 공유해 보십시오.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
-      lang="en"
+      lang="ko"
       className={`${inter.variable} ${interTight.variable} ${jetbrains.variable}`}
     >
       <body className="min-h-screen font-sans">

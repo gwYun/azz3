@@ -1,4 +1,5 @@
 import type { SavedBuild } from "./types";
+import { DEFAULT_LOCALE, Locale, t } from "./i18n";
 
 const KEY = "azz3.builds.v1";
 
@@ -56,16 +57,20 @@ export function isStale(build: SavedBuild, currentHash: string): boolean {
 }
 
 /**
- * Smart default name based on the build's standout stat. If Gls is high,
- * "Goal-machine build". If Ast is high, "Playmaker build". Else "Build N".
+ * Smart default name based on the build's standout stat. Localized via the
+ * current i18n locale so Korean users get Korean suggestions.
  */
-export function suggestName(build: { features: Record<string, number> }, existingCount: number): string {
+export function suggestName(
+  build: { features: Record<string, number> },
+  existingCount: number,
+  locale: Locale = DEFAULT_LOCALE,
+): string {
   const f = build.features;
   const gls = f.Gls ?? 0;
   const ast = f.Ast ?? 0;
   const xag = f.xAG_Expected ?? 0;
-  if (gls >= 15 && gls > ast * 1.5) return "Goal-machine build";
-  if (ast >= 8 || xag >= 7) return "Playmaker build";
-  if (gls >= 8 && ast >= 5) return "All-rounder build";
-  return `Build ${existingCount + 1}`;
+  if (gls >= 15 && gls > ast * 1.5) return t(locale, "build.suggestName.goalMachine");
+  if (ast >= 8 || xag >= 7) return t(locale, "build.suggestName.playmaker");
+  if (gls >= 8 && ast >= 5) return t(locale, "build.suggestName.allRounder");
+  return t(locale, "build.suggestName.numbered", { n: String(existingCount + 1) });
 }

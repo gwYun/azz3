@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useT } from "@/lib/i18n-context";
+import { useI18n, useT } from "@/lib/i18n-context";
 import { useToast } from "@/lib/toast-context";
 import {
   ApiError,
@@ -48,6 +48,7 @@ const DEBOUNCE_MS = 200;
 
 export default function BuildPage() {
   const t = useT();
+  const { locale } = useI18n();
   const toast = useToast();
 
   // Model + archetypes load
@@ -103,7 +104,7 @@ export default function BuildPage() {
         }
       } catch (err) {
         if (!cancelled) {
-          setLoadError(err instanceof Error ? err.message : "Failed to load model info");
+          setLoadError(err instanceof Error ? err.message : t("build.error.loadGeneric"));
         }
       }
     })();
@@ -197,16 +198,16 @@ export default function BuildPage() {
   }, [features, info, t, toast]);
 
   const defaultSaveName = useMemo(() => {
-    if (!info) return "Build";
+    if (!info) return t("build.suggestName.numbered", { n: "1" });
     const existing = listBuilds().length;
-    return suggestName({ features }, existing);
-  }, [features, info]);
+    return suggestName({ features }, existing, locale);
+  }, [features, info, locale, t]);
 
   // Render gates
   if (loadError) {
     return (
       <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800">
-        Failed to load: {loadError}
+        {t("build.error.load", { error: loadError })}
       </div>
     );
   }

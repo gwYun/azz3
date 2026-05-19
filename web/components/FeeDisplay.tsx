@@ -40,7 +40,7 @@ export function FeeDisplay({ fee, loading }: Props) {
           type="button"
           onClick={() => setTooltipOpen((v) => !v)}
           aria-expanded={tooltipOpen}
-          aria-label="Calibration info"
+          aria-label={t("build.fee.calibration.aria")}
           className="flex h-4 w-4 items-center justify-center rounded-full border border-neutral-300 text-[10px] font-semibold leading-none text-neutral-500 hover:border-neutral-500 hover:text-neutral-800"
         >
           i
