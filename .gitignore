@@ -49,3 +49,4 @@ web/.pnp.*
 
 # Playwright MCP debug artifacts (browser_eval console logs + screenshots)
 .playwright-mcp/
+.gstack/
