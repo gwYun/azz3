@@ -2,11 +2,14 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useT, useI18n } from "@/lib/i18n-context";
-import { euro } from "@/lib/format";
+import { euro, krw } from "@/lib/format";
 
 type Props = {
   fee: number | null;
   loading: boolean;
+  eurKrwRate: number;
+  playerName?: string | null;
+  actualFeeEur?: number | null;
 };
 
 /**
@@ -16,7 +19,7 @@ type Props = {
  *  - D16: aria-live="polite" so screen readers announce updates non-disruptively
  *  - D21: calibration tooltip on small 'i' icon
  */
-export function FeeDisplay({ fee, loading }: Props) {
+export function FeeDisplay({ fee, loading, eurKrwRate, playerName, actualFeeEur }: Props) {
   const t = useT();
   const { locale } = useI18n();
   const [tooltipOpen, setTooltipOpen] = useState(false);
@@ -32,8 +35,25 @@ export function FeeDisplay({ fee, loading }: Props) {
     return () => document.removeEventListener("mousedown", onDoc);
   }, [tooltipOpen]);
 
+  const krwLine =
+    fee != null
+      ? t("build.fee.krwApprox", { amount: krw(fee * eurKrwRate, locale) })
+      : null;
+
   return (
     <div ref={ref} className="relative">
+      {playerName ? (
+        <div className="mb-2 text-sm text-neutral-700">
+          <span className="font-semibold">{playerName}</span>
+          {actualFeeEur != null ? (
+            <span className="ml-2 text-neutral-500">
+              {t("build.realplayer.actual", {
+                fee: `${euro(actualFeeEur, locale)} ${t("build.fee.krwApprox", { amount: krw(actualFeeEur * eurKrwRate, locale) })}`,
+              })}
+            </span>
+          ) : null}
+        </div>
+      ) : null}
       <div className="flex items-baseline gap-2 text-xs font-medium uppercase tracking-wide text-neutral-500">
         <span>{t("build.fee.label")}</span>
         <button
@@ -59,6 +79,9 @@ export function FeeDisplay({ fee, loading }: Props) {
           </span>
         )}
       </div>
+      {krwLine ? (
+        <div className="mt-1 text-sm text-neutral-500">{krwLine}</div>
+      ) : null}
       <div className="mt-1 h-0.5 w-16 bg-accent" aria-hidden="true" />
       {tooltipOpen ? (
         <div

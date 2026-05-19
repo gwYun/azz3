@@ -1,17 +1,19 @@
 "use client";
 
-import { useT } from "@/lib/i18n-context";
+import { useT, useI18n } from "@/lib/i18n-context";
 import { dict } from "@/lib/i18n";
-import { euroDelta } from "@/lib/format";
+import { euroDelta, krwDelta } from "@/lib/format";
 import type { Perturbation } from "@/lib/types";
 
 type Props = {
   perturbations: Perturbation[] | null;
   empty: boolean; // true = "drag a slider" hint state
+  eurKrwRate: number;
 };
 
-export function CounterfactualList({ perturbations, empty }: Props) {
+export function CounterfactualList({ perturbations, empty, eurKrwRate }: Props) {
   const t = useT();
+  const { locale } = useI18n();
 
   if (empty) {
     return (
@@ -34,19 +36,26 @@ export function CounterfactualList({ perturbations, empty }: Props) {
   }
 
   return (
-    <ul className="space-y-2 text-sm text-neutral-700">
+    <ul className="space-y-3 text-sm text-neutral-700">
       {perturbations.map((p) => {
         const fullKey = `stat.${p.feature}.full` as keyof typeof dict.en;
         const featLabel = t(fullKey);
         return (
           <li key={p.feature} className="flex items-baseline gap-2">
             <span className="font-mono text-xs text-accent">▲</span>
-            <span>
-              {t("build.counterfactuals.format", {
-                feature: featLabel,
-                delta: euroDelta(p.delta_eur),
-              })}
-            </span>
+            <div className="space-y-0.5">
+              <div>
+                {t("build.counterfactuals.format", {
+                  feature: featLabel,
+                  delta: euroDelta(p.delta_eur),
+                })}
+              </div>
+              <div className="text-xs text-neutral-500">
+                {t("build.counterfactuals.krwApprox", {
+                  delta: krwDelta(p.delta_eur * eurKrwRate, locale),
+                })}
+              </div>
+            </div>
           </li>
         );
       })}

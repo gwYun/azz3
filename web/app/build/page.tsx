@@ -10,7 +10,14 @@ import {
 } from "@/lib/api";
 import { listBuilds, saveBuild, suggestName } from "@/lib/storage";
 import { buildShareUrl, decodeShareHash } from "@/lib/url-share";
-import type { Archetype, FeatureVector, ModelInfo, Perturbation } from "@/lib/types";
+import type {
+  Archetype,
+  FeatureVector,
+  ModelInfo,
+  Perturbation,
+  RealPlayer,
+} from "@/lib/types";
+import { useFxRate } from "@/lib/useFxRate";
 import { StatSlider } from "@/components/StatSlider";
 import { FeeDisplay } from "@/components/FeeDisplay";
 import { CounterfactualList } from "@/components/CounterfactualList";
@@ -54,12 +61,18 @@ export default function BuildPage() {
   // Model + archetypes load
   const [info, setInfo] = useState<ModelInfo | null>(null);
   const [archetypes, setArchetypes] = useState<Archetype[]>([]);
+  const [players, setPlayers] = useState<RealPlayer[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
+
+  // FX rate (EUR -> KRW). Fetched once per session; falls back to a static
+  // constant if the API is unreachable.
+  const { rate: eurKrwRate } = useFxRate();
 
   // Build state
   const [features, setFeatures] = useState<FeatureVector>({});
   const [showAll, setShowAll] = useState(false);
   const [archetypeName, setArchetypeName] = useState<string>("");
+  const [selectedPlayer, setSelectedPlayer] = useState<RealPlayer | null>(null);
 
   // Prediction state
   const [fee, setFee] = useState<number | null>(null);
@@ -89,6 +102,17 @@ export default function BuildPage() {
           }
         } catch {
           // ignore — archetypes optional
+        }
+
+        // Try real players (best-effort — same pattern as archetypes)
+        try {
+          const r = await fetch("/players.json", { cache: "force-cache" });
+          if (r.ok) {
+            const data = (await r.json()) as RealPlayer[];
+            if (!cancelled) setPlayers(data);
+          }
+        } catch {
+          // ignore — real players optional
         }
 
         // Hydrate from URL hash if present, else from medians.
@@ -141,6 +165,7 @@ export default function BuildPage() {
     (feat: string, value: number) => {
       setHasInteracted(true);
       setArchetypeName(""); // unset — they're customizing
+      setSelectedPlayer(null); // editing leaves "real player" mode
       setFeatures((prev) => {
         const next = { ...prev, [feat]: value };
         if (debounceRef.current) window.clearTimeout(debounceRef.current);
@@ -158,11 +183,28 @@ export default function BuildPage() {
       const a = archetypes.find((x) => x.name === name);
       if (!a) return;
       setArchetypeName(name);
+      setSelectedPlayer(null);
       setHasInteracted(true);
       setFeatures(a.features);
       runPredict(a.features, true);
     },
     [archetypes, runPredict]
+  );
+
+  const onPlayerChange = useCallback(
+    (name: string) => {
+      const p = players.find((x) => x.name === name);
+      if (!p) {
+        setSelectedPlayer(null);
+        return;
+      }
+      setSelectedPlayer(p);
+      setArchetypeName("");
+      setHasInteracted(true);
+      setFeatures(p.features);
+      runPredict(p.features, true);
+    },
+    [players, runPredict]
   );
 
   const onSave = useCallback(
@@ -228,7 +270,13 @@ export default function BuildPage() {
       {/* Left column: hero fee + controls + sliders */}
       <div className="space-y-8">
         <div>
-          <FeeDisplay fee={fee} loading={predictLoading} />
+          <FeeDisplay
+            fee={fee}
+            loading={predictLoading}
+            eurKrwRate={eurKrwRate}
+            playerName={selectedPlayer?.name ?? null}
+            actualFeeEur={selectedPlayer?.actual_fee_eur ?? null}
+          />
           {predictError ? (
             <div className="mt-3 flex items-center gap-3 rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
               <span>{t("build.error.predict")}</span>
@@ -243,7 +291,7 @@ export default function BuildPage() {
           ) : null}
         </div>
 
-        {/* Archetype + actions */}
+        {/* Archetype / real-player presets + actions */}
         <div className="flex flex-wrap items-end gap-3 border-t border-neutral-200 pt-6">
           <label className="block">
             <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-neutral-500">
@@ -262,6 +310,25 @@ export default function BuildPage() {
               ))}
             </select>
           </label>
+          {players.length > 0 ? (
+            <label className="block">
+              <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-neutral-500">
+                {t("build.realplayer.label")}
+              </span>
+              <select
+                className="input-text w-64"
+                value={selectedPlayer?.name ?? ""}
+                onChange={(e) => onPlayerChange(e.currentTarget.value)}
+              >
+                <option value="">{t("build.realplayer.placeholder")}</option>
+                {players.map((p) => (
+                  <option key={`${p.name}-${p.season}`} value={p.name}>
+                    {p.name} ({p.season}, {p.from_club} → {p.to_club})
+                  </option>
+                ))}
+              </select>
+            </label>
+          ) : null}
           <SaveBuildButton
             defaultName={defaultSaveName}
             onSave={onSave}
@@ -336,6 +403,7 @@ export default function BuildPage() {
         <CounterfactualList
           perturbations={perturbations}
           empty={!hasInteracted && !predictLoading && perturbations == null}
+          eurKrwRate={eurKrwRate}
         />
       </aside>
     </div>

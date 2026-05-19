@@ -21,6 +21,17 @@ export type Archetype = {
   features: Record<FeatureName, number>;
 };
 
+export type RealPlayer = {
+  name: string;
+  season: number;
+  age: number | null;
+  position: string;
+  from_club: string;
+  to_club: string;
+  actual_fee_eur: number;
+  features: Record<FeatureName, number>;
+};
+
 export type FeatureVector = Record<FeatureName, number>;
 
 // API response shapes
