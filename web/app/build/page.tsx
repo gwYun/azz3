@@ -23,28 +23,22 @@ import { FeeDisplay } from "@/components/FeeDisplay";
 import { CounterfactualList } from "@/components/CounterfactualList";
 import { SaveBuildButton } from "@/components/SaveBuildButton";
 
-// Per Issue 1A locked decision: 8 substantive features by default; 7 nuisance
-// features hidden behind "Show all stats" toggle.
-const SUBSTANTIVE: ReadonlySet<string> = new Set([
-  "Gls", "Ast", "xG_Expected", "npxG_Expected", "xAG_Expected",
-  "Gls_Per", "G+A_Per", "G_minus_PK_Per",
-]);
-
 const NUISANCE: ReadonlySet<string> = new Set([
-  "MP_Playing", "Starts_Playing", "Mins_Per_90_Playing",
-  "PK", "PKatt", "CrdY", "CrdR",
+  "MP_Playing", "Min_Playing", "CrdR", "Rec_percent_Receiving_poss",
 ]);
 
 // Section grouping for the substantive sliders. Order = display order.
-const SECTIONS: Array<{ key: "scoring" | "creation" | "efficiency"; features: string[] }> = [
-  { key: "scoring",    features: ["Gls", "xG_Expected", "npxG_Expected"] },
-  { key: "creation",   features: ["Ast", "xAG_Expected"] },
-  { key: "efficiency", features: ["Gls_Per", "G+A_Per", "G_minus_PK_Per"] },
+const SECTIONS: Array<{ key: "finishing" | "creation" | "passing"; features: string[] }> = [
+  { key: "finishing", features: ["G+A_minus_PK_Per", "Sh_Standard_shoot", "SoT_percent_Standard_shoot", "SoT_per_90_Standard_shoot", "Dist_Standard_shoot"] },
+  { key: "creation",  features: ["Ast_Per"] },
+  { key: "passing",   features: ["Cmp_percent_Short_pass", "Cmp_Long_pass", "Cmp_percent_Long_pass", "Ast_pass", "A_minus_xA_pass"] },
 ];
 
 const DECIMALS: Record<string, number> = {
-  Gls_Per: 2, "G+A_Per": 2, G_minus_PK_Per: 2,
-  xG_Expected: 1, npxG_Expected: 1, xAG_Expected: 1, Mins_Per_90_Playing: 1,
+  "G+A_minus_PK_Per": 2, Ast_Per: 2, A_minus_xA_pass: 2,
+  SoT_per_90_Standard_shoot: 3, Cmp_percent_Short_pass: 1,
+  Cmp_percent_Long_pass: 1, Dist_Standard_shoot: 1,
+  SoT_percent_Standard_shoot: 1,
 };
 
 function decimals(feat: string): number {
@@ -258,9 +252,6 @@ export default function BuildPage() {
   }
 
   // Compose visible features.
-  const visibleSubstantive = SECTIONS.flatMap((s) =>
-    s.features.filter((f) => SUBSTANTIVE.has(f))
-  );
   const visibleNuisance = showAll
     ? Array.from(NUISANCE).filter((f) => info.features.includes(f))
     : [];
