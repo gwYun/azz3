@@ -108,9 +108,11 @@ def _vector_from_dict(d: dict, *, strict: bool) -> np.ndarray:
 
 
 def _predict_rows(rows: np.ndarray) -> np.ndarray:
-    """One Booster.predict call for N rows; xgboost vectorizes internally."""
+    """One Booster.predict call for N rows; xgboost vectorizes internally.
+    Model was trained on log1p(fee_eur), so invert to get raw euros.
+    """
     dmat = xgb.DMatrix(rows, feature_names=_FEATURES)
-    return _BOOSTER.predict(dmat)
+    return np.expm1(_BOOSTER.predict(dmat))
 
 
 def _top_3_perturbations(base_row: np.ndarray, base_fee: float) -> list[dict]:
