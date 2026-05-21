@@ -26,18 +26,18 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(mess
 log = logging.getLogger("export_real_players")
 
 CURATED_PLAYERS: list[tuple[str, int]] = [
-    ("Jack Grealish", 2021),
-    ("Romelu Lukaku", 2021),
-    ("Jadon Sancho", 2021),
-    ("Wesley Fofana", 2022),
-    ("Casemiro", 2022),
-    ("Alexander Isak", 2022),
-    ("Erling Haaland", 2022),
-    ("Marc Cucurella", 2022),
-    ("Ben White", 2021),
-    ("Raheem Sterling", 2022),
-    ("Gabriel Jesus", 2022),
-    ("Richarlison", 2022),
+    ("Diego Costa",          2014),
+    ("Alexis Sánchez",       2014),
+    ("Luke Shaw",            2014),
+    ("Cesc Fàbregas",        2014),
+    ("Ander Herrera",        2014),
+    ("Roberto Firmino",      2015),
+    ("Morgan Schneiderlin",  2015),
+    ("Pedro",                2015),
+    ("Henrikh Mkhitaryan",   2016),
+    ("Juan Cuadrado",        2014),
+    ("Cristiano Ronaldo",    2021),
+    ("Dimitri Payet",        2015),
 ]
 
 

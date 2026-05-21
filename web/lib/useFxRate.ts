@@ -5,7 +5,7 @@ import { EUR_KRW_FALLBACK } from "./format";
 
 const STORAGE_KEY = "azz3.fx.eurkrw";
 const TTL_MS = 60 * 60 * 1000; // 1 hour
-const ENDPOINT = "https://api.frankfurter.app/latest?from=EUR&to=KRW";
+const ENDPOINT = "/api/fx";
 
 type Cached = { rate: number; fetchedAt: number };
 
@@ -59,8 +59,8 @@ export function useFxRate(): FxRate {
       try {
         const res = await fetch(ENDPOINT, { cache: "no-store" });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = (await res.json()) as { rates?: { KRW?: number } };
-        const rate = data.rates?.KRW;
+        const data = (await res.json()) as { rate?: number };
+        const rate = data.rate;
         if (!rate || !isFinite(rate)) throw new Error("missing KRW rate");
         if (cancelled) return;
         writeCache(rate);

@@ -11,7 +11,8 @@
       "Skill(browse:*)",
       "Bash(git commit -m ' *)",
       "Bash(python3 -c \"import xgboost; print\\(xgboost.__version__\\)\")",
-      "Bash(.venv/bin/python3 scripts/export_for_web.py)"
+      "Bash(.venv/bin/python3 scripts/export_for_web.py)",
+      "Bash(python3 -c ' *)"
     ]
   },
   "hooks": {

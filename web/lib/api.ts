@@ -47,7 +47,7 @@ export async function compare(a: FeatureVector, b: FeatureVector): Promise<Compa
 
 /** Cold load: fetches the static model-info.json from the CDN. */
 export async function loadModelInfo(): Promise<ModelInfo> {
-  const res = await fetch("/model-info.json", { cache: "force-cache" });
+  const res = await fetch("/model-info.json", { cache: "no-cache" });
   if (!res.ok) throw new ApiError(res.status, "model-info.json not found");
   return (await res.json()) as ModelInfo;
 }
