@@ -24,20 +24,19 @@ import { CounterfactualList } from "@/components/CounterfactualList";
 import { SaveBuildButton } from "@/components/SaveBuildButton";
 
 const NUISANCE: ReadonlySet<string> = new Set([
-  "MP_Playing", "Min_Playing", "CrdR", "Rec_percent_Receiving_poss",
+  "MP_Playing", "Min_Playing", "CrdR", "Ast", "PK",
 ]);
 
 // Section grouping for the substantive sliders. Order = display order.
 const SECTIONS: Array<{ key: "finishing" | "creation" | "passing"; features: string[] }> = [
-  { key: "finishing", features: ["G+A_minus_PK_Per", "Sh_Standard_shoot", "SoT_percent_Standard_shoot", "SoT_per_90_Standard_shoot", "Dist_Standard_shoot"] },
-  { key: "creation",  features: ["Ast_Per"] },
-  { key: "passing",   features: ["Cmp_percent_Short_pass", "Cmp_Long_pass", "Cmp_percent_Long_pass", "Ast_pass", "A_minus_xA_pass"] },
+  { key: "finishing", features: ["G+A_Per", "xG_Per", "Sh_Standard_shoot", "SoT_percent_Standard_shoot", "SoT_per_90_Standard_shoot"] },
+  { key: "creation",  features: ["Ast_Per", "xAG_Expected", "xAG_Per"] },
+  { key: "passing",   features: [] },
 ];
 
 const DECIMALS: Record<string, number> = {
-  "G+A_minus_PK_Per": 2, Ast_Per: 2, A_minus_xA_pass: 2,
-  SoT_per_90_Standard_shoot: 3, Cmp_percent_Short_pass: 1,
-  Cmp_percent_Long_pass: 1, Dist_Standard_shoot: 1,
+  "G+A_Per": 2, xG_Per: 2, Ast_Per: 2, xAG_Expected: 2, xAG_Per: 2,
+  SoT_per_90_Standard_shoot: 3,
   SoT_percent_Standard_shoot: 1,
 };
 
@@ -332,18 +331,18 @@ export default function BuildPage() {
 
         {/* Sliders */}
         <div className="space-y-8">
-          {SECTIONS.map((section) => (
+          {SECTIONS.filter((s) => s.features.length > 0).map((section) => (
             <section key={section.key}>
               <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-500">
                 {t(`build.section.${section.key}`)}
               </h3>
               <div className="grid gap-5 sm:grid-cols-2">
-                {section.features.map((feat) => (
+                {section.features.filter((feat) => info.feature_stats[feat]).map((feat) => (
                   <StatSlider
                     key={feat}
                     feature={feat}
                     value={features[feat] ?? info.medians[feat] ?? 0}
-                    stat={info.feature_stats[feat]!}
+                    stat={info.feature_stats[feat]}
                     decimals={decimals(feat)}
                     onChange={(v) => setFeature(feat, v)}
                   />
@@ -370,12 +369,12 @@ export default function BuildPage() {
                 {t("build.section.nuisance")}
               </h3>
               <div className="grid gap-5 sm:grid-cols-2">
-                {visibleNuisance.map((feat) => (
+                {visibleNuisance.filter((feat) => info.feature_stats[feat]).map((feat) => (
                   <StatSlider
                     key={feat}
                     feature={feat}
                     value={features[feat] ?? info.medians[feat] ?? 0}
-                    stat={info.feature_stats[feat]!}
+                    stat={info.feature_stats[feat]}
                     decimals={decimals(feat)}
                     onChange={(v) => setFeature(feat, v)}
                   />
