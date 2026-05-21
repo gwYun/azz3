@@ -211,11 +211,20 @@ def main() -> None:
     public_archetypes.write_text(json.dumps(archetypes, indent=2))
 
     # Python-side sidecar: same data, different destination, same hash.
+    deflator_meta = feats.get("deflator", {})
+    deflator_map: dict[str, float] = deflator_meta.get("deflator", {})
+    latest_season = str(max((int(s) for s in deflator_map), default=0)) if deflator_map else ""
+
     out_features = WEB_API_MODEL / "feature_order.json"
     out_features.write_text(json.dumps({
         "features": features,
         "medians": medians,
         "feature_set_hash": feature_set_hash,
+        "deflator": {
+            "baseline_season": deflator_meta.get("baseline_season", ""),
+            "latest_season": latest_season,
+            "deflator": deflator_map,
+        },
     }, indent=2))
 
     out_stats = WEB_API_MODEL / "feature_stats.json"

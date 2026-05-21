@@ -82,7 +82,7 @@ const en = {
   "build.fee.krwApprox": "≈ {amount}",
   "build.counterfactuals.krwApprox": "≈ {delta} in KRW",
   "build.fee.calibration":
-    "Model error: about ±€14M. Treat this number as directional, not exact. Trained on 96 players, so take big jumps with a grain of salt.",
+    "Model error: about ±€7M. Trained on 2,123 Big-5 league transfers (2014–2022), validated on 292 held-out transfers. Spearman ρ 0.84.",
   "build.fee.calibration.aria": "Calibration info",
   "build.counterfactuals.title": "Top stat improvements",
   "build.counterfactuals.format": "If you bumped {feature} by 1 SD, you would be worth {delta}",
@@ -210,7 +210,7 @@ const ko: Record<keyof typeof en, string> = {
   "build.fee.krwApprox": "약 {amount}",
   "build.counterfactuals.krwApprox": "원화 환산 약 {delta}",
   "build.fee.calibration":
-    "모델 오차는 약 ±€14M입니다. 정확한 값이 아닌 방향성으로 받아들여 주십시오. 학습 데이터가 96명 기준이므로, 큰 폭의 변화는 한 번 더 확인하시기 바랍니다.",
+    "모델 오차는 약 ±€7M입니다. 빅5 리그 이적 2,123건(2014–2022)으로 학습하고, 292건을 검증 데이터로 사용했습니다. Spearman ρ 0.84.",
   "build.fee.calibration.aria": "보정 정보",
   "build.counterfactuals.title": "이적료를 가장 많이 올리는 변화",
   "build.counterfactuals.format": "{feature} 지표를 1 SD 올리면 이적료가 {delta} 상승합니다",

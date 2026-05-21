@@ -254,6 +254,20 @@ def attach_trajectory(df: pd.DataFrame, traj: pd.DataFrame) -> pd.DataFrame:
     return df.merge(traj, on=["_name_norm", "_join_season_end"], how="left").reset_index(drop=True)
 
 
+# ---- Destination league one-hot ----------------------------------------------
+
+DEST_LEAGUES = ["Premier League", "Serie A", "Ligue 1", "LaLiga", "Bundesliga"]
+
+
+def add_league_onehot(df: pd.DataFrame) -> pd.DataFrame:
+    """One-hot encode the destination `league` column into 5 binary columns."""
+    out = df.copy()
+    for lg in DEST_LEAGUES:
+        col = "league_" + _slug(lg)
+        out[col] = (out["league"].astype(str) == lg).astype(int)
+    return out
+
+
 # ---- One-shot enrichment -----------------------------------------------------
 
 NUMERIC_EXTRAS = [
@@ -278,7 +292,9 @@ NUMERIC_EXTRAS = [
     "xG_x_forward",
     "xAG_x_midfielder",
     "TklInt_x_defender",
-] + [f"from_{_slug(lg)}" for lg in TOP_LEAGUES_2]
+] + [f"from_{_slug(lg)}" for lg in TOP_LEAGUES_2] + [
+    "league_" + _slug(lg) for lg in DEST_LEAGUES
+] + ["season_numeric"]
 
 
 def enrich(df: pd.DataFrame) -> pd.DataFrame:
@@ -292,6 +308,8 @@ def enrich(df: pd.DataFrame) -> pd.DataFrame:
     out = add_position_interactions(out)
     out = add_categorical_flags(out)
     out = add_age_curve(out)
+    out = add_league_onehot(out)
+    out["season_numeric"] = pd.to_numeric(out["season"], errors="coerce")
     if "player_foot" in out.columns:
         foot = out["player_foot"].astype(str)
         out["foot_right"] = (foot == "right").astype(int)

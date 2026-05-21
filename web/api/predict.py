@@ -109,7 +109,9 @@ def _vector_from_dict(d: dict, *, strict: bool) -> np.ndarray:
 
 def _predict_rows(rows: np.ndarray) -> np.ndarray:
     """One Booster.predict call for N rows; xgboost vectorizes internally.
-    Model was trained on log1p(fee_eur), so invert to get raw euros.
+    Model was trained on log1p(deflated_fee, baseline=2014); output is in
+    2014-baseline euros. Apply a season-specific inflate factor externally
+    if nominal euros for a specific transfer year are needed.
     """
     dmat = xgb.DMatrix(rows, feature_names=_FEATURES)
     return np.expm1(_BOOSTER.predict(dmat))

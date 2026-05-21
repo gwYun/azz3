@@ -135,7 +135,7 @@ def load_fbref_all_stats(seasons: list[int] | None = None) -> pd.DataFrame:
 
 def load_transfers(
     seasons: list[int] | None = None,
-    inbound_pl_only: bool = True,
+    inbound_pl_only: bool = False,
     disclosed_fee_only: bool = True,
     drop_loans: bool = True,
 ) -> pd.DataFrame:
@@ -143,7 +143,9 @@ def load_transfers(
 
     `seasons` filters by `season` column (str like '2022').
     Filters apply by default per the design doc:
-      - inbound to a Big-5 PL club (transfer_type == 'Arrivals' AND league == 'Premier League')
+      - inbound to any Big-5 club (all leagues) when inbound_pl_only=False;
+        inbound to a Big-5 PL club (transfer_type == 'Arrivals' AND league == 'Premier League')
+        when inbound_pl_only=True
       - disclosed fee only (transfer_fee not null and > 0)
       - no loans (is_loan == False)
     """
@@ -154,6 +156,8 @@ def load_transfers(
         df = df[df["season"].astype(str).isin([str(s) for s in seasons])]
     if inbound_pl_only:
         df = df[(df["league"] == "Premier League") & (df["transfer_type"] == "Arrivals")]
+    else:
+        df = df[df["transfer_type"] == "Arrivals"]
     if disclosed_fee_only:
         df = df[df["transfer_fee"].notna() & (df["transfer_fee"] > 0)]
     if drop_loans:

@@ -50,6 +50,9 @@ from src.model import (  # noqa: E402
 
 
 # Columns that are NOT predictive features (target, IDs, free text, leakage).
+# Note: `season` (raw string) is NOT listed here but is naturally excluded
+# because numeric_features() only picks numeric dtype columns. `season_numeric`
+# (the numeric version derived in enrich()) IS used as a feature via must_include.
 EXCLUDE_FROM_FEATURES = {
     "transfer_fee",            # label
     "is_loan",                 # always False after filter
@@ -200,6 +203,8 @@ def main() -> int:
         "age_years", "peak_distance",
         "contract_years_remaining", "tenure_at_selling_club_years",
         "pos_forward", "pos_midfielder", "pos_defender",
+        "season_numeric",
+        "league_premier_league", "league_serie_a", "league_ligue_1", "league_laliga", "league_bundesliga",
     ]
     for c in must_include:
         if c in X_train_full.columns and c not in selected:

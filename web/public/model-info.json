@@ -2,19 +2,19 @@
   "features": [
     "MP_Playing",
     "Min_Playing",
+    "Ast",
+    "PK",
     "CrdR",
     "Ast_Per",
-    "G+A_minus_PK_Per",
+    "G+A_Per",
+    "xAG_Expected",
+    "xG_Per",
+    "xAG_Per",
     "Sh_Standard_shoot",
+    "SoT_Standard_shoot",
     "SoT_percent_Standard_shoot",
+    "Sh_per_90_Standard_shoot",
     "SoT_per_90_Standard_shoot",
-    "Dist_Standard_shoot",
-    "Cmp_percent_Short_pass",
-    "Cmp_Long_pass",
-    "Cmp_percent_Long_pass",
-    "Ast_pass",
-    "A_minus_xA_pass",
-    "Rec_percent_Receiving_poss",
     "prior_market_value_eur",
     "age_years",
     "peak_distance",
@@ -22,148 +22,190 @@
     "tenure_at_selling_club_years",
     "pos_forward",
     "pos_midfielder",
-    "pos_defender"
+    "pos_defender",
+    "season_numeric",
+    "league_premier_league",
+    "league_serie_a",
+    "league_ligue_1",
+    "league_laliga",
+    "league_bundesliga"
   ],
   "medians": {
-    "MP_Playing": 28.0,
-    "Min_Playing": 2097.0,
+    "MP_Playing": 24.0,
+    "Min_Playing": 1602.0,
+    "Ast": 1.0,
+    "PK": 0.0,
     "CrdR": 0.0,
-    "Ast_Per": 0.07,
-    "G+A_minus_PK_Per": 0.16,
-    "Sh_Standard_shoot": 20.0,
-    "SoT_percent_Standard_shoot": 33.3,
-    "SoT_per_90_Standard_shoot": 0.325,
-    "Dist_Standard_shoot": 16.9,
-    "Cmp_percent_Short_pass": 86.6,
-    "Cmp_Long_pass": 81.0,
-    "Cmp_percent_Long_pass": 60.1,
-    "Ast_pass": 1.0,
-    "A_minus_xA_pass": 0.0,
-    "Rec_percent_Receiving_poss": 90.7,
-    "prior_market_value_eur": 8000000.0,
+    "Ast_Per": 0.05,
+    "G+A_Per": 0.16,
+    "xAG_Expected": 0.9,
+    "xG_Per": 0.08,
+    "xAG_Per": 0.08,
+    "Sh_Standard_shoot": 17.0,
+    "SoT_Standard_shoot": 5.0,
+    "SoT_percent_Standard_shoot": 32.7,
+    "Sh_per_90_Standard_shoot": 1.14,
+    "SoT_per_90_Standard_shoot": 0.35,
+    "prior_market_value_eur": 5000000.0,
     "age_years": 24.0,
     "peak_distance": 3.0,
     "contract_years_remaining": 7.0,
     "tenure_at_selling_club_years": 2.0,
     "pos_forward": 0.0,
     "pos_midfielder": 0.0,
-    "pos_defender": 0.0
+    "pos_defender": 0.0,
+    "season_numeric": 2017.0,
+    "league_premier_league": 0.0,
+    "league_serie_a": 0.0,
+    "league_ligue_1": 0.0,
+    "league_laliga": 0.0,
+    "league_bundesliga": 0.0
   },
   "feature_stats": {
     "MP_Playing": {
-      "p5": 6.944670621913783,
-      "p95": 49.05532937808621,
-      "sd": 10.527664689043108
+      "p5": 2.4648653008609074,
+      "p95": 45.53513469913909,
+      "sd": 10.767567349569546
     },
     "Min_Playing": {
-      "p5": 135.0314334791733,
-      "p95": 4058.9685665208267,
-      "sd": 980.9842832604133
+      "p5": 0.0,
+      "p95": 3539.2536799373675,
+      "sd": 968.6268399686836
+    },
+    "Ast": {
+      "p5": 0.0,
+      "p95": 5.873583814654776,
+      "sd": 2.436791907327388
+    },
+    "PK": {
+      "p5": 0.0,
+      "p95": 1.715239931878162,
+      "sd": 0.857619965939081
     },
     "CrdR": {
       "p5": 0.0,
-      "p95": 0.922295378808562,
-      "sd": 0.461147689404281
+      "p95": 0.944226060074865,
+      "sd": 0.4721130300374325
     },
     "Ast_Per": {
       "p5": 0.0,
-      "p95": 0.31091821146544235,
-      "sd": 0.12045910573272117
+      "p95": 0.3820131779352155,
+      "sd": 0.16600658896760775
     },
-    "G+A_minus_PK_Per": {
-      "p5": -0.4540727173604552,
-      "p95": 0.7740727173604552,
-      "sd": 0.3070363586802276
+    "G+A_Per": {
+      "p5": -0.4949108722562515,
+      "p95": 0.8149108722562516,
+      "sd": 0.3274554361281258
+    },
+    "xAG_Expected": {
+      "p5": 0.0,
+      "p95": 3.61365863162615,
+      "sd": 1.356829315813075
+    },
+    "xG_Per": {
+      "p5": 0.0,
+      "p95": 0.33643137795506084,
+      "sd": 0.1282156889775304
+    },
+    "xAG_Per": {
+      "p5": 0.0,
+      "p95": 0.1950475998428,
+      "sd": 0.05752379992140001
     },
     "Sh_Standard_shoot": {
       "p5": 0.0,
-      "p95": 59.49059941706887,
-      "sd": 19.745299708534436
+      "p95": 55.44694890247592,
+      "sd": 19.22347445123796
+    },
+    "SoT_Standard_shoot": {
+      "p5": 0.0,
+      "p95": 27.0524874943764,
+      "sd": 11.0262437471882
     },
     "SoT_percent_Standard_shoot": {
-      "p5": 11.010888453700137,
-      "p95": 55.58911154629986,
-      "sd": 11.14455577314993
+      "p5": 7.739205221999324,
+      "p95": 57.66079477800068,
+      "sd": 12.48039738900034
+    },
+    "Sh_per_90_Standard_shoot": {
+      "p5": 0.0,
+      "p95": 3.776572830889849,
+      "sd": 1.3182864154449248
     },
     "SoT_per_90_Standard_shoot": {
       "p5": 0.0,
-      "p95": 1.3652404416039254,
-      "sd": 0.5201202208019627
-    },
-    "Dist_Standard_shoot": {
-      "p5": 11.19528479818943,
-      "p95": 22.604715201810567,
-      "sd": 2.8523576009052847
-    },
-    "Cmp_percent_Short_pass": {
-      "p5": 78.67861544309686,
-      "p95": 94.52138455690313,
-      "sd": 3.9606922784515706
-    },
-    "Cmp_Long_pass": {
-      "p5": 0.0,
-      "p95": 208.08715928136138,
-      "sd": 63.54357964068069
-    },
-    "Cmp_percent_Long_pass": {
-      "p5": 41.838867465726565,
-      "p95": 78.36113253427344,
-      "sd": 9.130566267136718
-    },
-    "Ast_pass": {
-      "p5": 0.0,
-      "p95": 3.7934214972551548,
-      "sd": 1.3967107486275774
-    },
-    "A_minus_xA_pass": {
-      "p5": -1.215738573895697,
-      "p95": 1.215738573895697,
-      "sd": 0.6078692869478485
-    },
-    "Rec_percent_Receiving_poss": {
-      "p5": 73.29807848120376,
-      "p95": 108.10192151879625,
-      "sd": 8.700960759398125
+      "p95": 2.4747591294597107,
+      "sd": 1.0623795647298553
     },
     "prior_market_value_eur": {
       "p5": 0.0,
-      "p95": 35434735.5097373,
-      "sd": 13717367.754868647
+      "p95": 30075390.5195477,
+      "sd": 12537695.25977385
     },
     "age_years": {
-      "p5": 17.483397708076033,
-      "p95": 30.516602291923967,
-      "sd": 3.258301145961983
+      "p5": 17.04400708425133,
+      "p95": 30.95599291574867,
+      "sd": 3.4779964578743354
     },
     "peak_distance": {
       "p5": 0.0,
-      "p95": 7.224257521148509,
-      "sd": 2.1121287605742545
+      "p95": 7.418474052776014,
+      "sd": 2.209237026388007
     },
     "contract_years_remaining": {
-      "p5": 3.1299692897013993,
-      "p95": 10.8700307102986,
-      "sd": 1.9350153551493003
+      "p5": 3.2143883002681903,
+      "p95": 10.78561169973181,
+      "sd": 1.8928058498659048
     },
     "tenure_at_selling_club_years": {
       "p5": 0.0,
-      "p95": 7.149171914626461,
-      "sd": 2.5745859573132304
+      "p95": 6.434336661198631,
+      "sd": 2.2171683305993155
     },
     "pos_forward": {
       "p5": 0.0,
-      "p95": 0.9048536363908454,
-      "sd": 0.4524268181954227
+      "p95": 0.9007574974516982,
+      "sd": 0.4503787487258491
     },
     "pos_midfielder": {
       "p5": 0.0,
-      "p95": 0.9325273213632451,
-      "sd": 0.46626366068162256
+      "p95": 0.9535543118339418,
+      "sd": 0.4767771559169709
     },
     "pos_defender": {
       "p5": 0.0,
-      "p95": 0.9411548590251664,
-      "sd": 0.4705774295125832
+      "p95": 0.9293462929789158,
+      "sd": 0.4646731464894579
+    },
+    "season_numeric": {
+      "p5": 2013.237357675816,
+      "p95": 2020.762642324184,
+      "sd": 1.881321162092063
+    },
+    "league_premier_league": {
+      "p5": -0.8088198710252241,
+      "p95": 0.8088198710252241,
+      "sd": 0.40440993551261206
+    },
+    "league_serie_a": {
+      "p5": -0.8759329127166575,
+      "p95": 0.8759329127166575,
+      "sd": 0.43796645635832876
+    },
+    "league_ligue_1": {
+      "p5": -0.8374163257557501,
+      "p95": 0.8374163257557501,
+      "sd": 0.41870816287787505
+    },
+    "league_laliga": {
+      "p5": -0.7310346906094909,
+      "p95": 0.7310346906094909,
+      "sd": 0.36551734530474544
+    },
+    "league_bundesliga": {
+      "p5": -0.7148187190857733,
+      "p95": 0.7148187190857733,
+      "sd": 0.35740935954288666
     }
   },
   "feature_groups": {
@@ -171,28 +213,34 @@
       "MP_Playing",
       "Min_Playing"
     ],
+    "creation": [
+      "Ast",
+      "Ast_Per",
+      "xAG_Expected",
+      "xAG_Per"
+    ],
+    "set_pieces": [
+      "PK"
+    ],
     "discipline": [
       "CrdR"
     ],
-    "creation": [
-      "Ast_Per"
-    ],
     "finishing": [
-      "G+A_minus_PK_Per",
+      "G+A_Per",
       "Sh_Standard_shoot",
+      "SoT_Standard_shoot",
       "SoT_percent_Standard_shoot",
-      "SoT_per_90_Standard_shoot",
-      "Dist_Standard_shoot"
+      "Sh_per_90_Standard_shoot",
+      "SoT_per_90_Standard_shoot"
     ],
-    "passing": [
-      "Cmp_percent_Short_pass",
-      "Cmp_Long_pass",
-      "Cmp_percent_Long_pass",
-      "Ast_pass",
-      "A_minus_xA_pass"
-    ],
-    "possession": [
-      "Rec_percent_Receiving_poss"
+    "other": [
+      "xG_Per",
+      "season_numeric",
+      "league_premier_league",
+      "league_serie_a",
+      "league_ligue_1",
+      "league_laliga",
+      "league_bundesliga"
     ],
     "valuation": [
       "prior_market_value_eur"
@@ -209,5 +257,5 @@
       "pos_defender"
     ]
   },
-  "feature_set_hash": "233385c6"
+  "feature_set_hash": "782ced15"
 }
