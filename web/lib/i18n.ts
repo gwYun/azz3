@@ -103,7 +103,7 @@ const en = {
     "Model error: about ±€7M. Trained on 2,123 Big-5 league transfers (2014–2022), validated on 292 held-out transfers. Spearman ρ 0.84.",
   "build.fee.calibration.aria": "Calibration info",
   "build.counterfactuals.title": "Top stat improvements",
-  "build.counterfactuals.format": "If you bumped {feature} by 1 SD, you would be worth {delta}",
+  "build.counterfactuals.format": "If you raised {feature} by {amount}, you would be worth {delta}",
   "build.counterfactuals.empty": "Drag a slider to see how the fee changes.",
   "build.counterfactuals.ceiling":
     "You're at the ceiling — every stat is already in the top 5%.",
@@ -249,7 +249,7 @@ const ko: Record<keyof typeof en, string> = {
     "모델 오차는 약 ±€7M입니다. 빅5 리그 이적 2,123건(2014–2022)으로 학습하고, 292건을 검증 데이터로 사용했습니다. Spearman ρ 0.84.",
   "build.fee.calibration.aria": "보정 정보",
   "build.counterfactuals.title": "이적료를 가장 많이 올리는 변화",
-  "build.counterfactuals.format": "{feature} 지표를 1 SD 올리면 이적료가 {delta} 상승합니다",
+  "build.counterfactuals.format": "{feature} 지표를 {amount} 올리면 이적료가 {delta} 상승합니다",
   "build.counterfactuals.empty": "슬라이더를 움직이시면 이적료가 어떻게 바뀌는지 확인하실 수 있습니다.",
   "build.counterfactuals.ceiling":
     "이미 최고 수준입니다 — 모든 지표가 상위 5% 안에 들어 있습니다.",

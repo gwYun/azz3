@@ -2,7 +2,7 @@
 
 import { useT, useI18n } from "@/lib/i18n-context";
 import { dict } from "@/lib/i18n";
-import { euroDelta, krwDelta } from "@/lib/format";
+import { euroDelta, krwDelta, statDelta } from "@/lib/format";
 import type { Perturbation } from "@/lib/types";
 
 type Props = {
@@ -47,6 +47,7 @@ export function CounterfactualList({ perturbations, empty, eurKrwRate }: Props) 
               <div>
                 {t("build.counterfactuals.format", {
                   feature: featLabel,
+                  amount: statDelta(p.feature, p.new_value - p.current),
                   delta: euroDelta(p.delta_eur),
                 })}
               </div>

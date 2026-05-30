@@ -76,6 +76,16 @@ _STATS: dict[str, dict[str, float]] = _META["feature_stats"]
 _GROUPS: dict[str, list[str]] = _META["feature_groups"]
 _HASH: str = _META["feature_set_hash"]
 
+# Only features with UI sliders are meaningful counterfactual candidates.
+# Derived/hidden features (market value, age, contract, league, season) are excluded.
+_HIDDEN_FEATURES: frozenset[str] = frozenset(
+    _GROUPS.get("valuation", []) +
+    _GROUPS.get("profile", []) +
+    _GROUPS.get("position", []) +
+    [f for f in _GROUPS.get("other", []) if f.startswith("league_") or f == "season_numeric"]
+)
+_SLIDER_FEATURES: frozenset[str] = frozenset(f for f in _FEATURES if f not in _HIDDEN_FEATURES)
+
 
 class ValidationError(Exception):
     """4xx-class error with a client-safe message."""
@@ -124,6 +134,8 @@ def _top_3_perturbations(base_row: np.ndarray, base_fee: float) -> list[dict]:
     perturbed_rows = []
     candidates: list[dict] = []
     for i, feat in enumerate(_FEATURES):
+        if feat not in _SLIDER_FEATURES:
+            continue
         sd = _STATS[feat]["sd"]
         p95 = _STATS[feat]["p95"]
         current = float(base_row[0, i])

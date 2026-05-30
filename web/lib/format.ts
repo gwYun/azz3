@@ -66,6 +66,31 @@ export function num(value: number, decimals = 0): string {
   return value.toFixed(decimals);
 }
 
+/**
+ * Format a stat delta (new_value - current) in the feature's natural unit.
+ * Rate/decimal features use 2 decimal places; count features use 1 decimal.
+ * Always prefixed with +.
+ */
+export function statDelta(featureName: string, delta: number): string {
+  if (!isFinite(delta)) return "—";
+  const isPercent = featureName.includes("_percent");
+  const isRate =
+    featureName.includes("_Per") ||
+    featureName.includes("_Expected") ||
+    featureName.includes("per_90") ||
+    featureName.includes("Mins_Per");
+  let formatted: string;
+  if (isPercent) {
+    formatted = delta.toFixed(1);
+  } else if (isRate) {
+    formatted = delta.toFixed(2);
+  } else {
+    // count features (goals, shots, minutes, etc.) — round to nearest integer
+    formatted = Math.round(delta).toString();
+  }
+  return `+${formatted}${isPercent ? "%" : ""}`;
+}
+
 /** Pretty timestamp in user's locale. */
 export function dateLabel(epochMs: number, locale: Locale): string {
   const d = new Date(epochMs);
