@@ -29,8 +29,8 @@ export function StatSlider({ feature, value, stat, median, dataMin, dataMax, dec
   const defKey = `stat.${feature}.def` as keyof typeof dict.en;
   const step = decimals === 0 ? 1 : decimals === 1 ? 0.1 : decimals === 2 ? 0.01 : 0.001;
 
-  const min = dataMin ?? stat.p5;
-  const max = dataMax ?? stat.p95;
+  const min = dataMin !== undefined ? Math.min(dataMin, stat.p5) : stat.p5;
+  const max = dataMax !== undefined ? Math.max(dataMax, stat.p95) : stat.p95;
 
   // Distribution gradient: 24 stops using normal PDF centred on median
   const trackGradient = useMemo(() => {
