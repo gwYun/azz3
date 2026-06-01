@@ -232,6 +232,21 @@ export default function BuildPage() {
     }
   }, [features, info, t, toast]);
 
+  const playerBounds = useMemo(() => {
+    if (!players.length) return {} as Record<string, { min: number; max: number }>;
+    const bounds: Record<string, { min: number; max: number }> = {};
+    for (const p of players) {
+      for (const [feat, val] of Object.entries(p.features)) {
+        if (bounds[feat] === undefined) bounds[feat] = { min: val, max: val };
+        else {
+          bounds[feat].min = Math.min(bounds[feat].min, val);
+          bounds[feat].max = Math.max(bounds[feat].max, val);
+        }
+      }
+    }
+    return bounds;
+  }, [players]);
+
   const defaultSaveName = useMemo(() => {
     if (!info) return t("build.suggestName.numbered", { n: "1" });
     const existing = listBuilds().length;
@@ -343,6 +358,9 @@ export default function BuildPage() {
                     feature={feat}
                     value={features[feat] ?? info.medians[feat] ?? 0}
                     stat={info.feature_stats[feat]}
+                    median={info.medians[feat] ?? 0}
+                    dataMin={playerBounds[feat]?.min}
+                    dataMax={playerBounds[feat]?.max}
                     decimals={decimals(feat)}
                     onChange={(v) => setFeature(feat, v)}
                   />
@@ -375,6 +393,9 @@ export default function BuildPage() {
                     feature={feat}
                     value={features[feat] ?? info.medians[feat] ?? 0}
                     stat={info.feature_stats[feat]}
+                    median={info.medians[feat] ?? 0}
+                    dataMin={playerBounds[feat]?.min}
+                    dataMax={playerBounds[feat]?.max}
                     decimals={decimals(feat)}
                     onChange={(v) => setFeature(feat, v)}
                   />
