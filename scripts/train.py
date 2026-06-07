@@ -77,7 +77,7 @@ FREQ_ENCODE_COLS = ["club_2", "team_name", "player_nationality"]
 
 def prepare_dataset() -> pd.DataFrame:
     """Load + filter + enrich the full joined frame."""
-    seasons = list(range(2014, 2023))
+    seasons = list(range(2014, 2026))
 
     log.info("Loading transfers for transfer seasons %d-%d", seasons[0], seasons[-1])
     transfers = load_transfers(seasons=seasons)
@@ -109,11 +109,11 @@ def prepare_dataset() -> pd.DataFrame:
 
 
 def split_train_test(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame, int]:
-    """Temporal split: 2014-2020 train, 2021-2022 test. Player-disjoint enforced."""
+    """Temporal split: 2014-2022 train, 2023-2025 test. Player-disjoint enforced."""
     df = df.copy()
     df["season"] = df["season"].astype(str)
-    train_seasons = [str(s) for s in range(2014, 2021)]
-    test_seasons = ["2021", "2022"]
+    train_seasons = [str(s) for s in range(2014, 2023)]
+    test_seasons = ["2023", "2024", "2025"]
     res = temporal_split(
         df,
         season_col="season",

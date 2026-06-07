@@ -26,6 +26,11 @@ import pandas as pd
 import rdata
 
 from . import config
+from .stathead import (
+    deduplicate_against_rds,
+    load_stathead_stats,
+    load_stathead_transfers,
+)
 
 log = logging.getLogger(__name__)
 
@@ -130,6 +135,29 @@ def load_fbref_all_stats(seasons: list[int] | None = None) -> pd.DataFrame:
             sup["_nonnull"] = sup.notna().sum(axis=1)
             sup = sup.sort_values("_nonnull", ascending=False).drop_duplicates(_FBREF_JOIN_KEYS).drop(columns="_nonnull")
         base = base.merge(sup, on=_FBREF_JOIN_KEYS, how="left")
+    # Append stathead CSV exports for seasons not covered by the RDS
+    for table_name, suffix in [
+        ("standard", ""),
+        ("shooting", "_shoot"),
+        ("passing", "_pass"),
+        ("possession", "_poss"),
+        ("defense", "_def"),
+        ("misc", "_misc"),
+    ]:
+        sh_raw = load_stathead_stats(table=table_name, seasons=seasons)
+        if sh_raw.empty:
+            continue
+        if table_name == "standard":
+            sh_raw = deduplicate_against_rds(sh_raw, base, key_cols=["Player", "Season_End_Year", "Squad"])
+            base = pd.concat([base, sh_raw], ignore_index=True)
+            log.info("After stathead standard append: %d total stat rows", len(base))
+        else:
+            # Aux table: apply same suffix rename as RDS aux tables, then merge into base
+            sh_aux = sh_raw.drop(columns=[c for c in _FBREF_OVERLAP_DROP if c in sh_raw.columns], errors="ignore")
+            rename = {c: f"{c}{suffix}" for c in sh_aux.columns if c not in _FBREF_JOIN_KEYS}
+            sh_aux = sh_aux.rename(columns=rename)
+            base = base.merge(sh_aux, on=_FBREF_JOIN_KEYS, how="left", suffixes=("", f"_sh{suffix}"))
+
     return base.reset_index(drop=True)
 
 
@@ -162,6 +190,20 @@ def load_transfers(
         df = df[df["transfer_fee"].notna() & (df["transfer_fee"] > 0)]
     if drop_loans:
         df = df[df["is_loan"] != True]  # noqa: E712 — explicit-False filter
+
+    # Append stathead CSV exports (covers 2023+ windows not in the RDS)
+    sh = load_stathead_transfers(
+        seasons=seasons,
+        disclosed_fee_only=disclosed_fee_only,
+        drop_loans=drop_loans,
+    )
+    if not sh.empty:
+        sh = deduplicate_against_rds(sh, df, key_cols=["player_name", "season", "transfer_fee"])
+        if inbound_pl_only and "league" in sh.columns:
+            sh = sh[sh["league"] == "Premier League"]
+        df = pd.concat([df, sh], ignore_index=True)
+        log.info("After stathead append: %d total transfer rows", len(df))
+
     return df.reset_index(drop=True)
 
 

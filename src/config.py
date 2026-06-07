@@ -9,7 +9,9 @@ INTERIM_DIR = DATA_DIR / "interim"
 REVIEW_QUEUE_DIR = DATA_DIR / "review_queue"
 MODELS_DIR = DATA_DIR / "models"
 
-for _d in (CACHE_DIR, RAW_DIR, INTERIM_DIR, REVIEW_QUEUE_DIR, MODELS_DIR):
+STATHEAD_RAW_DIR = RAW_DIR / "stathead"
+
+for _d in (CACHE_DIR, RAW_DIR, INTERIM_DIR, REVIEW_QUEUE_DIR, MODELS_DIR, STATHEAD_RAW_DIR):
     _d.mkdir(parents=True, exist_ok=True)
 
 # Scope: inbound-to-PL transfers from these source leagues, 2018/19 - 2023/24
