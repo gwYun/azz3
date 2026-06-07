@@ -1,0 +1,60 @@
+{
+  "_source": "2026 FIFA World Cup final draw, Dec 5 2025 (Wikipedia / FIFA). Knockout wiring from Wikipedia '2026 FIFA World Cup knockout stage'.",
+  "_format": "48 teams, 12 groups of 4. Top 2 of each group + 8 best 3rd-placed advance to Round of 32, then single elimination.",
+  "hosts": ["Mexico", "Canada", "United States"],
+  "groups": {
+    "A": ["Mexico", "South Africa", "South Korea", "Czechia"],
+    "B": ["Canada", "Bosnia-Herzegovina", "Qatar", "Switzerland"],
+    "C": ["Brazil", "Morocco", "Haiti", "Scotland"],
+    "D": ["United States", "Paraguay", "Australia", "Turkiye"],
+    "E": ["Germany", "Curacao", "Ivory Coast", "Ecuador"],
+    "F": ["Netherlands", "Japan", "Sweden", "Tunisia"],
+    "G": ["Belgium", "Egypt", "Iran", "New Zealand"],
+    "H": ["Spain", "Cape Verde", "Saudi Arabia", "Uruguay"],
+    "I": ["France", "Senegal", "Iraq", "Norway"],
+    "J": ["Argentina", "Algeria", "Austria", "Jordan"],
+    "K": ["Portugal", "Congo DR", "Uzbekistan", "Colombia"],
+    "L": ["England", "Croatia", "Ghana", "Panama"]
+  },
+  "r32": [
+    {"match": 73, "home": "RU_A", "away": "RU_B"},
+    {"match": 74, "home": "W_E", "away": "T_ABCDF"},
+    {"match": 75, "home": "W_F", "away": "RU_C"},
+    {"match": 76, "home": "W_C", "away": "RU_F"},
+    {"match": 77, "home": "W_I", "away": "T_CDFGH"},
+    {"match": 78, "home": "RU_E", "away": "RU_I"},
+    {"match": 79, "home": "W_A", "away": "T_CEFHI"},
+    {"match": 80, "home": "W_L", "away": "T_EHIJK"},
+    {"match": 81, "home": "W_D", "away": "T_BEFIJ"},
+    {"match": 82, "home": "W_G", "away": "T_AEHIJ"},
+    {"match": 83, "home": "RU_K", "away": "RU_L"},
+    {"match": 84, "home": "W_H", "away": "RU_J"},
+    {"match": 85, "home": "W_B", "away": "T_EFGIJ"},
+    {"match": 86, "home": "W_J", "away": "RU_H"},
+    {"match": 87, "home": "W_K", "away": "T_DEIJL"},
+    {"match": 88, "home": "RU_D", "away": "RU_G"}
+  ],
+  "r16": [
+    {"match": 89, "home": "W_74", "away": "W_77"},
+    {"match": 90, "home": "W_73", "away": "W_75"},
+    {"match": 91, "home": "W_76", "away": "W_78"},
+    {"match": 92, "home": "W_79", "away": "W_80"},
+    {"match": 93, "home": "W_83", "away": "W_84"},
+    {"match": 94, "home": "W_81", "away": "W_82"},
+    {"match": 95, "home": "W_86", "away": "W_88"},
+    {"match": 96, "home": "W_85", "away": "W_87"}
+  ],
+  "qf": [
+    {"match": 97, "home": "W_89", "away": "W_90"},
+    {"match": 98, "home": "W_93", "away": "W_94"},
+    {"match": 99, "home": "W_91", "away": "W_92"},
+    {"match": 100, "home": "W_95", "away": "W_96"}
+  ],
+  "sf": [
+    {"match": 101, "home": "W_97", "away": "W_98"},
+    {"match": 102, "home": "W_99", "away": "W_100"}
+  ],
+  "final": [
+    {"match": 104, "home": "W_101", "away": "W_102"}
+  ]
+}
