@@ -22,6 +22,7 @@ from __future__ import annotations
 import logging
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 import rdata
 
@@ -298,3 +299,172 @@ def attach_prior_player_vals(joined: pd.DataFrame, vals: pd.DataFrame) -> pd.Dat
         "player_market_value_euro", "contract_expiry_year", "date_joined_year", "_val_season_start",
     ], errors="ignore")
     return out.reset_index(drop=True)
+
+
+# --------------------------------------------------------------------------- #
+# Stathead 2025/26 standard-stats export (real, current-season player stats).  #
+#                                                                              #
+# The worldfootballR_data RDS dump is frozen at the 2022/23 season and live    #
+# FBref is Cloudflare-blocked, so 2025/26 stats come from a manual Stathead     #
+# export instead: 17 paginated .xls files (actually HTML tables) under          #
+# data/raw/stathead/, ~3,354 Big-5 players, FBref STANDARD table only.         #
+#                                                                              #
+# The export carries NO xG / shooting / Expected columns, but the fee model    #
+# needs 8 of them. We approximate those from goals (a documented heuristic —    #
+# see _proxy_shooting). Anything still absent is left to the training-median    #
+# fill downstream, exactly like scripts/predict.py's synthetic players.        #
+# --------------------------------------------------------------------------- #
+
+STATHEAD_DIR = config.RAW_DIR / "stathead"
+STATHEAD_CACHE = STATHEAD_DIR / "stathead_2526.parquet"
+STATHEAD_SEASON_END_YEAR = 2026
+
+# FBref one-letter shooting priors used to back out shot volume from goals.
+# League-average conversion is ~10-12% of shots and ~33% on-target; inverting
+# gives shots-per-goal and SoT-per-goal multipliers. These are coarse PROXIES,
+# only exercised because the Stathead export lacks real shooting data.
+_PROXY_SH_PER_GOAL = 8.0      # ~12.5% conversion
+_PROXY_SOT_PER_GOAL = 2.7     # ~37% goals-per-SoT
+_PROXY_SOT_PCT = 33.0         # SoT% league-average fallback
+
+
+def _fix_mojibake(s: pd.Series) -> pd.Series:
+    """Stathead .xls exports double-encode UTF-8 (e.g. 'MbappÃ©' -> 'Mbappé').
+
+    Re-interpret each string as latin-1 bytes then decode as UTF-8; keep the
+    original where that round-trip fails (already-clean ASCII names).
+    """
+    def _fix(x: str) -> str:
+        if not isinstance(x, str):
+            return x
+        try:
+            return x.encode("latin-1").decode("utf-8")
+        except (UnicodeEncodeError, UnicodeDecodeError):
+            return x
+    return s.map(_fix)
+
+
+def _proxy_shooting(df: pd.DataFrame) -> pd.DataFrame:
+    """Derive the model's xG / shooting features from goals + assists.
+
+    HEURISTIC — the Stathead standard export has no expected-goals or shot data.
+    We set xG≈Gls, npxG≈G-PK, xAG≈Ast, then back out shot volume from goals with
+    fixed league-average multipliers. Per-90 versions use real minutes. This makes
+    attacker rows usable by the fee model instead of fully median-filled; the
+    inaccuracy is disclosed in the destination report's limitations section.
+    """
+    out = df.copy()
+    nineties = (out["Min_Playing"] / 90.0).replace(0, np.nan)
+
+    gls = pd.to_numeric(out["Gls"], errors="coerce").fillna(0.0)
+    ast = pd.to_numeric(out["Ast"], errors="coerce").fillna(0.0)
+    g_minus_pk = pd.to_numeric(out.get("G_minus_PK", gls), errors="coerce").fillna(gls)
+
+    # Expected-goals proxies.
+    out["xG_Expected"] = gls
+    out["npxG_Expected"] = g_minus_pk
+    out["xAG_Expected"] = ast
+    out["xG_Per"] = (gls / nineties).astype(float).fillna(0.0)
+    out["xAG_Per"] = (ast / nineties).astype(float).fillna(0.0)
+
+    # Shot-volume proxies backed out from goals.
+    sh = gls * _PROXY_SH_PER_GOAL
+    sot = gls * _PROXY_SOT_PER_GOAL
+    out["Sh_Standard_shoot"] = sh
+    out["SoT_Standard_shoot"] = sot
+    out["SoT_percent_Standard_shoot"] = _PROXY_SOT_PCT
+    out["Sh_per_90_Standard_shoot"] = (sh / nineties).astype(float).fillna(0.0)
+    out["SoT_per_90_Standard_shoot"] = (sot / nineties).astype(float).fillna(0.0)
+    return out
+
+
+def _strip_country_prefix(s: pd.Series) -> pd.Series:
+    """'eng Premier League' -> 'Premier League', 'es La Liga' -> 'La Liga'.
+
+    Stathead prefixes a lowercase country code; drop the leading token when it is
+    a short all-lowercase/short code. Leaves multi-team summary strings untouched.
+    """
+    def _strip(x: str) -> str:
+        if not isinstance(x, str):
+            return x
+        parts = x.split(" ", 1)
+        if len(parts) == 2 and parts[0].islower() and len(parts[0]) <= 3:
+            return parts[1]
+        return x
+    return s.map(_strip)
+
+
+def load_stathead_2526(use_cache: bool = True) -> pd.DataFrame:
+    """Parse the Stathead 2025/26 standard-stats export into model-ready rows.
+
+    Reads every .xls under data/raw/stathead/, normalizes columns to the FBref
+    standard names the fee model expects (MP_Playing, Min_Playing, Gls, Ast, PK,
+    Pos, ...), repairs mojibake in Player/Squad, adds goals-based xG/shooting
+    proxies (_proxy_shooting), and stamps Season_End_Year=2026.
+
+    One row per player. The 180 "N Teams" season-aggregate rows are kept as a
+    single summed row and flagged with `multi_team=True`.
+
+    Returns a DataFrame keyed for downstream model input; cached to parquet.
+    """
+    if use_cache and STATHEAD_CACHE.exists():
+        return pd.read_parquet(STATHEAD_CACHE)
+
+    files = sorted(STATHEAD_DIR.glob("*.xls"))
+    if not files:
+        raise FileNotFoundError(
+            f"No Stathead .xls files in {STATHEAD_DIR}. "
+            "Copy the 2025/26 export there first."
+        )
+
+    frames = []
+    for f in files:
+        tbl = pd.read_html(f)[0]
+        if isinstance(tbl.columns, pd.MultiIndex):
+            tbl.columns = [c[-1] for c in tbl.columns]
+        # Drop duplicated column labels (export repeats 'MP'), keep first.
+        tbl = tbl.loc[:, ~tbl.columns.duplicated()]
+        frames.append(tbl)
+    raw = pd.concat(frames, ignore_index=True)
+
+    # Drop the repeated header rows the export interleaves (Player == 'Player').
+    raw = raw[raw["Player"].astype(str).str.strip().ne("Player")].copy()
+
+    out = pd.DataFrame(index=raw.index)
+    out["Player"] = _fix_mojibake(raw["Player"].astype(str).str.strip())
+    out["Squad"] = _fix_mojibake(raw["Team"].astype(str).str.strip())
+    out["multi_team"] = raw["Team"].astype(str).str.contains("Teams", na=False)
+    out["Comp"] = _strip_country_prefix(raw["Comp"].astype(str).str.strip())
+    out["Pos"] = raw["Pos"].astype(str).str.strip()
+    out["Nation"] = raw["Nation"].astype(str).str.strip().str.split().str[0]  # 'fr FRA' -> 'fr'
+    out["Age"] = pd.to_numeric(raw["Age"], errors="coerce")
+
+    # Standard playing-time + performance columns -> model's FBref names.
+    out["MP_Playing"] = pd.to_numeric(raw["MP"], errors="coerce")
+    out["Min_Playing"] = pd.to_numeric(raw["Min"], errors="coerce")
+    out["Starts_Playing"] = pd.to_numeric(raw.get("Starts"), errors="coerce")
+    out["Gls"] = pd.to_numeric(raw["Gls"], errors="coerce")
+    out["Ast"] = pd.to_numeric(raw["Ast"], errors="coerce")
+    out["PK"] = pd.to_numeric(raw["PK"], errors="coerce")
+    out["PKatt"] = pd.to_numeric(raw.get("PKatt"), errors="coerce")
+    out["G_minus_PK"] = pd.to_numeric(raw.get("G-PK"), errors="coerce")
+    out["CrdR"] = 0.0  # not in standard export; median-fill handles the rest
+
+    nineties = (out["Min_Playing"] / 90.0).replace(0, np.nan)
+    out["Mins_Per_90_Playing"] = nineties.astype(float)
+    out["Gls_Per"] = (out["Gls"] / nineties).astype(float).fillna(0.0)
+    out["Ast_Per"] = (out["Ast"] / nineties).astype(float).fillna(0.0)
+    out["G+A_Per"] = out["Gls_Per"] + out["Ast_Per"]
+
+    out["Season_End_Year"] = STATHEAD_SEASON_END_YEAR
+
+    out = _proxy_shooting(out)
+
+    # Keep one row per player. For true duplicates (same player twice) keep the
+    # one with the most minutes; "N Teams" rows are already single season totals.
+    out = out.sort_values("Min_Playing", ascending=False, na_position="last")
+    out = out.drop_duplicates(subset=["Player", "Squad"]).reset_index(drop=True)
+
+    STATHEAD_DIR.mkdir(parents=True, exist_ok=True)
+    out.to_parquet(STATHEAD_CACHE, index=False)
+    return out

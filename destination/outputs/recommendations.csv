@@ -1,0 +1,21 @@
+player,from_club,rank,to_club,dest_league,fit_score,predicted_fee_eur,fee_low_eur,fee_high_eur,fee_usd_range,shortlisted
+Lamine Yamal,FC Barcelona,1,Real Madrid,LaLiga,0.1597,310627123.5264914,254714241.29172298,366540005.76125985,"약 27,509만~39,586만 달러",True
+Lamine Yamal,FC Barcelona,2,Manchester City,Premier League,0.158,339792757.48875815,278630061.1407817,400955453.8367346,"약 30,092만~43,303만 달러",True
+Lamine Yamal,FC Barcelona,3,Bayern Munich,Bundesliga,0.1359,249758296.269963,204801802.94136968,294714789.59855634,"약 22,119만~31,829만 달러",True
+Lamine Yamal,FC Barcelona,4,Inter Milan,Serie A,0.1233,139367170.8454,114281080.09322801,164453261.597572,"약 12,342만~17,761만 달러",True
+Lamine Yamal,FC Barcelona,5,Liverpool FC,Premier League,0.1219,323525807.75252146,265291162.3570676,381760453.1479753,"약 28,651만~41,230만 달러",True
+Pedri,FC Barcelona,1,Real Madrid,LaLiga,0.2742,148063565.50328615,121412123.71269466,174715007.29387766,"약 13,113만~18,869만 달러",True
+Pedri,FC Barcelona,2,Paris Saint-Germain,Ligue 1,0.2303,156973818.05168736,128718530.80238365,185229105.3009911,"약 13,902만~20,005만 달러",True
+Pedri,FC Barcelona,3,Manchester City,Premier League,0.2221,165718355.18316334,135889051.25019395,195547659.11613274,"약 14,676만~21,119만 달러",True
+Pedri,FC Barcelona,4,Bayern Munich,Bundesliga,0.214,131209077.803432,107591443.79881425,154826711.80804977,"약 11,620만~16,721만 달러",True
+Pedri,FC Barcelona,5,Liverpool FC,Premier League,0.2049,153141986.96759534,125576429.3134282,180707544.62176248,"약 13,562만~19,516만 달러",True
+Kylian Mbappé,Real Madrid,1,FC Barcelona,LaLiga,0.205,198986095.04864803,163168597.9398914,234803592.15740466,"약 17,622만~25,359만 달러",True
+Kylian Mbappé,Real Madrid,2,Bayern Munich,Bundesliga,0.1974,156725509.4928475,128514917.78413495,184936101.20156005,"약 13,880만~19,973만 달러",True
+Kylian Mbappé,Real Madrid,3,Manchester United,Premier League,0.1951,186582832.3271664,152997922.50827646,220167742.14605635,"약 16,524만~23,778만 달러",True
+Kylian Mbappé,Real Madrid,4,Manchester City,Premier League,0.1868,207431631.3453881,170093937.70321828,244769324.98755795,"약 18,370만~26,435만 달러",True
+Kylian Mbappé,Real Madrid,5,Paris Saint-Germain,Ligue 1,0.1857,205225855.85520506,168285201.80126816,242166509.90914196,"약 18,175만~26,154만 달러",True
+Lee Kang-in,Paris Saint-Germain,1,Real Madrid,LaLiga,0.5291,35226145.28430507,28885439.133130163,41566851.43547998,"약 3,120만~4,489만 달러",True
+Lee Kang-in,Paris Saint-Germain,2,Bayern Munich,Bundesliga,0.4774,29692030.12519842,24347464.702662706,35036595.547734134,"약 2,630만~3,784만 달러",True
+Lee Kang-in,Paris Saint-Germain,3,Manchester City,Premier League,0.466,40487820.34123006,33200012.67980865,47775628.00265147,"약 3,586만~5,160만 달러",True
+Lee Kang-in,Paris Saint-Germain,4,Liverpool FC,Premier League,0.4504,39334312.59359227,32254136.326745667,46414488.860438876,"약 3,483만~5,013만 달러",True
+Lee Kang-in,Paris Saint-Germain,5,FC Barcelona,LaLiga,0.4101,41917504.22436579,34372353.46397995,49462654.984751634,"약 3,712만~5,342만 달러",True

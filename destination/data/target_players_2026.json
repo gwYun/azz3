@@ -1,0 +1,51 @@
+{
+  "_note": "The 3 marquee players featured for the July 2026 window. Only identity + market value are curated here; per-player STATS are looked up live from src.data.load_stathead_2526() (2025/26 real data + goals-proxy xG) by matching `name` against the Stathead `Player` column. current_club must match a team_name in the transfer history so the player's own club is excluded from destination candidates. prior_market_value_eur is the latest Transfermarkt value (hand-entered, EUR).",
+  "_framing": "All three are franchise cornerstones at Barcelona/Real Madrid and unlikely to actually move in 2026. The report frames the output as 'model-implied market value + best-fit destination IF they were to move', not a literal transfer prediction.",
+  "_mv_source": "Transfermarkt market values, June 2026 snapshot (hand-entered).",
+  "players": [
+    {
+      "name": "Lamine Yamal",
+      "name_ko": "라민 야말",
+      "current_club": "FC Barcelona",
+      "current_league": "LaLiga",
+      "nationality": "Spain",
+      "age": 18,
+      "position_group": "forward",
+      "prior_market_value_eur": 200000000,
+      "contract_years_remaining": 5
+    },
+    {
+      "name": "Pedri",
+      "name_ko": "페드리",
+      "current_club": "FC Barcelona",
+      "current_league": "LaLiga",
+      "nationality": "Spain",
+      "age": 22,
+      "position_group": "midfielder",
+      "prior_market_value_eur": 140000000,
+      "contract_years_remaining": 4
+    },
+    {
+      "name": "Kylian Mbappé",
+      "name_ko": "킬리안 음바페",
+      "current_club": "Real Madrid",
+      "current_league": "LaLiga",
+      "nationality": "France",
+      "age": 26,
+      "position_group": "forward",
+      "prior_market_value_eur": 180000000,
+      "contract_years_remaining": 4
+    },
+    {
+      "name": "Lee Kang-in",
+      "name_ko": "이강인",
+      "current_club": "Paris Saint-Germain",
+      "current_league": "Ligue 1",
+      "nationality": "Korea, South",
+      "age": 24,
+      "position_group": "midfielder",
+      "prior_market_value_eur": 35000000,
+      "contract_years_remaining": 3
+    }
+  ]
+}
