@@ -26,7 +26,7 @@ if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 
 from src import config  # noqa: E402
-from src.enrich import PEAK_AGE, FeeDeflator, FrequencyEncoders  # noqa: E402
+from src.enrich import DEST_LEAGUES, PEAK_AGE, FeeDeflator, FrequencyEncoders, _slug  # noqa: E402
 from src.features import assign_position_group  # noqa: E402
 
 # Prediction season for the 2026 window. The model works entirely in 2014-€
@@ -129,7 +129,7 @@ def predict_fee_eur(art: Artifacts, df: pd.DataFrame, season: str = FEE_REFERENC
 
 # FBref stat columns we forward straight from a Stathead row when present.
 _STAT_PASSTHROUGH = [
-    "MP_Playing", "Min_Playing", "Ast", "PK", "CrdR", "Ast_Per", "G+A_Per",
+    "MP_Playing", "Min_Playing", "Ast", "PK", "CrdR", "Gls_Per", "Ast_Per", "G+A_Per",
     "xAG_Expected", "xG_Per", "xAG_Per",
     "Sh_Standard_shoot", "SoT_Standard_shoot", "SoT_percent_Standard_shoot",
     "Sh_per_90_Standard_shoot", "SoT_per_90_Standard_shoot",
@@ -182,6 +182,13 @@ def player_to_model_row(profile: dict, stat_row: pd.Series | None = None,
         "player_nationality": profile["nationality"],
         "team_name": dest_club or "",
     }
+    # Selling-league one-hot (model features league_premier_league, ...). Without
+    # this they median-fill to 0.0 and the player is scored as belonging to no
+    # league, killing the league fee signal the model learned at train time.
+    cur_league = profile.get("current_league")
+    if cur_league:
+        for lg in DEST_LEAGUES:
+            row[f"league_{_slug(lg)}"] = int(cur_league == lg)
     if stat_row is not None:
         for c in _STAT_PASSTHROUGH:
             if c in stat_row.index and pd.notna(stat_row[c]):

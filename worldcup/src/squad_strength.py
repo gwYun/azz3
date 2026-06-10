@@ -166,7 +166,8 @@ def load_player_pool(season: int = 2022) -> pd.DataFrame:
     return df.reset_index(drop=True)
 
 
-def _build_model_input(pool: pd.DataFrame) -> pd.DataFrame:
+def _build_model_input(pool: pd.DataFrame, art: "Artifacts | None" = None,
+                       season: str = "2022") -> pd.DataFrame:
     """Construct the model's expected raw columns from the player pool.
 
     We have market value, age, position. Stats (xG, shots, ...) are unknown for an
@@ -174,9 +175,18 @@ def _build_model_input(pool: pd.DataFrame) -> pd.DataFrame:
     _prepare_feature_frame — i.e. the model values each player primarily off
     market value + age curve + position + league, which is exactly the squad-quality
     signal we want at Stage 1 (not a per-match stat forecast).
+
+    The fee model deflates the prior_market_value_eur INPUT to its 2014 baseline at
+    train time (scripts/train.py), so we deflate the pool's nominal MV by the same
+    per-season factor here. Without this the model receives MV ~3x its trained
+    scale and extrapolates badly. `art` carries the deflator; when omitted the MV
+    is left nominal (legacy behavior).
     """
     out = pd.DataFrame(index=pool.index)
-    out["prior_market_value_eur"] = pool["mv_eur"]
+    mv = pool["mv_eur"]
+    if art is not None:
+        mv = mv / float(art.deflator.deflator.get(str(season), 1.0))
+    out["prior_market_value_eur"] = mv
     out["age_years"] = pool["age_years"]
     # peak_distance ~ age - 27 (peak age prior used in enrich.py age curve)
     out["peak_distance"] = pool["age_years"] - 27.0
@@ -196,7 +206,7 @@ def _build_model_input(pool: pd.DataFrame) -> pd.DataFrame:
 
 def player_model_values(art: Artifacts, pool: pd.DataFrame) -> pd.Series:
     """Model-implied EUR value for each player in the pool."""
-    mdl_in = _build_model_input(pool)
+    mdl_in = _build_model_input(pool, art=art, season="2022")
     vals = _model_value_eur(art, mdl_in, season="2022")
     return pd.Series(vals, index=pool.index).clip(lower=0.0)
 

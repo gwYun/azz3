@@ -56,3 +56,15 @@
 **컨텍스트:** 이번 디자인 리뷰에서 확정된 인라인 토큰 (플랜 참고). DESIGN.md가 이를 대체하거나 공식화하게 됨.
 
 **의존성:** 없음 — 완전히 풀려 있음. 플레이그라운드가 5명짜리 데모를 넘어 성장할 때 진행하는 것이 가장 좋음.
+
+## /review 2026-06-11에서 도출된 항목
+
+### destination 추천기: 이적료 적합도(fee-band) 스케일 불일치 보정 (C2)
+
+**무엇:** `destination/src/club_profiles.py`의 `score_player_against_club`에서 `predicted_fee_eur`(2026 명목가)와 `club.fee_median_eur`(2014 디플레이트가)를 직접 비교한다. 두 값의 스케일이 2026 디플레이터 계수(~4.77배)만큼 어긋나, 지배적 가중치인 `W_FEE_BAND=0.45`의 affordability 신호가 모든 구단에서 균일하게 짓눌린다. 결과적으로 행선지 랭킹이 사실상 prestige/league로만 결정됨.
+
+**고치는 법:** `recommender.recommend`에서 `cp.score_player_against_club`에 넘기기 전 `point_eur`를 2014가로 디플레이트(`point_eur / art.deflator.deflator["2026"]`)하거나, 클럽 ceiling을 명목가로 재인플레이트해 양쪽 스케일을 맞춘다.
+
+**왜 지금 안 고쳤나:** /review에서 사용자가 C1/C3/C4만 즉시 수정하기로 결정. C4(가치 기준 헤드라인 배정)로 배정 로직이 바뀌어 prestige 주도 랭킹이 실무상 수용 가능하므로, affordability 신호 약화는 게시 숫자의 정합성 문제가 아니라 품질 문제로 분류. 후속 보정 대상.
+
+**의존성:** 없음. destination 추천 품질을 높이려면 진행.

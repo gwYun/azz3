@@ -56,10 +56,13 @@ as *"model-implied value + best-fit destination if they were to move."*
 
 ## Limitations
 
-- **Fee is destination-agnostic** — the range's band is shaped by club spend, but
-  the model does not price a player differently per club.
+- **Fee is buyer-aware** via one feature: a per-club fee/market-value premium
+  crossed with the player's value, so high-value players cost more at clubs that
+  historically pay above market value. The effect is muted for cheap players.
 - **Club fit = historical buying propensity** (2014–2022), not insider info.
 - **xG/shooting are goals-based proxies** → attacker fees are noisier.
-- **Fee era is 2022** — the model's deflator stops at 2022, so fees are in 2022
-  money even though stats are 2025/26.
+- **Fees are re-inflated to 2026€**: the model trains in 2014€ (both MV input and
+  fee target deflated), predicts, then re-inflates by the deflator extrapolated to
+  2026 (~4.8×). The long extrapolation is the dominant uncertainty in the headline
+  numbers.
 - EUR→USD at a fixed **1.08**; league prior is an empirical prior, not a classifier.

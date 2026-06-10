@@ -1,6 +1,6 @@
 """밸류트랙 — 2026 여름 이적시장 행선지·이적료 예측 (오케스트레이터).
 
-기존 azz3 이적료 모델을 재사용해 핵심 선수 3인의 (1) 모델 추정 시장가치(이적료
+기존 azz3 이적료 모델을 재사용해 핵심 선수들의 (1) 모델 추정 시장가치(이적료
 범위)와 (2) 과거 영입 성향 기반 '가장 적합한 행선지'를 산출한다.
 
 산출물:
@@ -56,7 +56,7 @@ def write_report(results: list, ko_names: dict, top_k: int) -> str:
     L = []
     L.append("# 밸류트랙 — 2026 여름 이적시장 핵심 선수 예측\n")
     L.append("> azz3 이적료 예측 모델로 추정한 **시장가치(이적료 범위)**와, 과거 빅5 영입 이력에서 "
-             "도출한 **가장 적합한 행선지**입니다. 세 선수 모두 현 소속 구단의 핵심 자원으로 "
+             "도출한 **가장 적합한 행선지**입니다. 대상 선수 모두 현 소속 구단의 핵심 자원으로 "
              "실제 이적 가능성은 낮으며, 아래는 *‘만약 이적한다면’* 을 전제로 한 모델 추정입니다.\n")
 
     # 헤드라인 한 줄씩 (보도자료 템플릿)
@@ -84,7 +84,7 @@ def write_report(results: list, ko_names: dict, top_k: int) -> str:
             mark = " ★" if row["to_club"] == r["top1_club"] else ""
             L.append(f"| {row['rank']} | {to_ko}{mark} | {row['dest_league']} | {row['fit_score']:.3f} | "
                      f"{row['fee_low_eur']/1e6:.0f}~{row['fee_high_eur']/1e6:.0f} |\n")
-        L.append("\n*★ = 헤드라인 행선지. 세 선수의 헤드라인은 서로 다른 구단으로 분산 배정했다"
+        L.append("\n*★ = 헤드라인 행선지. 각 선수의 헤드라인은 서로 다른 구단으로 분산 배정했다"
                  "(적합도 1위가 겹치면 다음 순위 구단으로). 표의 적합도 순위는 분산 배정 전 원점수다.*\n")
 
     L.append("\n## 데이터 한계 / 방법론\n")
@@ -152,9 +152,15 @@ def main():
     # Greedy distinct top-1: assign each player their highest-scoring club that
     # isn't already taken, so the headline destinations don't all collide on the
     # single most-prestigious club. The full per-player ranking is still reported.
+    #
+    # Order by PLAYER VALUE (most expensive first), NOT by fit_score. Ordering by
+    # fit_score let the cheapest player — who "fits" every elite club's
+    # affordability gate — claim the most prestigious club first, pushing marquee
+    # players onto lesser clubs. Value-first means the biggest names get first pick
+    # of the top clubs, which is both more intuitive and more defensible.
     headline_club = {}
     if args.distinct:
-        order = sorted(targets, key=lambda p: tables[p["name"]][1].iloc[0]["fit_score"], reverse=True)
+        order = sorted(targets, key=lambda p: float(p["prior_market_value_eur"]), reverse=True)
         taken = set()
         for p in order:
             tbl = tables[p["name"]][1]

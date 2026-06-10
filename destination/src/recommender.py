@@ -5,9 +5,10 @@ Composes club_profiles (A) with two realism layers:
     destination league (5 dense classes) — a soft multiplier, NOT a trained model.
   - suitor shortlist: a curated whitelist of clubs plausibly active in July 2026.
 
-The fee is predicted ONCE per player (destination-agnostic by model design). The
-displayed fee is a RANGE shaped by the chosen club's typical spend — the model
-point estimate is preserved; only the band is club-specific.
+The fee is predicted PER CLUB: each candidate destination's buyer-premium x
+player-value interaction feeds the model, so a high-value player costs more at a
+club that historically pays above market value. The displayed range is a fixed
+uncertainty band around that per-club point estimate.
 """
 from __future__ import annotations
 
@@ -15,7 +16,6 @@ import json
 import sys
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
 
 _HERE = Path(__file__).resolve()
