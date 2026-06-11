@@ -1,0 +1,438 @@
+{
+  "version": "v2",
+  "n_sims": 1000000,
+  "seed": 42,
+  "top4": [
+    "프랑스",
+    "잉글랜드",
+    "스페인",
+    "포르투갈"
+  ],
+  "top4_en": [
+    "France",
+    "England",
+    "Spain",
+    "Portugal"
+  ],
+  "top4_prob": 0.16,
+  "nations": [
+    {
+      "en": "France",
+      "ko": "프랑스",
+      "win": 11.21,
+      "sf": 29.3
+    },
+    {
+      "en": "England",
+      "ko": "잉글랜드",
+      "win": 10.86,
+      "sf": 28.2
+    },
+    {
+      "en": "Spain",
+      "ko": "스페인",
+      "win": 9.16,
+      "sf": 26.6
+    },
+    {
+      "en": "Portugal",
+      "ko": "포르투갈",
+      "win": 8.14,
+      "sf": 25.6
+    },
+    {
+      "en": "Germany",
+      "ko": "독일",
+      "win": 6.36,
+      "sf": 20.4
+    },
+    {
+      "en": "Brazil",
+      "ko": "브라질",
+      "win": 6.17,
+      "sf": 19.6
+    },
+    {
+      "en": "Argentina",
+      "ko": "아르헨티나",
+      "win": 5.24,
+      "sf": 19.0
+    },
+    {
+      "en": "Netherlands",
+      "ko": "네덜란드",
+      "win": 4.6,
+      "sf": 16.5
+    },
+    {
+      "en": "Belgium",
+      "ko": "벨기에",
+      "win": 4.19,
+      "sf": 17.6
+    },
+    {
+      "en": "Norway",
+      "ko": "노르웨이",
+      "win": 3.59,
+      "sf": 14.7
+    },
+    {
+      "en": "United States",
+      "ko": "미국",
+      "win": 3.49,
+      "sf": 15.2
+    },
+    {
+      "en": "Uruguay",
+      "ko": "우루과이",
+      "win": 2.34,
+      "sf": 12.2
+    },
+    {
+      "en": "Ivory Coast",
+      "ko": "코트디부아르",
+      "win": 2.31,
+      "sf": 10.9
+    },
+    {
+      "en": "Canada",
+      "ko": "캐나다",
+      "win": 2.11,
+      "sf": 11.6
+    },
+    {
+      "en": "Turkiye",
+      "ko": "튀르키예",
+      "win": 2.03,
+      "sf": 10.9
+    },
+    {
+      "en": "Switzerland",
+      "ko": "스위스",
+      "win": 1.82,
+      "sf": 10.6
+    },
+    {
+      "en": "Morocco",
+      "ko": "모로코",
+      "win": 1.8,
+      "sf": 9.3
+    },
+    {
+      "en": "Senegal",
+      "ko": "세네갈",
+      "win": 1.79,
+      "sf": 9.5
+    },
+    {
+      "en": "Croatia",
+      "ko": "크로아티아",
+      "win": 1.62,
+      "sf": 9.2
+    },
+    {
+      "en": "Sweden",
+      "ko": "스웨덴",
+      "win": 1.35,
+      "sf": 7.5
+    },
+    {
+      "en": "Colombia",
+      "ko": "콜롬비아",
+      "win": 1.31,
+      "sf": 8.1
+    },
+    {
+      "en": "Austria",
+      "ko": "오스트리아",
+      "win": 1.1,
+      "sf": 7.2
+    },
+    {
+      "en": "Algeria",
+      "ko": "알제리",
+      "win": 1.02,
+      "sf": 6.8
+    },
+    {
+      "en": "Ecuador",
+      "ko": "에콰도르",
+      "win": 0.86,
+      "sf": 5.8
+    },
+    {
+      "en": "Ghana",
+      "ko": "가나",
+      "win": 0.84,
+      "sf": 6.0
+    },
+    {
+      "en": "Czechia",
+      "ko": "체코",
+      "win": 0.8,
+      "sf": 5.7
+    },
+    {
+      "en": "Mexico",
+      "ko": "멕시코",
+      "win": 0.77,
+      "sf": 5.6
+    },
+    {
+      "en": "Japan",
+      "ko": "일본",
+      "win": 0.72,
+      "sf": 5.0
+    },
+    {
+      "en": "Scotland",
+      "ko": "스코틀랜드",
+      "win": 0.62,
+      "sf": 4.7
+    },
+    {
+      "en": "Congo DR",
+      "ko": "콩고민주공화국",
+      "win": 0.39,
+      "sf": 3.7
+    },
+    {
+      "en": "Egypt",
+      "ko": "이집트",
+      "win": 0.38,
+      "sf": 4.1
+    },
+    {
+      "en": "Bosnia-Herzegovina",
+      "ko": "보스니아",
+      "win": 0.36,
+      "sf": 3.7
+    },
+    {
+      "en": "Paraguay",
+      "ko": "파라과이",
+      "win": 0.27,
+      "sf": 3.0
+    },
+    {
+      "en": "South Korea",
+      "ko": "대한민국",
+      "win": 0.21,
+      "sf": 2.5
+    },
+    {
+      "en": "Australia",
+      "ko": "호주",
+      "win": 0.06,
+      "sf": 1.1
+    },
+    {
+      "en": "Tunisia",
+      "ko": "튀니지",
+      "win": 0.04,
+      "sf": 0.7
+    },
+    {
+      "en": "Haiti",
+      "ko": "아이티",
+      "win": 0.02,
+      "sf": 0.5
+    },
+    {
+      "en": "Iran",
+      "ko": "이란",
+      "win": 0.01,
+      "sf": 0.3
+    },
+    {
+      "en": "Cape Verde",
+      "ko": "카보베르데",
+      "win": 0.01,
+      "sf": 0.3
+    },
+    {
+      "en": "Uzbekistan",
+      "ko": "우즈베키스탄",
+      "win": 0.01,
+      "sf": 0.2
+    },
+    {
+      "en": "South Africa",
+      "ko": "남아프리카공화국",
+      "win": 0.0,
+      "sf": 0.2
+    },
+    {
+      "en": "New Zealand",
+      "ko": "뉴질랜드",
+      "win": 0.0,
+      "sf": 0.2
+    },
+    {
+      "en": "Panama",
+      "ko": "파나마",
+      "win": 0.0,
+      "sf": 0.1
+    },
+    {
+      "en": "Saudi Arabia",
+      "ko": "사우디아라비아",
+      "win": 0.0,
+      "sf": 0.1
+    },
+    {
+      "en": "Curacao",
+      "ko": "퀴라소",
+      "win": 0.0,
+      "sf": 0.1
+    },
+    {
+      "en": "Iraq",
+      "ko": "이라크",
+      "win": 0.0,
+      "sf": 0.0
+    },
+    {
+      "en": "Qatar",
+      "ko": "카타르",
+      "win": 0.0,
+      "sf": 0.1
+    },
+    {
+      "en": "Jordan",
+      "ko": "요르단",
+      "win": 0.0,
+      "sf": 0.0
+    }
+  ],
+  "stage1": [
+    {
+      "en": "France",
+      "ko": "프랑스",
+      "rating": 123.4,
+      "tm": 1558,
+      "syn": 0.99,
+      "core": 15
+    },
+    {
+      "en": "England",
+      "ko": "잉글랜드",
+      "rating": 123.4,
+      "tm": 1333,
+      "syn": 1.01,
+      "core": 15
+    },
+    {
+      "en": "Spain",
+      "ko": "스페인",
+      "rating": 121.4,
+      "tm": 1286,
+      "syn": 1.02,
+      "core": 15
+    },
+    {
+      "en": "Portugal",
+      "ko": "포르투갈",
+      "rating": 119.8,
+      "tm": 1038,
+      "syn": 1.0,
+      "core": 15
+    },
+    {
+      "en": "Brazil",
+      "ko": "브라질",
+      "rating": 118.8,
+      "tm": 931,
+      "syn": 0.97,
+      "core": 15
+    },
+    {
+      "en": "Germany",
+      "ko": "독일",
+      "rating": 118.7,
+      "tm": 1018,
+      "syn": 1.01,
+      "core": 15
+    },
+    {
+      "en": "Argentina",
+      "ko": "아르헨티나",
+      "rating": 116.5,
+      "tm": 835,
+      "syn": 0.97,
+      "core": 15
+    },
+    {
+      "en": "Netherlands",
+      "ko": "네덜란드",
+      "rating": 116.1,
+      "tm": 854,
+      "syn": 0.98,
+      "core": 15
+    },
+    {
+      "en": "Norway",
+      "ko": "노르웨이",
+      "rating": 113.5,
+      "tm": 613,
+      "syn": 0.95,
+      "core": 15
+    },
+    {
+      "en": "Belgium",
+      "ko": "벨기에",
+      "rating": 113.3,
+      "tm": 554,
+      "syn": 1.03,
+      "core": 15
+    },
+    {
+      "en": "Ivory Coast",
+      "ko": "코트디부아르",
+      "rating": 110.7,
+      "tm": 542,
+      "syn": 1.07,
+      "core": 15
+    },
+    {
+      "en": "Uruguay",
+      "ko": "우루과이",
+      "rating": 109.5,
+      "tm": 414,
+      "syn": 1.0,
+      "core": 15
+    },
+    {
+      "en": "Morocco",
+      "ko": "모로코",
+      "rating": 109.2,
+      "tm": 498,
+      "syn": 0.94,
+      "core": 15
+    },
+    {
+      "en": "Turkiye",
+      "ko": "튀르키예",
+      "rating": 108.7,
+      "tm": 482,
+      "syn": 1.0,
+      "core": 15
+    },
+    {
+      "en": "Senegal",
+      "ko": "세네갈",
+      "rating": 108.6,
+      "tm": 483,
+      "syn": 1.01,
+      "core": 15
+    },
+    {
+      "en": "United States",
+      "ko": "미국",
+      "rating": 108.0,
+      "tm": 386,
+      "syn": 1.01,
+      "core": 15
+    }
+  ]
+}

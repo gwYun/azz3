@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useT } from "@/lib/i18n-context";
 import { LangToggle } from "./LangToggle";
+import { Logo } from "./Logo";
 
 export function Nav() {
   const t = useT();
@@ -12,12 +13,13 @@ export function Nav() {
     { href: "/", label: t("nav.glossary") },
     { href: "/build", label: t("nav.build") },
     { href: "/saved", label: t("nav.saved") },
+    { href: "/worldcup", label: t("nav.worldcup") },
   ];
   return (
     <header className="sticky top-0 z-30 border-b border-neutral-200 bg-white/85 backdrop-blur">
       <div className="mx-auto flex max-w-5xl items-center justify-between gap-6 px-6 py-3">
-        <Link href="/" className="font-display text-base font-semibold tracking-tight text-neutral-900">
-          azz3
+        <Link href="/" aria-label="ValueTrack" className="shrink-0">
+          <Logo />
         </Link>
         <nav className="flex items-center gap-1">
           {items.map((item) => {
