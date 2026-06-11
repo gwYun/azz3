@@ -43,10 +43,10 @@ export function FeeDisplay({ fee, loading, eurKrwRate, playerName, actualFeeEur 
   return (
     <div ref={ref} className="relative">
       {playerName ? (
-        <div className="mb-2 text-sm text-neutral-700">
+        <div className="mb-2 text-sm text-fg-muted">
           <span className="font-semibold">{playerName}</span>
           {actualFeeEur != null ? (
-            <span className="ml-2 text-neutral-500">
+            <span className="ml-2 text-fg-dim">
               {t("build.realplayer.actual", {
                 fee: `${euro(actualFeeEur, locale)} ${t("build.fee.krwApprox", { amount: krw(actualFeeEur * eurKrwRate, locale) })}`,
               })}
@@ -54,14 +54,14 @@ export function FeeDisplay({ fee, loading, eurKrwRate, playerName, actualFeeEur 
           ) : null}
         </div>
       ) : null}
-      <div className="flex items-baseline gap-2 text-xs font-medium uppercase tracking-wide text-neutral-500">
+      <div className="flex items-baseline gap-2 text-xs font-medium uppercase tracking-wide text-fg-dim">
         <span>{t("build.fee.label")}</span>
         <button
           type="button"
           onClick={() => setTooltipOpen((v) => !v)}
           aria-expanded={tooltipOpen}
           aria-label={t("build.fee.calibration.aria")}
-          className="flex h-4 w-4 items-center justify-center rounded-full border border-neutral-300 text-[10px] font-semibold leading-none text-neutral-500 hover:border-neutral-500 hover:text-neutral-800"
+          className="flex h-4 w-4 items-center justify-center rounded-full border border-line text-[10px] font-semibold leading-none text-fg-dim hover:border-fg-dim hover:text-fg"
         >
           i
         </button>
@@ -69,10 +69,10 @@ export function FeeDisplay({ fee, loading, eurKrwRate, playerName, actualFeeEur 
       <div
         aria-live="polite"
         aria-atomic="true"
-        className="mt-1 font-display text-6xl font-semibold tracking-tight text-neutral-900 transition-all duration-fee"
+        className="mt-1 font-display text-6xl font-semibold tracking-tight text-fg transition-all duration-fee"
       >
         {loading && fee == null ? (
-          <span className="inline-block h-12 w-48 animate-pulse rounded bg-neutral-100" />
+          <span className="inline-block h-12 w-48 animate-pulse rounded bg-ink-800/60" />
         ) : (
           <span>
             {fee == null ? "—" : euro(fee, locale)}
@@ -80,13 +80,13 @@ export function FeeDisplay({ fee, loading, eurKrwRate, playerName, actualFeeEur 
         )}
       </div>
       {krwLine ? (
-        <div className="mt-1 text-sm text-neutral-500">{krwLine}</div>
+        <div className="mt-1 text-sm text-fg-dim">{krwLine}</div>
       ) : null}
       <div className="mt-1 h-0.5 w-16 bg-accent" aria-hidden="true" />
       {tooltipOpen ? (
         <div
           role="tooltip"
-          className="absolute left-0 top-full z-20 mt-2 max-w-sm rounded-lg border border-neutral-200 bg-white p-3 text-xs leading-relaxed text-neutral-700 shadow-elevated"
+          className="absolute left-0 top-full z-20 mt-2 max-w-sm rounded-lg border border-line bg-ink-850/60 p-3 text-xs leading-relaxed text-fg-muted shadow-elevated"
         >
           {t("build.fee.calibration")}
         </div>

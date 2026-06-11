@@ -34,7 +34,7 @@ export default function WorldCupPage() {
 
   if (!data) {
     return (
-      <div className="mx-auto max-w-3xl py-20 text-center text-neutral-500">{t("loading")}</div>
+      <div className="mx-auto max-w-3xl py-20 text-center text-fg-dim">{t("loading")}</div>
     );
   }
 
@@ -48,19 +48,19 @@ export default function WorldCupPage() {
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
         {t("wc.eyebrow")}
       </p>
-      <h1 className="mt-2 font-display text-4xl font-semibold tracking-tight text-neutral-900">
+      <h1 className="mt-2 font-display text-4xl font-semibold tracking-tight text-fg">
         {t("wc.title")}
       </h1>
-      <p className="mt-4 max-w-2xl text-base leading-relaxed text-neutral-700">
+      <p className="mt-4 max-w-2xl text-base leading-relaxed text-fg-muted">
         {t("wc.subtitle", { sims: data.n_sims.toLocaleString() })}
       </p>
 
       {/* The call — hero card */}
-      <section className="mt-10 rounded-2xl border border-neutral-200 bg-neutral-50 p-6 sm:p-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
+      <section className="mt-10 rounded-2xl border border-line bg-ink-850/50 p-6 sm:p-8">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-fg-dim">
           {t("wc.call.label")}
         </p>
-        <p className="mt-3 text-xl font-medium leading-snug text-neutral-900 sm:text-2xl">
+        <p className="mt-3 text-xl font-medium leading-snug text-fg sm:text-2xl">
           {t("wc.call.body", { first: name(champ, locale) })}
         </p>
 
@@ -70,20 +70,20 @@ export default function WorldCupPage() {
           <Stat label={t("wc.stat.sims")} value={data.n_sims.toLocaleString()} />
         </div>
 
-        <p className="mt-6 text-xs text-neutral-500">
+        <p className="mt-6 text-xs text-fg-dim">
           {t("wc.call.locked", { seed: String(data.seed) })}
         </p>
       </section>
 
       {/* Title probability leaderboard */}
       <section className="mt-14">
-        <h2 className="font-display text-2xl font-semibold tracking-tight text-neutral-900">
+        <h2 className="font-display text-2xl font-semibold tracking-tight text-fg">
           {t("wc.leaderboard.title")}
         </h2>
-        <p className="mt-2 text-sm text-neutral-600">{t("wc.leaderboard.note")}</p>
+        <p className="mt-2 text-sm text-fg-muted">{t("wc.leaderboard.note")}</p>
 
-        <div className="mt-6 overflow-hidden rounded-xl border border-neutral-200">
-          <div className="grid grid-cols-[2.5rem_1fr_5rem_5rem] gap-x-3 border-b border-neutral-200 bg-neutral-50 px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-neutral-500">
+        <div className="mt-6 overflow-hidden rounded-xl border border-line">
+          <div className="grid grid-cols-[2.5rem_1fr_5rem_5rem] gap-x-3 border-b border-line bg-ink-850/50 px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-fg-dim">
             <span className="text-right">{t("wc.col.rank")}</span>
             <span>{t("wc.col.nation")}</span>
             <span className="text-right">{t("wc.col.win")}</span>
@@ -97,7 +97,7 @@ export default function WorldCupPage() {
                   key={n.en}
                   className={
                     "relative grid grid-cols-[2.5rem_1fr_5rem_5rem] items-center gap-x-3 px-4 py-2.5 text-sm " +
-                    (i % 2 ? "bg-white" : "bg-neutral-50/40")
+                    (i % 2 ? "bg-ink-850/40" : "bg-ink-800/20")
                   }
                 >
                   {/* win-prob bar */}
@@ -106,19 +106,19 @@ export default function WorldCupPage() {
                     className="absolute inset-y-0 left-0 bg-accent/10"
                     style={{ width: `${(n.win / maxWin) * 100}%` }}
                   />
-                  <span className="relative z-10 text-right font-mono text-neutral-500">{i + 1}</span>
+                  <span className="relative z-10 text-right font-mono text-fg-dim">{i + 1}</span>
                   <span
                     className={
                       "relative z-10 truncate " +
-                      (top4 ? "font-semibold text-neutral-900" : "text-neutral-800")
+                      (top4 ? "font-semibold text-fg" : "text-fg")
                     }
                   >
                     {name(n, locale)}
                   </span>
-                  <span className="relative z-10 text-right font-mono font-semibold tabular-nums text-neutral-900">
+                  <span className="relative z-10 text-right font-mono font-semibold tabular-nums text-fg">
                     {n.win.toFixed(1)}
                   </span>
-                  <span className="relative z-10 text-right font-mono tabular-nums text-neutral-500">
+                  <span className="relative z-10 text-right font-mono tabular-nums text-fg-dim">
                     {n.sf.toFixed(1)}
                   </span>
                 </li>
@@ -138,20 +138,20 @@ export default function WorldCupPage() {
 
       {/* Most likely final four */}
       <section className="mt-14">
-        <h2 className="font-display text-2xl font-semibold tracking-tight text-neutral-900">
+        <h2 className="font-display text-2xl font-semibold tracking-tight text-fg">
           {t("wc.semifinal.title")}
         </h2>
-        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-neutral-600">
+        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-fg-muted">
           {t("wc.semifinal.body")}
         </p>
         <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
           {data.nations.slice(0, 4).map((n, i) => (
             <div
               key={n.en}
-              className="rounded-xl border border-neutral-200 bg-white p-4 text-center"
+              className="rounded-xl border border-line bg-ink-850/40 p-4 text-center"
             >
-              <div className="font-mono text-xs text-neutral-400">{i + 1}</div>
-              <div className="mt-1 font-display text-lg font-semibold text-neutral-900">
+              <div className="font-mono text-xs text-fg-dim">{i + 1}</div>
+              <div className="mt-1 font-display text-lg font-semibold text-fg">
                 {name(n, locale)}
               </div>
               <div className="mt-1 text-sm font-medium text-accent">{fmtPct(n.win)}</div>
@@ -162,37 +162,37 @@ export default function WorldCupPage() {
 
       {/* Squad strength ranking */}
       <section className="mt-14">
-        <h2 className="font-display text-2xl font-semibold tracking-tight text-neutral-900">
+        <h2 className="font-display text-2xl font-semibold tracking-tight text-fg">
           {t("wc.strength.title")}
         </h2>
-        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-neutral-600">
+        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-fg-muted">
           {t("wc.strength.note")}
         </p>
-        <div className="mt-6 overflow-hidden rounded-xl border border-neutral-200">
-          <div className="grid grid-cols-[2.5rem_1fr_4.5rem_6rem_4rem] gap-x-3 border-b border-neutral-200 bg-neutral-50 px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-neutral-500">
+        <div className="mt-6 overflow-hidden rounded-xl border border-line">
+          <div className="grid grid-cols-[2.5rem_1fr_4.5rem_6rem_4rem] gap-x-3 border-b border-line bg-ink-850/50 px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-fg-dim">
             <span className="text-right">{t("wc.col.rank")}</span>
             <span>{t("wc.col.nation")}</span>
             <span className="text-right">{t("wc.col.rating")}</span>
             <span className="text-right">{t("wc.col.tm")}</span>
             <span className="text-right">{t("wc.col.synergy")}</span>
           </div>
-          <ul className="divide-y divide-neutral-100">
+          <ul className="divide-y divide-line">
             {data.stage1.map((s, i) => (
               <li
                 key={s.en}
                 className="grid grid-cols-[2.5rem_1fr_4.5rem_6rem_4rem] items-center gap-x-3 px-4 py-2.5 text-sm"
               >
-                <span className="text-right font-mono text-neutral-500">{i + 1}</span>
-                <span className={i < 4 ? "font-semibold text-neutral-900" : "text-neutral-800"}>
+                <span className="text-right font-mono text-fg-dim">{i + 1}</span>
+                <span className={i < 4 ? "font-semibold text-fg" : "text-fg"}>
                   {name(s, locale)}
                 </span>
-                <span className="text-right font-mono font-semibold tabular-nums text-neutral-900">
+                <span className="text-right font-mono font-semibold tabular-nums text-fg">
                   {s.rating.toFixed(1)}
                 </span>
-                <span className="text-right font-mono tabular-nums text-neutral-500">
+                <span className="text-right font-mono tabular-nums text-fg-dim">
                   {s.tm.toLocaleString()}
                 </span>
-                <span className="text-right font-mono tabular-nums text-neutral-500">
+                <span className="text-right font-mono tabular-nums text-fg-dim">
                   {s.syn.toFixed(2)}
                 </span>
               </li>
@@ -203,14 +203,14 @@ export default function WorldCupPage() {
 
       {/* Why these four */}
       <section className="mt-14">
-        <h2 className="font-display text-2xl font-semibold tracking-tight text-neutral-900">
+        <h2 className="font-display text-2xl font-semibold tracking-tight text-fg">
           {t("wc.reasoning.title")}
         </h2>
         <ul className="mt-5 space-y-3">
           {(["france", "england", "spain", "portugal"] as const).map((k) => (
             <li
               key={k}
-              className="rounded-lg border-l-2 border-accent/40 bg-neutral-50 px-4 py-3 text-sm leading-relaxed text-neutral-700"
+              className="rounded-lg border-l-2 border-accent/50 bg-ink-850/50 px-4 py-3 text-sm leading-relaxed text-fg-muted"
             >
               {t(`wc.reasoning.${k}` as Parameters<typeof t>[0])}
             </li>
@@ -219,11 +219,11 @@ export default function WorldCupPage() {
       </section>
 
       {/* Method */}
-      <section className="mt-14 border-t border-neutral-200 pt-8">
-        <h2 className="font-display text-base font-semibold tracking-tight text-neutral-900">
+      <section className="mt-14 border-t border-line pt-8">
+        <h2 className="font-display text-base font-semibold tracking-tight text-fg">
           {t("wc.method.title")}
         </h2>
-        <ul className="mt-4 space-y-2 text-sm leading-relaxed text-neutral-500">
+        <ul className="mt-4 space-y-2 text-sm leading-relaxed text-fg-dim">
           {(["model", "input", "coverage", "sims"] as const).map((k) => (
             <li key={k}>{t(`wc.method.${k}` as Parameters<typeof t>[0])}</li>
           ))}
@@ -235,9 +235,9 @@ export default function WorldCupPage() {
 
 function Stat({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
-    <div className="rounded-xl border border-neutral-200 bg-white px-4 py-3">
-      <div className="text-xs font-medium uppercase tracking-wide text-neutral-500">{label}</div>
-      <div className="mt-1 font-display text-xl font-semibold text-neutral-900">{value}</div>
+    <div className="rounded-xl border border-line bg-ink-850/40 px-4 py-3">
+      <div className="text-xs font-medium uppercase tracking-wide text-fg-dim">{label}</div>
+      <div className="mt-1 font-display text-xl font-semibold text-fg">{value}</div>
       {sub && <div className="text-sm font-medium text-accent">{sub}</div>}
     </div>
   );

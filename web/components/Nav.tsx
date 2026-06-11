@@ -10,33 +10,36 @@ export function Nav() {
   const t = useT();
   const path = usePathname();
   const items: Array<{ href: string; label: string }> = [
-    { href: "/", label: t("nav.glossary") },
+    { href: "/glossary", label: t("nav.glossary") },
     { href: "/build", label: t("nav.build") },
     { href: "/saved", label: t("nav.saved") },
     { href: "/worldcup", label: t("nav.worldcup") },
   ];
   return (
-    <header className="sticky top-0 z-30 border-b border-neutral-200 bg-white/85 backdrop-blur">
-      <div className="mx-auto flex max-w-5xl items-center justify-between gap-6 px-6 py-3">
+    <header className="sticky top-0 z-30 border-b border-line bg-ink-950/80 backdrop-blur-md">
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-6 py-3">
         <Link href="/" aria-label="ValueTrack" className="shrink-0">
           <Logo />
         </Link>
-        <nav className="flex items-center gap-1">
+        <nav className="hidden items-center gap-1 sm:flex">
           {items.map((item) => {
-            const active = path === item.href;
+            const active = path === item.href || (item.href !== "/" && path.startsWith(item.href));
             return (
               <Link
                 key={item.href}
                 href={item.href}
                 className={
-                  "rounded px-3 py-1.5 text-sm font-medium transition " +
+                  "relative rounded-md px-3 py-1.5 text-sm font-medium transition " +
                   (active
-                    ? "bg-neutral-100 text-neutral-900"
-                    : "text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900")
+                    ? "text-white"
+                    : "text-fg-muted hover:bg-white/5 hover:text-fg")
                 }
                 aria-current={active ? "page" : undefined}
               >
                 {item.label}
+                {active && (
+                  <span className="absolute inset-x-3 -bottom-px h-0.5 rounded-full bg-accent" />
+                )}
               </Link>
             );
           })}

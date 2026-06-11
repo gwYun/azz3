@@ -23,12 +23,47 @@ export function isLocale(v: unknown): v is Locale {
 const en = {
   // Nav
   "nav.glossary": "Glossary",
-  "nav.build": "Build",
+  "nav.build": "Predict",
   "nav.saved": "Saved",
   "nav.worldcup": "World Cup 2026",
   "nav.lang.label": "Language",
   "nav.lang.en": "English",
   "nav.lang.ko": "한국어",
+
+  // Landing
+  "landing.eyebrow": "Cross-industry competitive intelligence",
+  "landing.badge.football": "Football",
+  "landing.badge.baseball": "KBO Baseball",
+  "landing.badge.esports": "Esports",
+  "landing.badge.poker": "Pro Poker",
+  "landing.title": "THE ACCURATE PULSE OF CROSS-INDUSTRY COMPETITIVE VALUE",
+  "landing.subtitle":
+    "AI-powered transfer and performance analytics. One value engine, from a single player's fee to a World Cup winner.",
+  "landing.cta.primary": "Forecast a transfer fee",
+  "landing.cta.secondary": "Explore the market",
+  "landing.stat.sims": "Simulations",
+  "landing.stat.transfers": "Transfers learned",
+  "landing.stat.accuracy": "Rank correlation",
+  "landing.radar.title": "Player value profile",
+  "landing.radar.axis1": "Potential",
+  "landing.radar.axis2": "Adaptability",
+  "landing.radar.axis3": "Strategic IQ",
+  "landing.radar.axis4": "Market Value",
+  "landing.radar.axis5": "Growth Rate",
+  "landing.radar.axis6": "Precision",
+  "landing.features.title": "KEY FEATURES",
+  "landing.feature.forecast.title": "Transfer & Fee Forecast",
+  "landing.feature.forecast.body":
+    "Predict a player's market fee and best-fit destination from real-season form.",
+  "landing.feature.multidomain.title": "Multi-Domain Tracking",
+  "landing.feature.multidomain.body":
+    "One value engine across football, baseball, esports, and poker.",
+  "landing.feature.sim.title": "Strategic Squad Simulation",
+  "landing.feature.sim.body":
+    "Simulate the 2026 World Cup a million times from squad value.",
+  "landing.feature.glossary.title": "Plain-English Stats",
+  "landing.feature.glossary.body":
+    "Every metric the model uses, explained in one line.",
 
   // Glossary page
   "glossary.title": "Football stats, in plain English",
@@ -218,12 +253,47 @@ const en = {
 const ko: Record<keyof typeof en, string> = {
   // Nav
   "nav.glossary": "용어집",
-  "nav.build": "선수 만들기",
+  "nav.build": "예측",
   "nav.saved": "저장 목록",
   "nav.worldcup": "2026 월드컵",
   "nav.lang.label": "언어",
   "nav.lang.en": "English",
   "nav.lang.ko": "한국어",
+
+  // Landing
+  "landing.eyebrow": "산업을 가로지르는 경쟁 가치 분석",
+  "landing.badge.football": "축구",
+  "landing.badge.baseball": "KBO 야구",
+  "landing.badge.esports": "e스포츠",
+  "landing.badge.poker": "프로 포커",
+  "landing.title": "산업을 가로지르는 경쟁 가치의 가장 정확한 맥박",
+  "landing.subtitle":
+    "AI 기반 이적·퍼포먼스 분석 플랫폼입니다. 선수 한 명의 이적료부터 월드컵 우승까지, 하나의 가치 엔진으로 분석합니다.",
+  "landing.cta.primary": "이적료 예측 시작",
+  "landing.cta.secondary": "마켓 살펴보기",
+  "landing.stat.sims": "시뮬레이션",
+  "landing.stat.transfers": "학습 이적 건수",
+  "landing.stat.accuracy": "순위 상관도",
+  "landing.radar.title": "선수 가치 프로파일",
+  "landing.radar.axis1": "잠재력",
+  "landing.radar.axis2": "적응력",
+  "landing.radar.axis3": "전략 IQ",
+  "landing.radar.axis4": "시장가치",
+  "landing.radar.axis5": "성장세",
+  "landing.radar.axis6": "정확도",
+  "landing.features.title": "핵심 기능",
+  "landing.feature.forecast.title": "이적료·행선지 예측",
+  "landing.feature.forecast.body":
+    "실제 시즌 폼으로 선수의 시장 이적료와 가장 적합한 행선지를 예측합니다.",
+  "landing.feature.multidomain.title": "멀티 도메인 트래킹",
+  "landing.feature.multidomain.body":
+    "축구·야구·e스포츠·포커를 하나의 가치 엔진으로 분석합니다.",
+  "landing.feature.sim.title": "전략 스쿼드 시뮬레이션",
+  "landing.feature.sim.body":
+    "스쿼드 가치 기반으로 2026 월드컵을 100만 회 시뮬레이션합니다.",
+  "landing.feature.glossary.title": "쉬운 스탯 가이드",
+  "landing.feature.glossary.body":
+    "모델이 사용하는 모든 지표를 한 줄로 설명합니다.",
 
   // Glossary page
   "glossary.title": "축구 스탯, 쉬운 말로 정리했습니다",

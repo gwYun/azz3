@@ -9,7 +9,7 @@ export function LangToggle() {
     <div
       role="group"
       aria-label={t("nav.lang.label")}
-      className="inline-flex rounded border border-neutral-300 p-0.5 text-xs"
+      className="inline-flex rounded-md border border-line bg-ink-900/60 p-0.5 text-xs"
     >
       {LOCALES.map((l: Locale) => {
         const active = l === locale;
@@ -20,10 +20,10 @@ export function LangToggle() {
             onClick={() => setLocale(l)}
             aria-pressed={active}
             className={
-              "rounded-sm px-2 py-1 font-medium transition " +
+              "rounded px-2 py-1 font-medium transition " +
               (active
-                ? "bg-neutral-900 text-white"
-                : "text-neutral-600 hover:text-neutral-900")
+                ? "bg-accent text-ink-950"
+                : "text-fg-muted hover:text-fg")
             }
           >
             {l === "en" ? t("nav.lang.en") : t("nav.lang.ko")}

@@ -1,41 +1,39 @@
 /**
- * ValueTrack (밸류트랙) brand lockup — inline SVG so it stays crisp at any size,
- * carries no white-box background on the translucent nav, and inherits the slate
- * brand color via `currentColor` (text-neutral-900 ≈ the logo's #2B3440).
+ * ValueTrack (밸류트랙) brand lockup — rendered from the cleaned transparent PNGs.
  *
- * The mark is a "VT" monogram: a bold V whose right stroke shares the stem of a
- * T, drawn as filled polygons. `wordmark` toggles the "ValueTrack" text.
+ * The source art is flattened to a single flat color with all glossy reflections /
+ * ghost artifacts removed and letter counters knocked transparent. Each tone ships
+ * as three assets so the mark can stand alone:
+ *   - *_light.png  bright (#e6ebf2) — for the dark UI (default; matches `fg`)
+ *   - *.png        slate  (#2B3440) — for light surfaces (print / PDF on white)
+ * with `logo*` = full lockup, `logo_vt*` = "VT" monogram, `logo_wordmark*` = wordmark.
+ *
+ * The app is dark-only, so `tone` defaults to "light". `wordmark` toggles between
+ * the full lockup and the standalone monogram.
  */
+import Image from "next/image";
+
 type LogoProps = {
   className?: string;
   wordmark?: boolean;
+  tone?: "light" | "dark";
 };
 
-export function Logo({ className, wordmark = true }: LogoProps) {
+export function Logo({ className, wordmark = true, tone = "light" }: LogoProps) {
+  const suffix = tone === "light" ? "_light" : "";
+  const src = wordmark ? `/logo${suffix}.png` : `/logo_vt${suffix}.png`;
+  // Intrinsic sizes of the cropped assets (keep aspect ratio crisp).
+  const dims = wordmark ? { w: 926, h: 177 } : { w: 280, h: 177 };
   return (
-    <span className={"inline-flex items-center gap-2 text-neutral-900 " + (className ?? "")}>
-      <svg
-        viewBox="0 0 78 60"
+    <span className={"inline-flex items-center " + (className ?? "")}>
+      <Image
+        src={src}
+        alt="ValueTrack"
+        width={dims.w}
+        height={dims.h}
+        priority
         className="h-7 w-auto"
-        role="img"
-        aria-label="ValueTrack"
-        fill="currentColor"
-      >
-        {/* V — left arm down to the apex */}
-        <path d="M2 4 H17 L31 42 L24 60 Z" />
-        {/* V — right (inner) arm */}
-        <path d="M30 4 H44 L33 42 L25 42 Z" />
-        {/* T — top bar */}
-        <path d="M40 4 H76 L70 17 H46 Z" />
-        {/* T — stem */}
-        <path d="M52 17 H66 L57 42 H48 Z" />
-      </svg>
-      {wordmark && (
-        <span className="font-display text-base font-semibold tracking-tight">
-          <span>Value</span>
-          <span className="text-neutral-500">Track</span>
-        </span>
-      )}
+      />
     </span>
   );
 }
