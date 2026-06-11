@@ -19,7 +19,7 @@ const jetbrains = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "azz3 — 이적료 예측기",
+  title: "ValueTrack — 이적료 예측기",
   description: "슬라이더를 움직여 이적료를 확인하고, 만든 빌드를 공유해 보십시오.",
 };
 

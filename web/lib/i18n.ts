@@ -23,11 +23,47 @@ export function isLocale(v: unknown): v is Locale {
 const en = {
   // Nav
   "nav.glossary": "Glossary",
-  "nav.build": "Build",
+  "nav.build": "Predict",
   "nav.saved": "Saved",
+  "nav.worldcup": "World Cup 2026",
   "nav.lang.label": "Language",
   "nav.lang.en": "English",
   "nav.lang.ko": "한국어",
+
+  // Landing
+  "landing.eyebrow": "Cross-industry competitive intelligence",
+  "landing.badge.football": "Football",
+  "landing.badge.baseball": "KBO Baseball",
+  "landing.badge.esports": "Esports",
+  "landing.badge.poker": "Pro Poker",
+  "landing.title": "THE ACCURATE PULSE OF CROSS-INDUSTRY COMPETITIVE VALUE",
+  "landing.subtitle":
+    "AI-powered transfer and performance analytics. One value engine, from a single player's fee to a World Cup winner.",
+  "landing.cta.primary": "Forecast a transfer fee",
+  "landing.cta.secondary": "Explore the market",
+  "landing.stat.sims": "Simulations",
+  "landing.stat.transfers": "Transfers learned",
+  "landing.stat.accuracy": "Rank correlation",
+  "landing.radar.title": "Player value profile",
+  "landing.radar.axis1": "Potential",
+  "landing.radar.axis2": "Adaptability",
+  "landing.radar.axis3": "Strategic IQ",
+  "landing.radar.axis4": "Market Value",
+  "landing.radar.axis5": "Growth Rate",
+  "landing.radar.axis6": "Precision",
+  "landing.features.title": "KEY FEATURES",
+  "landing.feature.forecast.title": "Transfer & Fee Forecast",
+  "landing.feature.forecast.body":
+    "Predict a player's market fee and best-fit destination from real-season form.",
+  "landing.feature.multidomain.title": "Multi-Domain Tracking",
+  "landing.feature.multidomain.body":
+    "One value engine across football, baseball, esports, and poker.",
+  "landing.feature.sim.title": "Strategic Squad Simulation",
+  "landing.feature.sim.body":
+    "Simulate the 2026 World Cup a million times from squad value.",
+  "landing.feature.glossary.title": "Plain-English Stats",
+  "landing.feature.glossary.body":
+    "Every metric the model uses, explained in one line.",
 
   // Glossary page
   "glossary.title": "Football stats, in plain English",
@@ -158,6 +194,54 @@ const en = {
   "compare.col.stat": "Stat",
   "compare.close": "Close",
 
+  // World Cup 2026 report
+  "wc.eyebrow": "ValueTrack Research",
+  "wc.title": "Who wins the 2026 World Cup",
+  "wc.subtitle":
+    "We valued every nation's squad with the same transfer-fee model that powers ValueTrack, then ran the real 2026 bracket {sims} times. One engine, from a single player's fee to a tournament.",
+  "wc.call.label": "The call",
+  "wc.call.body":
+    "ValueTrack's top pick to win is {first}. England, France, Spain and Portugal form the most likely final four.",
+  "wc.call.locked": "Locked before kickoff · fully reproducible",
+  "wc.stat.champion": "Title favorite",
+  "wc.stat.top4prob": "Exact final-four hit rate",
+  "wc.stat.sims": "Simulations",
+  "wc.leaderboard.title": "Title probability",
+  "wc.leaderboard.note": "Probability of lifting the trophy, per nation.",
+  "wc.col.rank": "#",
+  "wc.col.nation": "Nation",
+  "wc.col.win": "Win %",
+  "wc.col.sf": "Final four %",
+  "wc.leaderboard.more": "Show all 48 nations",
+  "wc.leaderboard.less": "Show top 12",
+  "wc.semifinal.title": "Most likely final four",
+  "wc.semifinal.body":
+    "Across a million simulations, this exact quartet came up more than any other. The four nations that reach the semifinals most often are the same four.",
+  "wc.strength.title": "Squad strength ranking",
+  "wc.strength.note":
+    "Player value plus squad synergy — spine completeness, positional balance, and club chemistry.",
+  "wc.col.rating": "Strength",
+  "wc.col.tm": "Squad value (€M)",
+  "wc.col.synergy": "Synergy",
+  "wc.reasoning.title": "Why these four",
+  "wc.reasoning.france":
+    "France — strength 123.4, the field's richest squad at €1,558M. Current 2025/26 form lifts it to the top.",
+  "wc.reasoning.england":
+    "England — strength 123.4, squad value €1,333M. The most balanced squad in the field, even across every line.",
+  "wc.reasoning.spain":
+    "Spain — strength 121.4, squad value €1,286M. Elite spine with deep attacking talent in current form.",
+  "wc.reasoning.portugal":
+    "Portugal — strength 119.8, squad value €1,038M. Balanced and complete across the pitch.",
+  "wc.method.title": "Method",
+  "wc.method.model":
+    "Engine: ValueTrack's transfer-fee model, reused to value each player.",
+  "wc.method.input":
+    "Player input: each nation's players are valued on their real 2025/26 season form, not a stale snapshot.",
+  "wc.method.coverage":
+    "Coverage: anchored with each nation's full squad market value so non-European squads aren't undervalued.",
+  "wc.method.sims":
+    "Large-scale simulation of the real 2026 bracket to produce title and final-four odds.",
+
   // Common
   "loading": "Loading…",
   "common.cancel": "Cancel",
@@ -169,11 +253,47 @@ const en = {
 const ko: Record<keyof typeof en, string> = {
   // Nav
   "nav.glossary": "용어집",
-  "nav.build": "선수 만들기",
+  "nav.build": "예측",
   "nav.saved": "저장 목록",
+  "nav.worldcup": "2026 월드컵",
   "nav.lang.label": "언어",
   "nav.lang.en": "English",
   "nav.lang.ko": "한국어",
+
+  // Landing
+  "landing.eyebrow": "산업을 가로지르는 경쟁 가치 분석",
+  "landing.badge.football": "축구",
+  "landing.badge.baseball": "KBO 야구",
+  "landing.badge.esports": "e스포츠",
+  "landing.badge.poker": "프로 포커",
+  "landing.title": "산업을 가로지르는 경쟁 가치의 가장 정확한 맥박",
+  "landing.subtitle":
+    "AI 기반 이적·퍼포먼스 분석 플랫폼입니다. 선수 한 명의 이적료부터 월드컵 우승까지, 하나의 가치 엔진으로 분석합니다.",
+  "landing.cta.primary": "이적료 예측 시작",
+  "landing.cta.secondary": "마켓 살펴보기",
+  "landing.stat.sims": "시뮬레이션",
+  "landing.stat.transfers": "학습 이적 건수",
+  "landing.stat.accuracy": "순위 상관도",
+  "landing.radar.title": "선수 가치 프로파일",
+  "landing.radar.axis1": "잠재력",
+  "landing.radar.axis2": "적응력",
+  "landing.radar.axis3": "전략 IQ",
+  "landing.radar.axis4": "시장가치",
+  "landing.radar.axis5": "성장세",
+  "landing.radar.axis6": "정확도",
+  "landing.features.title": "핵심 기능",
+  "landing.feature.forecast.title": "이적료·행선지 예측",
+  "landing.feature.forecast.body":
+    "실제 시즌 폼으로 선수의 시장 이적료와 가장 적합한 행선지를 예측합니다.",
+  "landing.feature.multidomain.title": "멀티 도메인 트래킹",
+  "landing.feature.multidomain.body":
+    "축구·야구·e스포츠·포커를 하나의 가치 엔진으로 분석합니다.",
+  "landing.feature.sim.title": "전략 스쿼드 시뮬레이션",
+  "landing.feature.sim.body":
+    "스쿼드 가치 기반으로 2026 월드컵을 100만 회 시뮬레이션합니다.",
+  "landing.feature.glossary.title": "쉬운 스탯 가이드",
+  "landing.feature.glossary.body":
+    "모델이 사용하는 모든 지표를 한 줄로 설명합니다.",
 
   // Glossary page
   "glossary.title": "축구 스탯, 쉬운 말로 정리했습니다",
@@ -303,6 +423,54 @@ const ko: Record<keyof typeof en, string> = {
   "compare.group.set_pieces": "세트피스",
   "compare.col.stat": "지표",
   "compare.close": "닫기",
+
+  // World Cup 2026 report
+  "wc.eyebrow": "밸류트랙 리서치",
+  "wc.title": "2026 월드컵, 누가 우승하는가",
+  "wc.subtitle":
+    "밸류트랙을 움직이는 바로 그 이적료 예측 모델로 각국 스쿼드의 가치를 평가하고, 실제 2026 대진표를 {sims}회 시뮬레이션했습니다. 선수 한 명의 이적료부터 월드컵 우승까지, 하나의 엔진으로 분석합니다.",
+  "wc.call.label": "예측",
+  "wc.call.body":
+    "밸류트랙이 꼽은 우승 1순위는 {first}입니다. 잉글랜드·프랑스·스페인·포르투갈이 가장 유력한 4강 구도를 형성합니다.",
+  "wc.call.locked": "킥오프 전 확정 · 완전 재현 가능",
+  "wc.stat.champion": "우승 1순위",
+  "wc.stat.top4prob": "정확한 4강 적중 확률",
+  "wc.stat.sims": "시뮬레이션",
+  "wc.leaderboard.title": "우승 확률",
+  "wc.leaderboard.note": "각국이 우승할 확률입니다.",
+  "wc.col.rank": "순위",
+  "wc.col.nation": "국가",
+  "wc.col.win": "우승 확률",
+  "wc.col.sf": "4강 진출",
+  "wc.leaderboard.more": "48개국 전체 보기",
+  "wc.leaderboard.less": "상위 12개국만 보기",
+  "wc.semifinal.title": "가장 유력한 4강",
+  "wc.semifinal.body":
+    "100만 회 시뮬레이션에서 이 정확한 4개국 조합이 가장 자주 등장했습니다. 4강에 가장 많이 오른 네 나라 또한 동일합니다.",
+  "wc.strength.title": "스쿼드 전력 랭킹",
+  "wc.strength.note":
+    "선수 가치에 스쿼드 시너지(스파인 완성도·포지션 균형·클럽 케미스트리)를 반영한 전력 점수입니다.",
+  "wc.col.rating": "전력",
+  "wc.col.tm": "스쿼드 가치(€M)",
+  "wc.col.synergy": "시너지",
+  "wc.reasoning.title": "예측 근거",
+  "wc.reasoning.france":
+    "프랑스 — 전력 123.4, €1,558M으로 이번 대회 최고가 스쿼드. 2025/26 시즌 현재 폼이 정상으로 끌어올렸습니다.",
+  "wc.reasoning.england":
+    "잉글랜드 — 전력 123.4, 스쿼드 가치 €1,333M. 모든 포지션에 핵심 선수가 고르게 분포된 가장 균형 잡힌 스쿼드입니다.",
+  "wc.reasoning.spain":
+    "스페인 — 전력 121.4, 스쿼드 가치 €1,286M. 탄탄한 중심축과 현재 폼이 좋은 두터운 공격 자원을 보유했습니다.",
+  "wc.reasoning.portugal":
+    "포르투갈 — 전력 119.8, 스쿼드 가치 €1,038M. 전 포지션에 걸쳐 빈틈 없는 완성형 스쿼드입니다.",
+  "wc.method.title": "방법론",
+  "wc.method.model":
+    "모델: 밸류트랙의 이적료 예측 모델을 그대로 활용해 각 선수의 가치를 산출했습니다.",
+  "wc.method.input":
+    "선수 입력: 각국 선수를 과거 스냅샷이 아닌 2025/26 시즌 실제 폼으로 평가했습니다.",
+  "wc.method.coverage":
+    "커버리지: 비유럽 리그 선수가 저평가되지 않도록 각국 전체 스쿼드의 시장가치를 함께 반영했습니다.",
+  "wc.method.sims":
+    "실제 2026년 대진표를 기준으로 대규모 시뮬레이션을 수행해 각국의 우승·4강 진출 확률을 산출했습니다.",
 
   // Common
   "loading": "불러오는 중…",

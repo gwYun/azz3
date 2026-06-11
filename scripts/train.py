@@ -74,6 +74,43 @@ EXCLUDE_FROM_FEATURES = {
 # Categoricals we frequency-encode on training data.
 FREQ_ENCODE_COLS = ["club_2", "team_name", "player_nationality"]
 
+# Buyer PREMIUM (leakage-safe: fit on TRAIN only).
+#
+# The buyer effect we want on an INDIVIDUAL fee is NOT a club's total spend or how
+# many players it buys (that is budget/volume, which must not set one player's
+# price). It is a per-deal MULTIPLIER: does this club historically pay above or
+# below a player's standing market value? We take, per club, the median ratio
+# (actual_fee / prior_market_value) over its signings, shrunk toward 1.0 for
+# low-count clubs. This premium is then used ONLY as an interaction with the
+# player's value (see team_buyer_premium_x_value in main) so it bites for elite
+# club x elite player and is muted for cheap players — never a flat per-club term.
+_BUYER_PREMIUM_SMOOTHING = 8.0
+
+
+def fit_buyer_premium(train_df: pd.DataFrame) -> tuple[dict, float]:
+    """Per-club median fee/market-value ratio, shrunk toward the global median.
+
+    Returns (mapping team_name -> premium, global_premium). A premium > 1 means
+    the club tends to pay above a player's market value; < 1 below.
+    """
+    d = train_df.copy()
+    d["_mv"] = pd.to_numeric(d["prior_market_value_eur"], errors="coerce")
+    d["_ratio"] = pd.to_numeric(d["transfer_fee"], errors="coerce") / d["_mv"]
+    d = d[d["_mv"].notna() & (d["_mv"] > 0) & d["_ratio"].notna() & (d["_ratio"] > 0)]
+    # Clip extreme ratios so a single freak deal doesn't define a club.
+    d["_ratio"] = d["_ratio"].clip(0.2, 5.0)
+    global_premium = float(d["_ratio"].median())
+    g = d.groupby("team_name")["_ratio"].agg(["median", "count"])
+    shrunk = (g["median"] * g["count"] + global_premium * _BUYER_PREMIUM_SMOOTHING) / (
+        g["count"] + _BUYER_PREMIUM_SMOOTHING)
+    mapping = {str(k): float(v) for k, v in shrunk.items()}
+    return mapping, global_premium
+
+
+def apply_buyer_premium(df: pd.DataFrame, mapping: dict, default: float) -> pd.Series:
+    """Map team_name -> buyer premium; unseen clubs fall to the global median."""
+    return df["team_name"].astype(str).map(mapping).fillna(default)
+
 
 def prepare_dataset() -> pd.DataFrame:
     """Load + filter + enrich the full joined frame."""
@@ -187,6 +224,38 @@ def main() -> int:
     log.info("Deflator (factor per season, 2014=1.0): %s",
              {k: round(v, 3) for k, v in sorted(deflator.deflator.items())})
 
+    # Deflate the market-value INPUT to 2014 € as well (not just the target). The
+    # model then learns the value->fee relationship entirely in 2014 money, so a
+    # 2026 €200M player (far above the nominal training max ~€150M) is mapped into
+    # the in-distribution range at predict time instead of forcing the trees to
+    # extrapolate. Same single fee-deflator index for both input and target.
+    X_train_full["prior_market_value_eur"] = deflator.deflate(
+        X_train_full["prior_market_value_eur"], train_df["season"]).to_numpy()
+    X_test_full["prior_market_value_eur"] = deflator.deflate(
+        X_test_full["prior_market_value_eur"], test_df["season"]).to_numpy()
+    medians["prior_market_value_eur"] = float(X_train_full["prior_market_value_eur"].median())
+
+    # Buyer PREMIUM x player-value INTERACTION (TRAIN-only fit -> no leakage).
+    # The premium (fee/market-value ratio per club) only enters as an interaction
+    # with the player's value, so it captures "elite club overpays for elite
+    # player" while staying muted for cheap players — and the club's total budget
+    # / signing count never enters as a standalone feature.
+    buyer_premium_map, buyer_premium_default = fit_buyer_premium(train_df)
+
+    def _buyer_interaction(src_df: pd.DataFrame, mv_deflated: pd.Series) -> np.ndarray:
+        prem = apply_buyer_premium(src_df, buyer_premium_map, buyer_premium_default)
+        # (premium - 1) centers the effect at 0 for an average-paying club, so the
+        # interaction adds/subtracts value rather than scaling the baseline twice.
+        # Uses the DEFLATED market value to match the model's 2014-€ scale.
+        return ((prem.to_numpy() - 1.0) * np.log1p(mv_deflated.fillna(0).to_numpy()))
+
+    X_train_full["buyer_premium_x_value"] = _buyer_interaction(
+        train_df, X_train_full["prior_market_value_eur"])
+    X_test_full["buyer_premium_x_value"] = _buyer_interaction(
+        test_df, X_test_full["prior_market_value_eur"])
+    medians["buyer_premium_x_value"] = 0.0   # neutral (average-paying club)
+    log.info("Buyer premium: %d clubs, global ratio=%.3f", len(buyer_premium_map), buyer_premium_default)
+
     y_train_deflated = deflator.deflate(y_train, train_df["season"])
 
     # Selection runs on log(deflated) for numerical stability (LASSO scales).
@@ -205,6 +274,7 @@ def main() -> int:
         "pos_forward", "pos_midfielder", "pos_defender",
         "season_numeric",
         "league_premier_league", "league_serie_a", "league_ligue_1", "league_laliga", "league_bundesliga",
+        "buyer_premium_x_value",   # buyer x player-value interaction (train-only)
     ]
     for c in must_include:
         if c in X_train_full.columns and c not in selected:
@@ -270,6 +340,10 @@ def main() -> int:
             "stds": {k: float(v) for k, v in train_stds.items() if not pd.isna(v)},
             "freq_encoders": freq.to_dict(),
             "deflator": deflator.to_dict(),
+            "buyer_premium_encoding": {                  # team_name -> fee/market-value premium
+                "mapping": buyer_premium_map,
+                "default": buyer_premium_default,
+            },
             "target_transform": "log1p_deflated",       # nominal = expm1(pred) * deflator[season]
             "xgb_metrics": asdict(xgb_metrics),
             "lin_metrics": asdict(lin_metrics),

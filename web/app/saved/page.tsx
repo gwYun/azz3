@@ -93,7 +93,7 @@ export default function SavedPage() {
   return (
     <div>
       <div className="flex items-baseline justify-between gap-4">
-        <h1 className="font-display text-3xl font-semibold tracking-tight text-neutral-900">
+        <h1 className="font-display text-3xl font-semibold tracking-tight text-fg">
           {t("saved.title")}
         </h1>
         {builds.length > 0 ? (
@@ -109,11 +109,11 @@ export default function SavedPage() {
       </div>
 
       {builds.length === 0 ? (
-        <div className="mt-12 rounded-lg border border-dashed border-neutral-300 p-10 text-center">
-          <p className="font-display text-lg font-semibold text-neutral-900">
+        <div className="mt-12 rounded-lg border border-dashed border-line p-10 text-center">
+          <p className="font-display text-lg font-semibold text-fg">
             {t("saved.empty.title")}
           </p>
-          <p className="mt-1 text-sm text-neutral-600">{t("saved.empty.body")}</p>
+          <p className="mt-1 text-sm text-fg-muted">{t("saved.empty.body")}</p>
           <Link href="/build" className="btn-primary mt-6">
             {t("saved.empty.cta")}
           </Link>
@@ -121,11 +121,11 @@ export default function SavedPage() {
       ) : (
         <>
           {compareHint ? (
-            <p className="mt-3 text-xs text-neutral-500">{compareHint}</p>
+            <p className="mt-3 text-xs text-fg-dim">{compareHint}</p>
           ) : null}
-          <div className="mt-6 overflow-hidden rounded-lg border border-neutral-200">
+          <div className="mt-6 overflow-hidden rounded-lg border border-line">
             <table className="w-full text-sm">
-              <thead className="bg-neutral-50 text-xs font-semibold uppercase tracking-wide text-neutral-500">
+              <thead className="bg-ink-850/50 text-xs font-semibold uppercase tracking-wide text-fg-dim">
                 <tr>
                   <th className="w-10 px-3 py-2"></th>
                   <th className="px-3 py-2 text-left">{t("saved.col.name")}</th>
@@ -134,36 +134,36 @@ export default function SavedPage() {
                   <th className="w-20 px-3 py-2"></th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-neutral-200">
+              <tbody className="divide-y divide-line">
                 {builds.map((build) => {
                   const stale = info ? isStale(build, info.feature_set_hash) : false;
                   const checked = selected.includes(build.id);
                   return (
-                    <tr key={build.id} className={stale ? "bg-neutral-50/60" : ""}>
+                    <tr key={build.id} className={stale ? "bg-ink-850/40" : ""}>
                       <td className="px-3 py-2.5">
                         <input
                           type="checkbox"
                           checked={checked}
                           onChange={() => toggleSelect(build.id)}
                           aria-label={`Select ${build.name}`}
-                          className="h-4 w-4 accent-accent"
+                          className="h-4 w-4 accent-cyan"
                         />
                       </td>
                       <td className="px-3 py-2.5">
-                        <div className="font-medium text-neutral-900">{build.name}</div>
+                        <div className="font-medium text-fg">{build.name}</div>
                         {stale ? (
                           <div
-                            className="mt-0.5 inline-block text-xs text-neutral-500"
+                            className="mt-0.5 inline-block text-xs text-fg-dim"
                             title={t("saved.staleTooltip")}
                           >
                             {t("saved.staleBadge")}
                           </div>
                         ) : null}
                       </td>
-                      <td className="px-3 py-2.5 text-right font-mono tabular-nums text-neutral-800">
+                      <td className="px-3 py-2.5 text-right font-mono tabular-nums text-fg">
                         {euro(build.predicted_fee_eur, locale)}
                       </td>
-                      <td className="px-3 py-2.5 text-right text-xs text-neutral-500">
+                      <td className="px-3 py-2.5 text-right text-xs text-fg-dim">
                         {dateLabel(build.saved_at, locale)}
                       </td>
                       <td className="px-3 py-2.5 text-right">

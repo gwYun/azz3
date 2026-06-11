@@ -17,26 +17,26 @@ export function CounterfactualList({ perturbations, empty, eurKrwRate }: Props) 
 
   if (empty) {
     return (
-      <p className="text-sm text-neutral-500">{t("build.counterfactuals.empty")}</p>
+      <p className="text-sm text-fg-dim">{t("build.counterfactuals.empty")}</p>
     );
   }
   if (perturbations && perturbations.length === 0) {
     return (
-      <p className="text-sm text-neutral-500">{t("build.counterfactuals.ceiling")}</p>
+      <p className="text-sm text-fg-dim">{t("build.counterfactuals.ceiling")}</p>
     );
   }
   if (!perturbations) {
     return (
       <ul className="space-y-2">
         {[0, 1, 2].map((i) => (
-          <li key={i} className="h-5 w-3/4 animate-pulse rounded bg-neutral-100" />
+          <li key={i} className="h-5 w-3/4 animate-pulse rounded bg-ink-800/60" />
         ))}
       </ul>
     );
   }
 
   return (
-    <ul className="space-y-3 text-sm text-neutral-700">
+    <ul className="space-y-3 text-sm text-fg-muted">
       {perturbations.map((p) => {
         const fullKey = `stat.${p.feature}.full` as keyof typeof dict.en;
         const featLabel = t(fullKey);
@@ -51,7 +51,7 @@ export function CounterfactualList({ perturbations, empty, eurKrwRate }: Props) 
                   delta: euroDelta(p.delta_eur),
                 })}
               </div>
-              <div className="text-xs text-neutral-500">
+              <div className="text-xs text-fg-dim">
                 {t("build.counterfactuals.krwApprox", {
                   delta: krwDelta(p.delta_eur * eurKrwRate, locale),
                 })}

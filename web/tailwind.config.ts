@@ -9,28 +9,51 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Locked design token D10: football pitch green
+        // Brand accent: signal orange (CTAs, highlights) — from the ValueTrack refs.
         accent: {
-          DEFAULT: "#2C8C5F",
-          dark: "#226F4B",
-          tint: "#E8F3EC",
+          DEFAULT: "#E8833A",
+          dark: "#CF6F2A",
+          tint: "#F6B27E",
         },
+        // Data / interactive cyan (charts, links, active states).
+        cyan: {
+          DEFAULT: "#36C5D0",
+          dark: "#2AA3AD",
+          tint: "#7FE0E6",
+        },
+        // Navy "ink" surface ramp for the dark UI.
+        ink: {
+          950: "#0a0f18",
+          900: "#0d1320",
+          850: "#111a2b",
+          800: "#162032",
+          700: "#1d293f",
+          600: "#26344e",
+          500: "#36486a",
+        },
+        // Foreground text on dark.
+        fg: {
+          DEFAULT: "#e6ebf2",
+          muted: "#93a0b4",
+          dim: "#5d6b80",
+        },
+        line: "rgba(148,163,184,0.14)",
       },
       fontFamily: {
         sans: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
         display: ["Inter Tight", "Inter", "ui-sans-serif", "system-ui", "sans-serif"],
         mono: ["JetBrains Mono", "ui-monospace", "SFMono-Regular", "Menlo", "monospace"],
       },
-      // D12 spacing scale (Tailwind defaults already cover 4/8/12/16/24/32/48/64 via 1-16)
       borderRadius: {
-        // D13: 4px controls, 8px cards. No bubbly large radius.
-        DEFAULT: "4px",
-        md: "4px",
-        lg: "8px",
+        DEFAULT: "6px",
+        md: "8px",
+        lg: "12px",
+        xl: "16px",
       },
       boxShadow: {
-        // D14: single subtle elevation shadow only
         elevated: "0 1px 2px rgb(0 0 0 / 0.06)",
+        card: "0 8px 30px rgb(0 0 0 / 0.35)",
+        glow: "0 0 0 1px rgba(54,197,208,0.25), 0 8px 30px rgba(54,197,208,0.08)",
       },
       transitionDuration: {
         // D15

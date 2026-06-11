@@ -8,42 +8,83 @@
     font-family: theme("fontFamily.sans");
   }
   body {
-    @apply bg-white text-neutral-900 antialiased;
-  }
-  /* D16: visible focus rings on all interactive elements */
-  :focus-visible {
-    @apply outline-none ring-2 ring-accent ring-offset-2 ring-offset-white;
-  }
-  /* D16: secondary text never below 14px, body never below 16px */
-  body {
+    @apply bg-ink-950 text-fg antialiased;
     font-size: 16px;
     line-height: 1.6;
+    /* Deep navy gradient + faint glow, matching the ValueTrack refs. */
+    background-color: #0a0f18;
+    background-image:
+      radial-gradient(1200px 600px at 80% -10%, rgba(54, 197, 208, 0.06), transparent 60%),
+      radial-gradient(900px 500px at 0% 0%, rgba(232, 131, 58, 0.05), transparent 55%),
+      linear-gradient(180deg, #0b1019 0%, #0a0f18 40%, #090d15 100%);
+    background-attachment: fixed;
+  }
+  /* Subtle hairline grid over the whole page, faded toward the edges. */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background-image:
+      linear-gradient(rgba(148, 163, 184, 0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(148, 163, 184, 0.035) 1px, transparent 1px);
+    background-size: 56px 56px;
+    -webkit-mask-image: radial-gradient(circle at 50% 25%, black, transparent 85%);
+    mask-image: radial-gradient(circle at 50% 25%, black, transparent 85%);
+  }
+  /* Cyan focus rings on dark. */
+  :focus-visible {
+    @apply outline-none ring-2 ring-cyan ring-offset-2;
+    --tw-ring-offset-color: #0a0f18;
+  }
+  h1, h2, h3 {
+    font-family: theme("fontFamily.display");
   }
 }
 
 @layer components {
+  /* Glassy dark surfaces. */
+  .card {
+    @apply rounded-lg border border-line bg-ink-850/70 backdrop-blur-sm;
+  }
+  .panel {
+    @apply rounded-xl border border-line bg-ink-850/60 backdrop-blur-sm;
+  }
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-line bg-ink-800/60
+           px-3 py-1 text-xs font-medium text-fg-muted;
+  }
+
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded bg-accent px-4 py-2
-           text-sm font-medium text-white transition hover:bg-accent-dark
-           disabled:cursor-not-allowed disabled:bg-neutral-300;
+    @apply inline-flex items-center justify-center gap-2 rounded-md bg-accent px-5 py-2.5
+           text-sm font-semibold text-ink-950 transition hover:bg-accent-dark
+           disabled:cursor-not-allowed disabled:opacity-50;
   }
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded border border-neutral-300
-           bg-white px-4 py-2 text-sm font-medium text-neutral-800 transition
-           hover:border-neutral-400 hover:bg-neutral-50
+    @apply inline-flex items-center justify-center gap-2 rounded-md border border-line
+           bg-ink-800/60 px-5 py-2.5 text-sm font-semibold text-fg transition
+           hover:border-cyan/40 hover:text-white
            disabled:cursor-not-allowed disabled:opacity-50;
   }
   .btn-ghost {
     @apply inline-flex items-center justify-center gap-2 rounded px-3 py-1.5
-           text-sm font-medium text-neutral-700 transition hover:bg-neutral-100;
+           text-sm font-medium text-fg-muted transition hover:bg-white/5 hover:text-fg;
   }
   .input-text {
-    @apply rounded border border-neutral-300 bg-white px-3 py-2 text-sm
-           text-neutral-900 placeholder:text-neutral-400
-           focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent;
+    @apply rounded-md border border-line bg-ink-900/80 px-3 py-2 text-sm
+           text-fg placeholder:text-fg-dim
+           focus:border-cyan/50 focus:outline-none focus:ring-1 focus:ring-cyan/40;
   }
-  /* Native range slider with accent-green track. Keyboard nav comes free. */
+  /* Range slider, cyan accent on dark. */
   .slider {
-    @apply h-2 w-full appearance-none rounded-full bg-neutral-200 accent-accent;
+    @apply h-2 w-full appearance-none rounded-full bg-ink-700;
+    accent-color: #36c5d0;
   }
+}
+
+/* Keep page content above the texture pseudo-element. */
+main {
+  position: relative;
+  z-index: 1;
 }

@@ -70,13 +70,13 @@ export function StatSlider({ feature, value, stat, median, dataMin, dataMax, dec
   return (
     <label className="block">
       <div className="mb-1.5 flex items-baseline justify-between gap-3">
-        <span className="text-sm font-medium text-neutral-800" title={t(defKey)}>
+        <span className="text-sm font-medium text-fg" title={t(defKey)}>
           {t(fullKey)}
         </span>
         {editing ? (
           <input
             type="number"
-            className="w-20 rounded border border-neutral-300 bg-white px-1.5 py-0.5 text-right font-mono text-sm tabular-nums text-neutral-900 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+            className="w-20 rounded border border-line bg-ink-850/60 px-1.5 py-0.5 text-right font-mono text-sm tabular-nums text-fg focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
             value={inputVal}
             step={step}
             min={min}
@@ -90,7 +90,7 @@ export function StatSlider({ feature, value, stat, median, dataMin, dataMax, dec
         ) : (
           <button
             type="button"
-            className="rounded px-1 font-mono text-sm tabular-nums text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900 focus:outline-none focus:ring-1 focus:ring-accent"
+            className="rounded px-1 font-mono text-sm tabular-nums text-fg-muted hover:bg-ink-800/60 hover:text-fg focus:outline-none focus:ring-1 focus:ring-accent"
             title="클릭하여 직접 입력"
             onClick={(e) => {
               e.preventDefault();
@@ -119,16 +119,16 @@ export function StatSlider({ feature, value, stat, median, dataMin, dataMax, dec
         {/* Median tick */}
         {median >= min && median <= max ? (
           <div
-            className="pointer-events-none absolute top-1/2 h-3 w-px -translate-y-1/2 bg-neutral-400/70"
+            className="pointer-events-none absolute top-1/2 h-3 w-px -translate-y-1/2 bg-ink-600"
             style={{ left: `${((median - min) / (max - min)) * 100}%` }}
             title={`Median: ${num(median, decimals)}`}
           />
         ) : null}
       </div>
 
-      <div className="mt-1 flex justify-between font-mono text-[10px] text-neutral-400">
+      <div className="mt-1 flex justify-between font-mono text-[10px] text-fg-dim">
         <span>{num(min, decimals)}</span>
-        <span className="text-neutral-300">median {num(median, decimals)}</span>
+        <span className="text-fg-dim">median {num(median, decimals)}</span>
         <span>{num(max, decimals)}</span>
       </div>
     </label>

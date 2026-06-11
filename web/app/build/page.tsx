@@ -262,7 +262,7 @@ export default function BuildPage() {
     );
   }
   if (!info) {
-    return <p className="text-sm text-neutral-500">{t("loading")}</p>;
+    return <p className="text-sm text-fg-dim">{t("loading")}</p>;
   }
 
   // Compose visible features.
@@ -297,9 +297,9 @@ export default function BuildPage() {
         </div>
 
         {/* Archetype / real-player presets + actions */}
-        <div className="flex flex-wrap items-end gap-3 border-t border-neutral-200 pt-6">
+        <div className="flex flex-wrap items-end gap-3 border-t border-line pt-6">
           <label className="block">
-            <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-neutral-500">
+            <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-fg-dim">
               {t("build.archetype.label")}
             </span>
             <select
@@ -317,7 +317,7 @@ export default function BuildPage() {
           </label>
           {players.length > 0 ? (
             <label className="block">
-              <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-neutral-500">
+              <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-fg-dim">
                 {t("build.realplayer.label")}
               </span>
               <select
@@ -348,7 +348,7 @@ export default function BuildPage() {
         <div className="space-y-8">
           {SECTIONS.filter((s) => s.features.length > 0).map((section) => (
             <section key={section.key}>
-              <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-500">
+              <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-fg-dim">
                 {t(`build.section.${section.key}`)}
               </h3>
               <div className="grid gap-5 sm:grid-cols-2">
@@ -370,7 +370,7 @@ export default function BuildPage() {
           ))}
 
           {/* Show-all toggle */}
-          <div className="border-t border-neutral-200 pt-5">
+          <div className="border-t border-line pt-5">
             <button
               type="button"
               className="btn-ghost"
@@ -383,7 +383,7 @@ export default function BuildPage() {
 
           {showAll && visibleNuisance.length > 0 ? (
             <section>
-              <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-500">
+              <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-fg-dim">
                 {t("build.section.nuisance")}
               </h3>
               <div className="grid gap-5 sm:grid-cols-2">
@@ -408,7 +408,7 @@ export default function BuildPage() {
 
       {/* Right column: counterfactuals */}
       <aside className="space-y-3 md:sticky md:top-24 md:self-start">
-        <h2 className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
+        <h2 className="text-xs font-semibold uppercase tracking-wide text-fg-dim">
           {t("build.counterfactuals.title")}
         </h2>
         <CounterfactualList
