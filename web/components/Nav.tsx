@@ -12,8 +12,9 @@ export function Nav() {
   const items: Array<{ href: string; label: string }> = [
     { href: "/glossary", label: t("nav.glossary") },
     { href: "/build", label: t("nav.build") },
-    { href: "/saved", label: t("nav.saved") },
+    { href: "/transfers", label: t("nav.transfers") },
     { href: "/worldcup", label: t("nav.worldcup") },
+    { href: "/saved", label: t("nav.saved") },
   ];
   return (
     <header className="sticky top-0 z-30 border-b border-line bg-ink-950/80 backdrop-blur-md">

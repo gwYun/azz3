@@ -1,0 +1,127 @@
+{
+  "_generated": "2026-06-15",
+  "fx_eur_usd": 1.08,
+  "players": [
+    {
+      "id": "lee",
+      "name": "Lee Kang-in",
+      "name_ko": "이강인",
+      "from_ko": "파리 생제르맹",
+      "from_en": "Paris Saint-Germain",
+      "nat_ko": "대한민국",
+      "nat_en": "South Korea",
+      "age": 24,
+      "pos": "MF/FW",
+      "mv_eur": 35000000.0,
+      "type": "single",
+      "stats": {
+        "gls": 3,
+        "ast": 4,
+        "min": 1519,
+        "mp": 27
+      },
+      "scenarios": [
+        {
+          "to_ko": "아틀레티코 마드리드",
+          "to_en": "Atlético de Madrid",
+          "premium": 1.0,
+          "fee_eur": 31953479.51776906,
+          "fee_usd_man": "약 3,451만 달러",
+          "fee_usd_en": "~$35M"
+        }
+      ],
+      "insight_ko": "아틀레티코 마드리드는 과거 영입에서 선수 시장가치에 거의 정확히 부합하는 금액을 지불해 온 구단으로, 행선지에 따른 추가 프리미엄이 사실상 없습니다. 따라서 예측 이적료는 이강인의 순수 모델 추정 가치와 같습니다.",
+      "insight_en": "Atlético historically pays right at a player's market value, with no overpay premium, so the predicted fee equals Lee's pure model-implied value."
+    },
+    {
+      "id": "mbappe",
+      "name": "Kylian Mbappé",
+      "name_ko": "킬리안 음바페",
+      "from_ko": "레알 마드리드",
+      "from_en": "Real Madrid",
+      "nat_ko": "프랑스",
+      "nat_en": "France",
+      "age": 26,
+      "pos": "FW",
+      "mv_eur": 180000000.0,
+      "type": "multi",
+      "neutral_eur": 161499238.95002446,
+      "stats": {
+        "gls": 25,
+        "ast": 5,
+        "min": 2599,
+        "mp": 31
+      },
+      "scenarios": [
+        {
+          "to_ko": "맨체스터 시티",
+          "to_en": "Manchester City",
+          "premium": 1.45,
+          "fee_eur": 214188549.54245403,
+          "fee_usd_man": "약 23,132만 달러",
+          "fee_usd_en": "~$231M",
+          "rough": false
+        },
+        {
+          "to_ko": "리버풀",
+          "to_en": "Liverpool",
+          "premium": 1.34,
+          "fee_eur": 197467325.1772451,
+          "fee_usd_man": "약 21,326만 달러",
+          "fee_usd_en": "~$213M",
+          "rough": false
+        },
+        {
+          "to_ko": "사우디 리그",
+          "to_en": "Saudi league",
+          "premium": 1.45,
+          "fee_eur": 214188549.54245403,
+          "fee_usd_man": "약 23,132만 달러",
+          "fee_usd_en": "~$231M",
+          "rough": true
+        }
+      ],
+      "insight_ko": "음바페의 순수 모델 추정 가치는 약 €161M입니다. 여기에 영입 구단의 과거 지출 성향이 더해집니다. 맨체스터 시티는 통상 시장가 대비 약 45% 더 지불해 가장 높은 금액을 제시합니다. 사우디 리그는 모델 학습 데이터(빅5 리그 한정)에 포함되지 않아, 최고 지출 구단(맨시티 급)의 프리미엄을 적용한 대략적 추정치입니다.",
+      "insight_en": "Mbappé's pure model value is about €161M; each club's historical overpay then shapes the fee. Manchester City typically pays ~45% over market, the highest bid. The Saudi league isn't in the model's training data (Big-5 only), so its figure applies the biggest spenders' premium as a rough extrapolation."
+    },
+    {
+      "id": "salah",
+      "name": "Mohamed Salah",
+      "name_ko": "모하메드 살라",
+      "from_ko": "리버풀",
+      "from_en": "Liverpool",
+      "nat_ko": "이집트",
+      "nat_en": "Egypt",
+      "age": 33,
+      "pos": "FW/MF",
+      "mv_eur": 28000000.0,
+      "type": "free_agent",
+      "stats": {
+        "gls": 7,
+        "ast": 7,
+        "min": 2146,
+        "mp": 27
+      },
+      "contract_scenarios": [
+        {
+          "years": 3,
+          "fee_eur": 21329659.55762338,
+          "fee_usd_man": "약 2,304만 달러"
+        },
+        {
+          "years": 1,
+          "fee_eur": 12268254.447802473,
+          "fee_usd_man": "약 1,325만 달러"
+        },
+        {
+          "years": 0,
+          "fee_eur": 12268254.447802473,
+          "fee_usd_man": "약 1,325만 달러"
+        }
+      ],
+      "free_fee_eur": 0,
+      "insight_ko": "AI가 살라를 어떻게 예측하는지가 가장 흥미로운 지점입니다. 모델은 계약 잔여 연수가 줄수록 이적료를 낮춥니다(3년 기준 약 €21M → 1년 기준 약 €12M). 그러나 약 €12M에서 멈추며 **€0(자유 이적)에는 도달하지 못합니다.** 모델이 이적료가 공개된(0보다 큰) 이적만 학습했고, 자유 이적은 학습 데이터에서 제외됐기 때문입니다. 즉 모델은 '팔렸을 때의 가치'를 말할 뿐, 계약 만료로 공짜로 떠나는 현실은 구조적으로 보지 못합니다. 만 33세·시즌 7골로 이미 가치가 하락한 살라가 계약을 소진하면 실제 이적료는 €0입니다.",
+      "insight_en": "How the AI prices Salah is the most interesting case. The model lowers the fee as his contract runs down (about €21M at 3 years left → €12M at 1 year), but it floors near €12M and never reaches €0, a free transfer. It was trained only on transfers with a disclosed fee above zero; free moves were excluded. So it tells you what he is worth if sold, not the reality of leaving for nothing. At 33 with 7 goals his value is already depressed; if he runs out his contract, the real fee is €0."
+    }
+  ]
+}

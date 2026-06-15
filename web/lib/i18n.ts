@@ -26,6 +26,7 @@ const en = {
   "nav.build": "Predict",
   "nav.saved": "Saved",
   "nav.worldcup": "World Cup 2026",
+  "nav.transfers": "Transfer Market",
   "nav.lang.label": "Language",
   "nav.lang.en": "English",
   "nav.lang.ko": "한국어",
@@ -242,6 +243,30 @@ const en = {
   "wc.method.sims":
     "Large-scale simulation of the real 2026 bracket to produce title and final-four odds.",
 
+  // Transfer market forecast
+  "tf.eyebrow": "ValueTrack Research",
+  "tf.title": "2026 Summer Transfer Forecast",
+  "tf.subtitle":
+    "Predicted fees for three of the window's most-watched moves — valued on real 2025/26 form, shaped by each buying club's spending history.",
+  "tf.from": "From",
+  "tf.value": "Market value",
+  "tf.age": "Age",
+  "tf.col.dest": "Destination",
+  "tf.col.fee": "Predicted fee",
+  "tf.rough": "rough",
+  "tf.salah.contract": "Contract left",
+  "tf.salah.modelfee": "Model fee",
+  "tf.salah.expired": "out of contract",
+  "tf.salah.yr": "{n} yr",
+  "tf.salah.reality": "If his contract runs down",
+  "tf.salah.free": "Free transfer · €0",
+  "tf.stats.label": "2025/26",
+  "tf.stat.apps": "Apps",
+  "tf.stat.g": "Goals",
+  "tf.stat.a": "Assists",
+  "tf.stat.min": "Minutes",
+  "tf.note": "ValueTrack model estimates, in 2026 value.",
+
   // Common
   "loading": "Loading…",
   "common.cancel": "Cancel",
@@ -256,6 +281,7 @@ const ko: Record<keyof typeof en, string> = {
   "nav.build": "예측",
   "nav.saved": "저장 목록",
   "nav.worldcup": "2026 월드컵",
+  "nav.transfers": "이적시장 예측",
   "nav.lang.label": "언어",
   "nav.lang.en": "English",
   "nav.lang.ko": "한국어",
@@ -471,6 +497,30 @@ const ko: Record<keyof typeof en, string> = {
     "커버리지: 비유럽 리그 선수가 저평가되지 않도록 각국 전체 스쿼드의 시장가치를 함께 반영했습니다.",
   "wc.method.sims":
     "실제 2026년 대진표를 기준으로 대규모 시뮬레이션을 수행해 각국의 우승·4강 진출 확률을 산출했습니다.",
+
+  // Transfer market forecast
+  "tf.eyebrow": "밸류트랙 리서치",
+  "tf.title": "2026 여름 이적시장 예측",
+  "tf.subtitle":
+    "이번 여름 가장 주목받는 세 이적 시나리오의 예측 이적료입니다. 2025/26 시즌 실제 폼으로 평가하고, 영입 구단의 과거 지출 성향을 반영했습니다.",
+  "tf.from": "현 소속",
+  "tf.value": "시장가치",
+  "tf.age": "나이",
+  "tf.col.dest": "행선지",
+  "tf.col.fee": "예측 이적료",
+  "tf.rough": "추정",
+  "tf.salah.contract": "계약 잔여",
+  "tf.salah.modelfee": "모델 예측",
+  "tf.salah.expired": "계약 만료",
+  "tf.salah.yr": "{n}년",
+  "tf.salah.reality": "계약을 소진할 경우 실제로는",
+  "tf.salah.free": "자유 이적 · €0",
+  "tf.stats.label": "2025/26",
+  "tf.stat.apps": "경기",
+  "tf.stat.g": "득점",
+  "tf.stat.a": "도움",
+  "tf.stat.min": "출전(분)",
+  "tf.note": "밸류트랙 모델 추정치 · 2026년 가치 기준.",
 
   // Common
   "loading": "불러오는 중…",
