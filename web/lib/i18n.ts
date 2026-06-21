@@ -270,9 +270,6 @@ const en = {
   // Common
   "loading": "Loading…",
   "common.cancel": "Cancel",
-
-  // Mobile banner
-  "mobile.banner": "Best on desktop. Mobile coming soon.",
 } as const;
 
 const ko: Record<keyof typeof en, string> = {
@@ -287,15 +284,15 @@ const ko: Record<keyof typeof en, string> = {
   "nav.lang.ko": "한국어",
 
   // Landing
-  "landing.eyebrow": "산업을 가로지르는 경쟁 가치 분석",
+  "landing.eyebrow": "종목을 넘나드는 경쟁 가치 분석",
   "landing.badge.football": "축구",
   "landing.badge.baseball": "KBO 야구",
   "landing.badge.esports": "e스포츠",
   "landing.badge.poker": "프로 포커",
-  "landing.title": "산업을 가로지르는 경쟁 가치의 가장 정확한 맥박",
+  "landing.title": "종목을 넘어, 경쟁 가치를 가장 정확하게",
   "landing.subtitle":
-    "AI 기반 이적·퍼포먼스 분석 플랫폼입니다. 선수 한 명의 이적료부터 월드컵 우승까지, 하나의 가치 엔진으로 분석합니다.",
-  "landing.cta.primary": "이적료 예측 시작",
+    "AI 기반 이적·퍼포먼스 분석 플랫폼. 선수 한 명의 이적료부터 월드컵 우승팀까지, 하나의 가치 엔진으로 분석합니다.",
+  "landing.cta.primary": "이적료 예측하기",
   "landing.cta.secondary": "마켓 살펴보기",
   "landing.stat.sims": "시뮬레이션",
   "landing.stat.transfers": "학습 이적 건수",
@@ -310,13 +307,13 @@ const ko: Record<keyof typeof en, string> = {
   "landing.features.title": "핵심 기능",
   "landing.feature.forecast.title": "이적료·행선지 예측",
   "landing.feature.forecast.body":
-    "실제 시즌 폼으로 선수의 시장 이적료와 가장 적합한 행선지를 예측합니다.",
+    "실제 시즌 경기력을 바탕으로 선수의 시장 이적료와 최적의 행선지를 예측합니다.",
   "landing.feature.multidomain.title": "멀티 도메인 트래킹",
   "landing.feature.multidomain.body":
     "축구·야구·e스포츠·포커를 하나의 가치 엔진으로 분석합니다.",
   "landing.feature.sim.title": "전략 스쿼드 시뮬레이션",
   "landing.feature.sim.body":
-    "스쿼드 가치 기반으로 2026 월드컵을 100만 회 시뮬레이션합니다.",
+    "스쿼드 가치를 기반으로 2026 월드컵을 100만 회 시뮬레이션합니다.",
   "landing.feature.glossary.title": "쉬운 스탯 가이드",
   "landing.feature.glossary.body":
     "모델이 사용하는 모든 지표를 한 줄로 설명합니다.",
@@ -525,9 +522,6 @@ const ko: Record<keyof typeof en, string> = {
   // Common
   "loading": "불러오는 중…",
   "common.cancel": "취소",
-
-  // Mobile banner
-  "mobile.banner": "데스크톱 환경에 최적화되어 있습니다. 모바일 지원은 준비 중입니다.",
 };
 
 export const dict = { en, ko } as const;
