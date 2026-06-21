@@ -1,0 +1,27 @@
+{
+  "_source": "Approximate Transfermarkt total squad market values for the 2025/26 Premier League season, EUR millions. Hand-entered ballpark figures (public Transfermarkt order-of-magnitude), used only as the market-value anchor in the Stage-1 blend — NOT a precise scrape. Relative ordering matters more than absolute values because the blend z-scores them. Mirrors the role of worldcup/data/tm_squad_values.json.",
+  "_currency": "EUR_millions",
+  "_season": "2025-26",
+  "values": {
+    "Manchester City": 1290.0,
+    "Arsenal": 1250.0,
+    "Chelsea": 1190.0,
+    "Liverpool": 1140.0,
+    "Tottenham Hotspur": 820.0,
+    "Manchester Utd": 790.0,
+    "Newcastle United": 700.0,
+    "Aston Villa": 620.0,
+    "Brighton": 600.0,
+    "Nottingham Forest": 470.0,
+    "Bournemouth": 480.0,
+    "West Ham United": 450.0,
+    "Crystal Palace": 450.0,
+    "Brentford": 430.0,
+    "Everton": 420.0,
+    "Wolves": 380.0,
+    "Fulham": 360.0,
+    "Leeds United": 280.0,
+    "Sunderland": 240.0,
+    "Burnley": 230.0
+  }
+}
