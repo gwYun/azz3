@@ -1,0 +1,368 @@
+{
+  "version": "v1",
+  "season": "2026-27",
+  "run_id": "2026-06-21T16:44:21Z",
+  "model_commit": "999499b",
+  "n_sims": 200000,
+  "seed": 42,
+  "params": {
+    "model_w": 0.45,
+    "tm_w": 0.55,
+    "rating_sd": 0.0,
+    "home_adv": true
+  },
+  "title_pick": {
+    "en": "Manchester City",
+    "ko": "맨체스터 시티",
+    "prob": 77.33
+  },
+  "arsenal": {
+    "rank": 2,
+    "title": 14.21
+  },
+  "caveat": "Independent-Poisson match noise under-disperses SEASON outcomes, so the favourite's headline probability is overstated; read the table as a ranking and see the season-uncertainty sensitivity for the realistic spread. Forecast made today for 2026/27 (input: 2025/26 form) — a forward prediction, not a back-dated one.",
+  "clubs": [
+    {
+      "en": "Manchester City",
+      "ko": "맨체스터 시티",
+      "title": 77.33,
+      "top4": 99.8,
+      "top6": 100.0,
+      "relegation": 0.0,
+      "rating": 132.8,
+      "squad_value_m": 1290,
+      "syn": 1.07,
+      "mean_points": 90.4
+    },
+    {
+      "en": "Arsenal",
+      "ko": "아스널",
+      "title": 14.21,
+      "top4": 94.5,
+      "top6": 99.5,
+      "relegation": 0.0,
+      "rating": 123.7,
+      "squad_value_m": 1250,
+      "syn": 1.08,
+      "mean_points": 81.1
+    },
+    {
+      "en": "Liverpool",
+      "ko": "리버풀",
+      "title": 7.17,
+      "top4": 87.9,
+      "top6": 98.4,
+      "relegation": 0.0,
+      "rating": 120.9,
+      "squad_value_m": 1140,
+      "syn": 1.11,
+      "mean_points": 77.9
+    },
+    {
+      "en": "Manchester Utd",
+      "ko": "맨체스터 유나이티드",
+      "title": 0.63,
+      "top4": 45.3,
+      "top6": 83.9,
+      "relegation": 0.0,
+      "rating": 113.1,
+      "squad_value_m": 790,
+      "syn": 1.01,
+      "mean_points": 68.9
+    },
+    {
+      "en": "Chelsea",
+      "ko": "첼시",
+      "title": 0.56,
+      "top4": 41.9,
+      "top6": 81.9,
+      "relegation": 0.0,
+      "rating": 112.6,
+      "squad_value_m": 1190,
+      "syn": 1.07,
+      "mean_points": 68.3
+    },
+    {
+      "en": "Aston Villa",
+      "ko": "아스톤 빌라",
+      "title": 0.05,
+      "top4": 12.1,
+      "top6": 47.3,
+      "relegation": 0.0,
+      "rating": 106.9,
+      "squad_value_m": 620,
+      "syn": 1.06,
+      "mean_points": 61.3
+    },
+    {
+      "en": "Newcastle United",
+      "ko": "뉴캐슬",
+      "title": 0.04,
+      "top4": 10.0,
+      "top6": 42.2,
+      "relegation": 0.0,
+      "rating": 106.2,
+      "squad_value_m": 700,
+      "syn": 1.12,
+      "mean_points": 60.4
+    },
+    {
+      "en": "Tottenham Hotspur",
+      "ko": "토트넘",
+      "title": 0.02,
+      "top4": 7.5,
+      "top6": 35.0,
+      "relegation": 0.1,
+      "rating": 105.1,
+      "squad_value_m": 820,
+      "syn": 1.05,
+      "mean_points": 59.1
+    },
+    {
+      "en": "Brighton",
+      "ko": "브라이턴",
+      "title": 0.0,
+      "top4": 0.4,
+      "top6": 4.2,
+      "relegation": 3.2,
+      "rating": 96.6,
+      "squad_value_m": 600,
+      "syn": 1.16,
+      "mean_points": 48.6
+    },
+    {
+      "en": "West Ham United",
+      "ko": "웨스트햄",
+      "title": 0.0,
+      "top4": 0.2,
+      "top6": 2.5,
+      "relegation": 5.3,
+      "rating": 95.0,
+      "squad_value_m": 450,
+      "syn": 1.1,
+      "mean_points": 46.6
+    },
+    {
+      "en": "Bournemouth",
+      "ko": "본머스",
+      "title": 0.0,
+      "top4": 0.1,
+      "top6": 1.3,
+      "relegation": 9.1,
+      "rating": 93.1,
+      "squad_value_m": 480,
+      "syn": 1.11,
+      "mean_points": 44.4
+    },
+    {
+      "en": "Everton",
+      "ko": "에버턴",
+      "title": 0.0,
+      "top4": 0.1,
+      "top6": 1.2,
+      "relegation": 10.1,
+      "rating": 92.7,
+      "squad_value_m": 420,
+      "syn": 1.08,
+      "mean_points": 43.9
+    },
+    {
+      "en": "Crystal Palace",
+      "ko": "크리스털 팰리스",
+      "title": 0.0,
+      "top4": 0.1,
+      "top6": 1.0,
+      "relegation": 10.5,
+      "rating": 92.6,
+      "squad_value_m": 450,
+      "syn": 1.13,
+      "mean_points": 43.8
+    },
+    {
+      "en": "Nottingham Forest",
+      "ko": "노팅엄 포레스트",
+      "title": 0.0,
+      "top4": 0.0,
+      "top6": 0.5,
+      "relegation": 17.4,
+      "rating": 90.5,
+      "squad_value_m": 470,
+      "syn": 1.06,
+      "mean_points": 41.4
+    },
+    {
+      "en": "Brentford",
+      "ko": "브렌트퍼드",
+      "title": 0.0,
+      "top4": 0.0,
+      "top6": 0.5,
+      "relegation": 18.3,
+      "rating": 90.3,
+      "squad_value_m": 430,
+      "syn": 1.16,
+      "mean_points": 41.1
+    },
+    {
+      "en": "Wolves",
+      "ko": "울버햄튼",
+      "title": 0.0,
+      "top4": 0.0,
+      "top6": 0.5,
+      "relegation": 18.5,
+      "rating": 90.3,
+      "squad_value_m": 380,
+      "syn": 1.16,
+      "mean_points": 41.1
+    },
+    {
+      "en": "Fulham",
+      "ko": "풀럼",
+      "title": 0.0,
+      "top4": 0.0,
+      "top6": 0.1,
+      "relegation": 32.1,
+      "rating": 87.6,
+      "squad_value_m": 360,
+      "syn": 1.07,
+      "mean_points": 38.0
+    },
+    {
+      "en": "Leeds United",
+      "ko": "리즈 유나이티드",
+      "title": 0.0,
+      "top4": 0.0,
+      "top6": 0.1,
+      "relegation": 41.4,
+      "rating": 86.1,
+      "squad_value_m": 280,
+      "syn": 1.08,
+      "mean_points": 36.3
+    },
+    {
+      "en": "Sunderland",
+      "ko": "선덜랜드",
+      "title": 0.0,
+      "top4": 0.0,
+      "top6": 0.0,
+      "relegation": 60.3,
+      "rating": 83.1,
+      "squad_value_m": 240,
+      "syn": 1.14,
+      "mean_points": 33.0
+    },
+    {
+      "en": "Burnley",
+      "ko": "번리",
+      "title": 0.0,
+      "top4": 0.0,
+      "top6": 0.0,
+      "relegation": 73.7,
+      "rating": 80.8,
+      "squad_value_m": 230,
+      "syn": 1.16,
+      "mean_points": 30.5
+    }
+  ],
+  "sensitivity": [
+    {
+      "axis": "form_weight",
+      "model_w": 0.3,
+      "rating_sd": 0.0,
+      "champion_en": "Manchester City",
+      "champion_ko": "맨체스터 시티",
+      "champion_prob": 0.6618,
+      "arsenal_rank": 2,
+      "arsenal_title": 0.1989
+    },
+    {
+      "axis": "form_weight",
+      "model_w": 0.45,
+      "rating_sd": 0.0,
+      "champion_en": "Manchester City",
+      "champion_ko": "맨체스터 시티",
+      "champion_prob": 0.7737,
+      "arsenal_rank": 2,
+      "arsenal_title": 0.1421
+    },
+    {
+      "axis": "form_weight",
+      "model_w": 0.6,
+      "rating_sd": 0.0,
+      "champion_en": "Manchester City",
+      "champion_ko": "맨체스터 시티",
+      "champion_prob": 0.8585,
+      "arsenal_rank": 2,
+      "arsenal_title": 0.0915
+    },
+    {
+      "axis": "form_weight",
+      "model_w": 0.75,
+      "rating_sd": 0.0,
+      "champion_en": "Manchester City",
+      "champion_ko": "맨체스터 시티",
+      "champion_prob": 0.9156,
+      "arsenal_rank": 2,
+      "arsenal_title": 0.0555
+    },
+    {
+      "axis": "form_weight",
+      "model_w": 0.9,
+      "rating_sd": 0.0,
+      "champion_en": "Manchester City",
+      "champion_ko": "맨체스터 시티",
+      "champion_prob": 0.9506,
+      "arsenal_rank": 2,
+      "arsenal_title": 0.0331
+    },
+    {
+      "axis": "season_uncertainty",
+      "model_w": 0.45,
+      "rating_sd": 3.0,
+      "champion_en": "Manchester City",
+      "champion_ko": "맨체스터 시티",
+      "champion_prob": 0.7339,
+      "arsenal_rank": 2,
+      "arsenal_title": 0.1577
+    },
+    {
+      "axis": "season_uncertainty",
+      "model_w": 0.45,
+      "rating_sd": 5.0,
+      "champion_en": "Manchester City",
+      "champion_ko": "맨체스터 시티",
+      "champion_prob": 0.6805,
+      "arsenal_rank": 2,
+      "arsenal_title": 0.1755
+    },
+    {
+      "axis": "season_uncertainty",
+      "model_w": 0.45,
+      "rating_sd": 7.0,
+      "champion_en": "Manchester City",
+      "champion_ko": "맨체스터 시티",
+      "champion_prob": 0.6136,
+      "arsenal_rank": 2,
+      "arsenal_title": 0.1923
+    }
+  ],
+  "seed_stability": [
+    {
+      "seed": 42,
+      "champion_en": "Manchester City",
+      "city_prob": 0.7737,
+      "arsenal_prob": 0.1421
+    },
+    {
+      "seed": 1,
+      "champion_en": "Manchester City",
+      "city_prob": 0.7782,
+      "arsenal_prob": 0.1387
+    },
+    {
+      "seed": 7,
+      "champion_en": "Manchester City",
+      "city_prob": 0.7751,
+      "arsenal_prob": 0.1397
+    }
+  ]
+}

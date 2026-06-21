@@ -1,0 +1,1 @@
+{"run_id": "2026-06-21T16:44:21Z", "model_commit": "999499b", "season": "2026-27", "n_sims": 200000, "seed": 42, "params": {"model_w": 0.45, "tm_w": 0.55, "rating_sd": 0.0, "home_adv": true}, "title_pick": {"en": "Manchester City", "ko": "맨체스터 시티", "prob": 77.33}, "arsenal": {"rank": 2, "title": 14.21}}
