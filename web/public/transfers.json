@@ -4,6 +4,7 @@
   "players": [
     {
       "id": "lee",
+      "img": "/players/lee_athletico.webp",
       "name": "Lee Kang-in",
       "name_ko": "이강인",
       "from_ko": "파리 생제르맹",
@@ -35,6 +36,7 @@
     },
     {
       "id": "mbappe",
+      "img": "/players/mbappe_real.avif",
       "name": "Kylian Mbappé",
       "name_ko": "킬리안 음바페",
       "from_ko": "레알 마드리드",
@@ -86,6 +88,7 @@
     },
     {
       "id": "salah",
+      "img": "/players/salah_liverpool.jpg",
       "name": "Mohamed Salah",
       "name_ko": "모하메드 살라",
       "from_ko": "리버풀",

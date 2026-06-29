@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useI18n, useT } from "@/lib/i18n-context";
 import type { Locale } from "@/lib/i18n";
@@ -9,6 +10,7 @@ type Contract = { years: number; fee_eur: number; fee_usd_man: string };
 type Stats = { gls: number; ast: number; min: number; mp: number };
 type Player = {
   id: string;
+  img?: string;
   name: string;
   name_ko: string;
   from_ko: string;
@@ -67,26 +69,40 @@ function PlayerCard({ p, index, t, locale }: { p: Player; index: number; t: Retu
   const ko = locale === "ko";
   const primary = ko ? p.name_ko : p.name;
   const secondary = ko ? p.name : p.name_ko;
+  const img = p.img ?? `/players/${p.id}.jpg`;
   return (
     <section className="panel p-6 sm:p-7">
-      {/* header */}
-      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-        <h2 className="font-display text-2xl font-semibold text-fg">
-          <span className="mr-2 font-mono text-base text-fg-dim">0{index + 1}</span>
-          {primary}
-          <span className="ml-2 text-base font-normal text-fg-dim">{secondary}</span>
-        </h2>
-      </div>
-      <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-sm text-fg-muted">
-        <span>
-          <span className="text-fg-dim">{t("tf.from")}:</span> {ko ? p.from_ko : p.from_en}
-        </span>
-        <span>
-          <span className="text-fg-dim">{t("tf.age")}:</span> {p.age} · {ko ? p.nat_ko : p.nat_en} · {p.pos}
-        </span>
-        <span>
-          <span className="text-fg-dim">{t("tf.value")}:</span> {eurM(p.mv_eur)}
-        </span>
+      {/* header: photo + identity */}
+      <div className="flex items-start gap-4 sm:gap-5">
+        <div className="relative h-20 w-16 shrink-0 overflow-hidden rounded-lg bg-ink-800 ring-1 ring-line sm:h-24 sm:w-20">
+          <Image
+            src={img}
+            alt={primary}
+            fill
+            sizes="80px"
+            className="object-cover object-top"
+          />
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+            <h2 className="font-display text-2xl font-semibold text-fg">
+              <span className="mr-2 font-mono text-base text-fg-dim">0{index + 1}</span>
+              {primary}
+              <span className="ml-2 text-base font-normal text-fg-dim">{secondary}</span>
+            </h2>
+          </div>
+          <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-sm text-fg-muted">
+            <span>
+              <span className="text-fg-dim">{t("tf.from")}:</span> {ko ? p.from_ko : p.from_en}
+            </span>
+            <span>
+              <span className="text-fg-dim">{t("tf.age")}:</span> {p.age} · {ko ? p.nat_ko : p.nat_en} · {p.pos}
+            </span>
+            <span>
+              <span className="text-fg-dim">{t("tf.value")}:</span> {eurM(p.mv_eur)}
+            </span>
+          </div>
+        </div>
       </div>
 
       {/* key stats (2025/26) */}
