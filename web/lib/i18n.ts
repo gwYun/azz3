@@ -26,6 +26,7 @@ const en = {
   "nav.build": "Predict",
   "nav.saved": "Saved",
   "nav.worldcup": "World Cup 2026",
+  "nav.kbo": "KBO 2026",
   "nav.transfers": "Transfer Market",
   "nav.contact": "Contact",
   "nav.lang.label": "Language",
@@ -281,6 +282,47 @@ const en = {
   "contact.phone.label": "Phone",
   "contact.note": "We typically reply within 1–2 business days.",
 
+  // KBO Korean Series forecast
+  "kbo.eyebrow": "ValueTrack Research",
+  "kbo.title": "Who wins the {season} Korean Series",
+  "kbo.subtitle":
+    "{sims} Monte-Carlo simulations of the 144-game KBO season and the postseason ladder, from sabermetrics computed in-house on public data.",
+  "kbo.call.label": "The call",
+  "kbo.call.body": "{first} is our pick to win the {season} Korean Series.",
+  "kbo.call.locked": "Public data · metrics computed in-house · reproducible (seed {seed})",
+  "kbo.stat.champion": "Title favorite",
+  "kbo.stat.prob": "Korean Series win %",
+  "kbo.stat.sims": "Simulations",
+  "kbo.board.title": "Championship probability",
+  "kbo.board.note": "Korean Series title odds for all 10 clubs, with the road there.",
+  "kbo.col.rank": "#",
+  "kbo.col.team": "Team",
+  "kbo.col.champ": "Title %",
+  "kbo.col.pennant": "KS %",
+  "kbo.col.playoff": "Playoff %",
+  "kbo.col.first": "1st %",
+  "kbo.col.off": "OFF",
+  "kbo.col.def": "DEF",
+  "kbo.col.wins": "Wins",
+  "kbo.legend": "OFF / DEF = offense / run-prevention rating (100 = league average). KS = reached the Korean Series.",
+  "kbo.sens.title": "Sensitivity — no cherry-picking",
+  "kbo.sens.note":
+    "The champion under each defensible variant of the projection weight and season-strength uncertainty, reported as-is.",
+  "kbo.sens.col.variant": "Variant",
+  "kbo.sens.col.champ": "Champion",
+  "kbo.sens.col.prob": "Title %",
+  "kbo.sens.axis.proj": "projection weight {v}",
+  "kbo.sens.axis.unc": "season uncertainty {v}",
+  "kbo.method.title": "Method & limits",
+  "kbo.method.data":
+    "Data: KBO official record pages (robots-permitted) + the open choosunsick game log. statiz is not scraped — its robots.txt forbids bots.",
+  "kbo.method.metrics":
+    "Metrics: wOBA, wRC+, FIP and a WAR proxy computed in-house with KBO per-season constants, not copied from any site.",
+  "kbo.method.model":
+    "Model: Marcel-style team projection → Negative-Binomial run model → Monte-Carlo of the 144-game season and the Wild Card → Korean Series ladder.",
+  "kbo.method.limits":
+    "Limits: park factors neutral; the WAR proxy omits defense/baserunning; independent game noise understates season spread, so the favorite's title % runs a little high — see the sensitivity rows.",
+
   // Common
   "loading": "Loading…",
   "common.cancel": "Cancel",
@@ -292,6 +334,7 @@ const ko: Record<keyof typeof en, string> = {
   "nav.build": "예측",
   "nav.saved": "저장 목록",
   "nav.worldcup": "2026 월드컵",
+  "nav.kbo": "2026 KBO",
   "nav.transfers": "이적시장 예측",
   "nav.contact": "문의",
   "nav.lang.label": "언어",
@@ -546,6 +589,47 @@ const ko: Record<keyof typeof en, string> = {
   "contact.email.label": "이메일",
   "contact.phone.label": "전화",
   "contact.note": "보통 영업일 기준 1~2일 이내에 답변드립니다.",
+
+  // KBO 한국시리즈 예측
+  "kbo.eyebrow": "밸류트랙 리서치",
+  "kbo.title": "{season} 한국시리즈, 누가 우승할까",
+  "kbo.subtitle":
+    "144경기 정규시즌과 포스트시즌 사다리를 {sims}회 몬테카를로로 시뮬레이션했습니다. 공개 데이터로 자체 계산한 세이버메트릭스 기반입니다.",
+  "kbo.call.label": "예측",
+  "kbo.call.body": "{first} — {season} 한국시리즈 우승 1순위.",
+  "kbo.call.locked": "공개 데이터 · 자체 계산 지표 · 재현 가능 (시드 {seed})",
+  "kbo.stat.champion": "우승 1순위",
+  "kbo.stat.prob": "한국시리즈 우승 확률",
+  "kbo.stat.sims": "시뮬레이션",
+  "kbo.board.title": "우승 확률",
+  "kbo.board.note": "10개 구단의 한국시리즈 우승 확률과 거기까지 가는 길.",
+  "kbo.col.rank": "#",
+  "kbo.col.team": "구단",
+  "kbo.col.champ": "우승",
+  "kbo.col.pennant": "한국시리즈",
+  "kbo.col.playoff": "가을야구",
+  "kbo.col.first": "정규1위",
+  "kbo.col.off": "공격",
+  "kbo.col.def": "수비",
+  "kbo.col.wins": "예상승수",
+  "kbo.legend": "공격 / 수비 = 득점력 · 실점 억제 전력 (100 = 리그 평균). 한국시리즈 = KS 진출.",
+  "kbo.sens.title": "민감도 분석 — 체리피킹 방지",
+  "kbo.sens.note":
+    "투영 가중치와 시즌 불확실성의 방어 가능한 변형별 우승팀을 그대로 보고합니다.",
+  "kbo.sens.col.variant": "변형",
+  "kbo.sens.col.champ": "우승팀",
+  "kbo.sens.col.prob": "우승 확률",
+  "kbo.sens.axis.proj": "투영 가중치 {v}",
+  "kbo.sens.axis.unc": "시즌 불확실성 {v}",
+  "kbo.method.title": "방법론 / 한계",
+  "kbo.method.data":
+    "데이터: KBO 공식 기록실(robots 허용) + 공개 choosunsick 경기 로그. statiz는 크롤링하지 않습니다 — robots.txt가 봇을 차단합니다.",
+  "kbo.method.metrics":
+    "지표: wOBA·wRC+·FIP·WAR를 KBO 시즌별 상수로 직접 계산했습니다. 외부 사이트 수치 복사가 아닙니다.",
+  "kbo.method.model":
+    "모델: Marcel식 팀 투영 → 음이항분포 득점 모델 → 144경기 정규시즌과 와일드카드~한국시리즈 사다리 몬테카를로.",
+  "kbo.method.limits":
+    "한계: 구장 보정 중립, WAR는 수비/주루 생략, 독립 경기 노이즈가 시즌 분산을 과소평가해 1순위 확률이 다소 높습니다 — 민감도 표를 참고하세요.",
 
   // Common
   "loading": "불러오는 중…",

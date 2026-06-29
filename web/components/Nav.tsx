@@ -14,6 +14,7 @@ export function Nav() {
     { href: "/build", label: t("nav.build") },
     { href: "/transfers", label: t("nav.transfers") },
     { href: "/worldcup", label: t("nav.worldcup") },
+    { href: "/kbo", label: t("nav.kbo") },
     { href: "/saved", label: t("nav.saved") },
     { href: "/contact", label: t("nav.contact") },
   ];

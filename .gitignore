@@ -24,6 +24,10 @@ data/cache/
 data/raw/
 data/interim/
 
+# kbo module data caches (raw game CSVs + normalized parquet); keep team meta tracked
+kbo/data/raw/
+kbo/data/interim/
+
 # Manual review artifacts (player ID match queue) - keep schema, ignore content
 data/review_queue/*.csv
 

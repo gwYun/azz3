@@ -1,0 +1,2 @@
+{"run_id": "2026-06-29T16:54:00Z", "model_commit": "cd7488f", "season": "2026", "n_sims": 200000, "seed": 42, "params": {"proj_w": 0.6, "prior_w": 0.4, "regress": 0.3, "rating_sd": 0.0, "home_factor": 1.1, "dispersion_k": 3.64}, "title_pick": {"en": "LG Twins", "ko": "LG", "prob": 52.65}}
+{"run_id": "2026-06-29T23:01:24Z", "model_commit": "cd7488f", "season": "2026", "n_sims": 1000000, "seed": 42, "params": {"proj_w": 0.6, "prior_w": 0.4, "regress": 0.3, "rating_sd": 0.0, "home_factor": 1.1, "dispersion_k": 3.64}, "title_pick": {"en": "LG Twins", "ko": "LG", "prob": 52.51}}

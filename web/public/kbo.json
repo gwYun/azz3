@@ -1,0 +1,247 @@
+{
+  "version": "v1",
+  "season": "2026",
+  "run_id": "2026-06-29T23:01:24Z",
+  "model_commit": "cd7488f",
+  "n_sims": 1000000,
+  "seed": 42,
+  "params": {
+    "proj_w": 0.6,
+    "prior_w": 0.4,
+    "regress": 0.3,
+    "rating_sd": 0.0,
+    "home_factor": 1.1,
+    "dispersion_k": 3.64
+  },
+  "title_pick": {
+    "en": "LG Twins",
+    "ko": "LG",
+    "prob": 52.51
+  },
+  "caveat": "독립적인 경기 노이즈는 시즌 단위 결과 분산을 과소평가하므로 1순위의 우승 확률은 다소 과대평가됩니다. 표는 랭킹으로 읽고, 시즌 불확실성 민감도에서 현실적인 분포를 확인하세요. 오늘 시점에 2026 시즌을 대상으로 한 전향적 예측입니다(직전 3시즌 입력).",
+  "teams": [
+    {
+      "en": "LG Twins",
+      "ko": "LG",
+      "rank": 1,
+      "championship": 52.51,
+      "pennant": 82.2,
+      "playoff": 98.5,
+      "first": 64.5,
+      "off_rating": 127.1,
+      "def_rating": 118.7,
+      "proj_wins": 85.6,
+      "rs_per_game": 5.27,
+      "ra_per_game": 4.26
+    },
+    {
+      "en": "Samsung Lions",
+      "ko": "삼성",
+      "rank": 2,
+      "championship": 17.22,
+      "pennant": 39.0,
+      "playoff": 85.4,
+      "first": 14.3,
+      "off_rating": 117.8,
+      "def_rating": 105.4,
+      "proj_wins": 78.5,
+      "rs_per_game": 5.08,
+      "ra_per_game": 4.6
+    },
+    {
+      "en": "Hanwha Eagles",
+      "ko": "한화",
+      "rank": 3,
+      "championship": 16.09,
+      "pennant": 36.8,
+      "playoff": 84.0,
+      "first": 12.9,
+      "off_rating": 98.1,
+      "def_rating": 118.7,
+      "proj_wins": 78.2,
+      "rs_per_game": 4.69,
+      "ra_per_game": 4.26
+    },
+    {
+      "en": "SSG Landers",
+      "ko": "SSG",
+      "rank": 4,
+      "championship": 4.24,
+      "pennant": 11.8,
+      "playoff": 53.1,
+      "first": 2.6,
+      "off_rating": 84.4,
+      "def_rating": 114.4,
+      "proj_wins": 72.7,
+      "rs_per_game": 4.42,
+      "ra_per_game": 4.37
+    },
+    {
+      "en": "KT Wiz",
+      "ko": "KT",
+      "rank": 5,
+      "championship": 3.02,
+      "pennant": 8.8,
+      "playoff": 45.3,
+      "first": 1.8,
+      "off_rating": 93.3,
+      "def_rating": 104.2,
+      "proj_wins": 71.6,
+      "rs_per_game": 4.6,
+      "ra_per_game": 4.63
+    },
+    {
+      "en": "NC Dinos",
+      "ko": "NC",
+      "rank": 6,
+      "championship": 2.08,
+      "pennant": 6.4,
+      "playoff": 37.5,
+      "first": 1.2,
+      "off_rating": 110.9,
+      "def_rating": 86.9,
+      "proj_wins": 70.4,
+      "rs_per_game": 4.95,
+      "ra_per_game": 5.06
+    },
+    {
+      "en": "KIA Tigers",
+      "ko": "KIA",
+      "rank": 7,
+      "championship": 2.01,
+      "pennant": 6.1,
+      "playoff": 36.6,
+      "first": 1.1,
+      "off_rating": 103.4,
+      "def_rating": 92.5,
+      "proj_wins": 70.3,
+      "rs_per_game": 4.8,
+      "ra_per_game": 4.92
+    },
+    {
+      "en": "Doosan Bears",
+      "ko": "두산",
+      "rank": 8,
+      "championship": 1.94,
+      "pennant": 5.9,
+      "playoff": 36.0,
+      "first": 1.1,
+      "off_rating": 92.1,
+      "def_rating": 101.3,
+      "proj_wins": 70.2,
+      "rs_per_game": 4.58,
+      "ra_per_game": 4.7
+    },
+    {
+      "en": "Lotte Giants",
+      "ko": "롯데",
+      "rank": 9,
+      "championship": 0.9,
+      "pennant": 3.0,
+      "playoff": 23.5,
+      "first": 0.5,
+      "off_rating": 99.8,
+      "def_rating": 88.7,
+      "proj_wins": 68.0,
+      "rs_per_game": 4.73,
+      "ra_per_game": 5.01
+    },
+    {
+      "en": "Kiwoom Heroes",
+      "ko": "키움",
+      "rank": 10,
+      "championship": 0.0,
+      "pennant": 0.0,
+      "playoff": 0.2,
+      "first": 0.0,
+      "off_rating": 73.2,
+      "def_rating": 69.3,
+      "proj_wins": 54.5,
+      "rs_per_game": 4.2,
+      "ra_per_game": 5.5
+    }
+  ],
+  "sensitivity": [
+    {
+      "axis": "projection_weight",
+      "proj_w": 0.3,
+      "rating_sd": 0.0,
+      "champion_en": "LG Twins",
+      "champion_ko": "LG",
+      "champion_prob": 0.531
+    },
+    {
+      "axis": "projection_weight",
+      "proj_w": 0.45,
+      "rating_sd": 0.0,
+      "champion_en": "LG Twins",
+      "champion_ko": "LG",
+      "champion_prob": 0.5294
+    },
+    {
+      "axis": "projection_weight",
+      "proj_w": 0.6,
+      "rating_sd": 0.0,
+      "champion_en": "LG Twins",
+      "champion_ko": "LG",
+      "champion_prob": 0.5272
+    },
+    {
+      "axis": "projection_weight",
+      "proj_w": 0.75,
+      "rating_sd": 0.0,
+      "champion_en": "LG Twins",
+      "champion_ko": "LG",
+      "champion_prob": 0.5125
+    },
+    {
+      "axis": "projection_weight",
+      "proj_w": 0.9,
+      "rating_sd": 0.0,
+      "champion_en": "LG Twins",
+      "champion_ko": "LG",
+      "champion_prob": 0.4857
+    },
+    {
+      "axis": "season_uncertainty",
+      "proj_w": 0.6,
+      "rating_sd": 0.03,
+      "champion_en": "LG Twins",
+      "champion_ko": "LG",
+      "champion_prob": 0.4973
+    },
+    {
+      "axis": "season_uncertainty",
+      "proj_w": 0.6,
+      "rating_sd": 0.05,
+      "champion_en": "LG Twins",
+      "champion_ko": "LG",
+      "champion_prob": 0.4536
+    },
+    {
+      "axis": "season_uncertainty",
+      "proj_w": 0.6,
+      "rating_sd": 0.07,
+      "champion_en": "LG Twins",
+      "champion_ko": "LG",
+      "champion_prob": 0.4052
+    }
+  ],
+  "seed_stability": [
+    {
+      "seed": 42,
+      "champion_en": "LG Twins",
+      "champion_prob": 0.5272
+    },
+    {
+      "seed": 1,
+      "champion_en": "LG Twins",
+      "champion_prob": 0.5267
+    },
+    {
+      "seed": 7,
+      "champion_en": "LG Twins",
+      "champion_prob": 0.5262
+    }
+  ]
+}

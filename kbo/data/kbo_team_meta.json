@@ -1,0 +1,17 @@
+{
+  "_comment": "The 10 current KBO franchises. `code` is the KBO record-page ddlTeam value and doubles as the stable franchise_id (it survives sponsor renames: SK->SSG keeps code SK, Nexen/Kiwoom keeps WO). `aliases` lists every team-name spelling seen across sources (KBO official 팀명, the choosunsick game log, historical names) so the normalizer can resolve any of them to one franchise. `park` is the current home stadium (Jamsil is shared by LG and Doosan).",
+  "_currency": "n/a",
+  "_season": "2026",
+  "teams": [
+    {"code": "HT", "ko": "KIA", "en": "KIA Tigers", "aliases": ["KIA", "기아", "해태", "HT"], "park": "광주"},
+    {"code": "SS", "ko": "삼성", "en": "Samsung Lions", "aliases": ["삼성", "SS", "Samsung"], "park": "대구"},
+    {"code": "LG", "ko": "LG", "en": "LG Twins", "aliases": ["LG"], "park": "잠실"},
+    {"code": "OB", "ko": "두산", "en": "Doosan Bears", "aliases": ["두산", "OB", "Doosan"], "park": "잠실"},
+    {"code": "KT", "ko": "KT", "en": "KT Wiz", "aliases": ["KT", "kt"], "park": "수원"},
+    {"code": "SK", "ko": "SSG", "en": "SSG Landers", "aliases": ["SSG", "SK", "에스케이"], "park": "문학"},
+    {"code": "LT", "ko": "롯데", "en": "Lotte Giants", "aliases": ["롯데", "LT", "Lotte"], "park": "사직"},
+    {"code": "HH", "ko": "한화", "en": "Hanwha Eagles", "aliases": ["한화", "HH", "Hanwha"], "park": "대전"},
+    {"code": "NC", "ko": "NC", "en": "NC Dinos", "aliases": ["NC"], "park": "창원"},
+    {"code": "WO", "ko": "키움", "en": "Kiwoom Heroes", "aliases": ["키움", "넥센", "히어로즈", "WO", "Kiwoom", "Nexen"], "park": "고척"}
+  ]
+}
