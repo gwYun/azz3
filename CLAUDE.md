@@ -22,6 +22,12 @@ Using gstack skills: After install, skills like /qa, /ship, /review, /investigat
 and /browse are available. Use /browse for all web browsing.
 Use ~/.claude/skills/gstack/... for gstack file paths (the global path).
 
+## Git workflow
+
+This project is not strictly git managed. When asked to commit and/or push without a
+specified branch, commit and push directly to `main`. Do not create a feature branch or
+open a PR by default. Only branch when the user explicitly asks for a branch or a PR.
+
 ## Skill routing
 
 When the user's request matches an available skill, invoke it via the Skill tool. The
