@@ -27,6 +27,7 @@ const en = {
   "nav.saved": "Saved",
   "nav.worldcup": "World Cup 2026",
   "nav.transfers": "Transfer Market",
+  "nav.contact": "Contact",
   "nav.lang.label": "Language",
   "nav.lang.en": "English",
   "nav.lang.ko": "한국어",
@@ -267,6 +268,19 @@ const en = {
   "tf.stat.min": "Minutes",
   "tf.note": "ValueTrack model estimates, in 2026 value.",
 
+  // Footer
+  "footer.partnership": "Interested in business partnership?",
+  "footer.contact": "Contact Us",
+
+  // Contact page
+  "contact.eyebrow": "Get in touch",
+  "contact.title": "Interested in business partnership?",
+  "contact.subtitle":
+    "Whether you're exploring a partnership, licensing the value engine, or just have a question — we'd love to hear from you. Reach us directly and we'll get back to you.",
+  "contact.email.label": "Email",
+  "contact.phone.label": "Phone",
+  "contact.note": "We typically reply within 1–2 business days.",
+
   // Common
   "loading": "Loading…",
   "common.cancel": "Cancel",
@@ -279,6 +293,7 @@ const ko: Record<keyof typeof en, string> = {
   "nav.saved": "저장 목록",
   "nav.worldcup": "2026 월드컵",
   "nav.transfers": "이적시장 예측",
+  "nav.contact": "문의",
   "nav.lang.label": "언어",
   "nav.lang.en": "English",
   "nav.lang.ko": "한국어",
@@ -518,6 +533,19 @@ const ko: Record<keyof typeof en, string> = {
   "tf.stat.a": "도움",
   "tf.stat.min": "출전(분)",
   "tf.note": "밸류트랙 모델 추정치 · 2026년 가치 기준.",
+
+  // Footer
+  "footer.partnership": "비즈니스 제휴에 관심이 있으신가요?",
+  "footer.contact": "문의하기",
+
+  // Contact page
+  "contact.eyebrow": "문의하기",
+  "contact.title": "비즈니스 제휴에 관심이 있으신가요?",
+  "contact.subtitle":
+    "제휴, 가치 엔진 라이선스, 또는 단순한 궁금증까지 — 무엇이든 편하게 문의해 주십시오. 아래 연락처로 연락 주시면 빠르게 답변드리겠습니다.",
+  "contact.email.label": "이메일",
+  "contact.phone.label": "전화",
+  "contact.note": "보통 영업일 기준 1~2일 이내에 답변드립니다.",
 
   // Common
   "loading": "불러오는 중…",

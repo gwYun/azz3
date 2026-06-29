@@ -4,6 +4,7 @@ import "./globals.css";
 import { I18nProvider } from "@/lib/i18n-context";
 import { ToastProvider } from "@/lib/toast-context";
 import { Nav } from "@/components/Nav";
+import { Footer } from "@/components/Footer";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 const interTight = Inter_Tight({
@@ -33,6 +34,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <ToastProvider>
             <Nav />
             <main className="mx-auto max-w-5xl px-6 py-10">{children}</main>
+            <Footer />
           </ToastProvider>
         </I18nProvider>
       </body>

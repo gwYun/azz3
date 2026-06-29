@@ -15,6 +15,7 @@ export function Nav() {
     { href: "/transfers", label: t("nav.transfers") },
     { href: "/worldcup", label: t("nav.worldcup") },
     { href: "/saved", label: t("nav.saved") },
+    { href: "/contact", label: t("nav.contact") },
   ];
 
   const renderItem = (item: { href: string; label: string }) => {
