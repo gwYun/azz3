@@ -92,6 +92,41 @@ def compute_constants(season: int, use_cache: bool = True) -> dict:
     }
 
 
+def constants_from_totals(season: int, bat: dict, pit: dict, team_games_total: float) -> dict:
+    """KBO constants from raw league totals (source-agnostic: /Record or open dump)."""
+    PA, AB, H = bat["PA"], bat["AB"], bat["H"]
+    B1, B2, B3, HR = bat["B1"], bat["B2"], bat["B3"], bat["HR"]
+    BB, IBB, HBP, SF = bat["BB"], bat["IBB"], bat["HBP"], bat["SF"]
+    R = bat["R"]
+    w = WOBA_WEIGHTS
+    woba_num = (w["BB"] * (BB - IBB) + w["HBP"] * HBP + w["1B"] * B1
+                + w["2B"] * B2 + w["3B"] * B3 + w["HR"] * HR)
+    lg_wOBA = woba_num / (AB + BB - IBB + SF + HBP)
+    lg_OBP = (H + BB + HBP) / (AB + BB + HBP + SF)
+    IP, ER = pit["IP"], pit["ER"]
+    lg_ERA = ER * 9.0 / IP
+    FIP_const = lg_ERA - (13 * pit["HR"] + 3 * (pit["BB"] + pit["HBP"]) - 2 * pit["SO"]) / IP
+    lg_R_per_G = R / team_games_total
+    return {
+        "season": season,
+        "lg_wOBA": round(lg_wOBA, 5), "wOBA_scale": round(lg_OBP / lg_wOBA, 5),
+        "lg_OBP": round(lg_OBP, 5), "lg_R_per_PA": round(R / PA, 5),
+        "lg_R_per_G": round(lg_R_per_G, 4), "lg_ERA": round(lg_ERA, 4),
+        "lg_FIP": round(lg_ERA, 4), "FIP_const": round(FIP_const, 4),
+        "RPW": round(_RPW_ANCHOR_RPW * lg_R_per_G / _RPW_ANCHOR_RPG, 3),
+        "replacement_runs_per_600pa": REPLACEMENT_RUNS_PER_600PA,
+        "replacement_fip_factor": REPLACEMENT_FIP_FACTOR,
+        "park_factor_neutral": True,
+    }
+
+
+def open_constants(season: int) -> dict:
+    """KBO constants for a backtest season, from the open full-roster dump."""
+    from . import boxscore_data as bd
+    lt = bd.league_totals(season)
+    return constants_from_totals(season, lt["bat"], lt["pit"], lt["team_games_total"])
+
+
 def constants(seasons: list[int], use_cache: bool = True) -> dict[int, dict]:
     """Constants for several seasons, cached to one JSON keyed by season."""
     cached: dict[str, dict] = {}

@@ -32,6 +32,19 @@ TEAMS = 10
 GAMES_PER_TEAM = GAMES_VS_EACH_OPPONENT * (TEAMS - 1)   # 144
 TOTAL_GAMES = GAMES_PER_TEAM * TEAMS // 2               # 720
 
+# v2 bottom-up: open published game-by-game player data (robots-clean, LOPES-HUFS).
+# Seasons available in the open dump (used for the full-roster engine + backtest).
+OPEN_DATA_SEASONS = list(range(2010, 2021))   # 2010-2020 inclusive
+# Clean 10-team / 144-game seasons for the backtest (pre-2015 had 8-9 teams; the open
+# dump's 2020 is partial ~97 g/team). Each has a known Korean Series champion.
+BACKTEST_SEASONS = [2015, 2016, 2017, 2018, 2019]
+# Actual Korean Series champions (backtest ground truth).
+KS_CHAMPIONS = {2015: "OB", 2016: "OB", 2017: "HT", 2018: "SK", 2019: "OB"}
+
+# Roster / playing-time targets per team-season (used to normalize allocations).
+TEAM_PA_PER_SEASON = 5700      # ~ a full team's plate appearances over 144 games
+TEAM_IP_PER_SEASON = 1290      # ~ a full team's innings pitched over 144 games
+
 RANDOM_SEED = 42
 
 # Team metadata (franchise ids, ko/en names, KBO record-page codes, name aliases,

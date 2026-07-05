@@ -1,150 +1,158 @@
 {
-  "version": "v1",
+  "version": "v2-bottomup",
   "season": "2026",
-  "run_id": "2026-06-29T23:01:24Z",
-  "model_commit": "cd7488f",
-  "n_sims": 1000000,
+  "run_id": "2026-07-04T16:17:17Z",
+  "model_commit": "92389b5",
+  "n_sims": 500000,
   "seed": 42,
+  "method": "bottom-up player-level (value → salary → lineup/playing-time → team rs/ra)",
   "params": {
-    "proj_w": 0.6,
-    "prior_w": 0.4,
-    "regress": 0.3,
-    "rating_sd": 0.0,
-    "home_factor": 1.1,
-    "dispersion_k": 3.64
+    "breadth": 6.0,
+    "mode": "actual",
+    "wexp_weight": 0.04,
+    "tactics_weight": 1.0,
+    "fip_blend": 0.25
   },
   "title_pick": {
-    "en": "LG Twins",
-    "ko": "LG",
-    "prob": 52.51
+    "en": "Samsung Lions",
+    "ko": "삼성",
+    "prob": 40.04
   },
-  "caveat": "독립적인 경기 노이즈는 시즌 단위 결과 분산을 과소평가하므로 1순위의 우승 확률은 다소 과대평가됩니다. 표는 랭킹으로 읽고, 시즌 불확실성 민감도에서 현실적인 분포를 확인하세요. 오늘 시점에 2026 시즌을 대상으로 한 전향적 예측입니다(직전 3시즌 입력).",
   "teams": [
-    {
-      "en": "LG Twins",
-      "ko": "LG",
-      "rank": 1,
-      "championship": 52.51,
-      "pennant": 82.2,
-      "playoff": 98.5,
-      "first": 64.5,
-      "off_rating": 127.1,
-      "def_rating": 118.7,
-      "proj_wins": 85.6,
-      "rs_per_game": 5.27,
-      "ra_per_game": 4.26
-    },
     {
       "en": "Samsung Lions",
       "ko": "삼성",
-      "rank": 2,
-      "championship": 17.22,
-      "pennant": 39.0,
-      "playoff": 85.4,
-      "first": 14.3,
-      "off_rating": 117.8,
-      "def_rating": 105.4,
-      "proj_wins": 78.5,
-      "rs_per_game": 5.08,
-      "ra_per_game": 4.6
-    },
-    {
-      "en": "Hanwha Eagles",
-      "ko": "한화",
-      "rank": 3,
-      "championship": 16.09,
-      "pennant": 36.8,
-      "playoff": 84.0,
-      "first": 12.9,
-      "off_rating": 98.1,
-      "def_rating": 118.7,
-      "proj_wins": 78.2,
-      "rs_per_game": 4.69,
-      "ra_per_game": 4.26
-    },
-    {
-      "en": "SSG Landers",
-      "ko": "SSG",
-      "rank": 4,
-      "championship": 4.24,
-      "pennant": 11.8,
-      "playoff": 53.1,
-      "first": 2.6,
-      "off_rating": 84.4,
-      "def_rating": 114.4,
-      "proj_wins": 72.7,
-      "rs_per_game": 4.42,
-      "ra_per_game": 4.37
+      "rank": 1,
+      "championship": 40.04,
+      "pennant": 67.5,
+      "playoff": 96.2,
+      "first": 46.4,
+      "off_rating": 110.5,
+      "def_rating": 114.8,
+      "proj_wins": 87.8,
+      "rs_per_game": 5.57,
+      "ra_per_game": 4.36,
+      "payroll_ok": 23
     },
     {
       "en": "KT Wiz",
       "ko": "KT",
+      "rank": 2,
+      "championship": 18.82,
+      "pennant": 38.8,
+      "playoff": 86.3,
+      "first": 18.2,
+      "off_rating": 113.3,
+      "def_rating": 99.0,
+      "proj_wins": 83.6,
+      "rs_per_game": 5.72,
+      "ra_per_game": 4.8,
+      "payroll_ok": 31
+    },
+    {
+      "en": "KIA Tigers",
+      "ko": "KIA",
+      "rank": 3,
+      "championship": 15.35,
+      "pennant": 32.8,
+      "playoff": 82.4,
+      "first": 14.1,
+      "off_rating": 106.9,
+      "def_rating": 114.3,
+      "proj_wins": 82.6,
+      "rs_per_game": 5.28,
+      "ra_per_game": 4.49,
+      "payroll_ok": 24
+    },
+    {
+      "en": "LG Twins",
+      "ko": "LG",
+      "rank": 4,
+      "championship": 12.31,
+      "pennant": 27.1,
+      "playoff": 77.7,
+      "first": 10.8,
+      "off_rating": 106.9,
+      "def_rating": 109.9,
+      "proj_wins": 81.6,
+      "rs_per_game": 5.32,
+      "ra_per_game": 4.59,
+      "payroll_ok": 26
+    },
+    {
+      "en": "Hanwha Eagles",
+      "ko": "한화",
       "rank": 5,
-      "championship": 3.02,
-      "pennant": 8.8,
-      "playoff": 45.3,
-      "first": 1.8,
-      "off_rating": 93.3,
-      "def_rating": 104.2,
-      "proj_wins": 71.6,
-      "rs_per_game": 4.6,
-      "ra_per_game": 4.63
+      "championship": 6.02,
+      "pennant": 14.6,
+      "playoff": 60.8,
+      "first": 4.8,
+      "off_rating": 111.1,
+      "def_rating": 98.1,
+      "proj_wins": 78.8,
+      "rs_per_game": 5.48,
+      "ra_per_game": 4.95,
+      "payroll_ok": 26
     },
     {
       "en": "NC Dinos",
       "ko": "NC",
       "rank": 6,
-      "championship": 2.08,
-      "pennant": 6.4,
-      "playoff": 37.5,
-      "first": 1.2,
-      "off_rating": 110.9,
-      "def_rating": 86.9,
-      "proj_wins": 70.4,
-      "rs_per_game": 4.95,
-      "ra_per_game": 5.06
-    },
-    {
-      "en": "KIA Tigers",
-      "ko": "KIA",
-      "rank": 7,
-      "championship": 2.01,
-      "pennant": 6.1,
-      "playoff": 36.6,
-      "first": 1.1,
-      "off_rating": 103.4,
-      "def_rating": 92.5,
-      "proj_wins": 70.3,
-      "rs_per_game": 4.8,
-      "ra_per_game": 4.92
+      "championship": 4.92,
+      "pennant": 12.3,
+      "playoff": 56.1,
+      "first": 3.9,
+      "off_rating": 109.4,
+      "def_rating": 96.4,
+      "proj_wins": 78.2,
+      "rs_per_game": 5.44,
+      "ra_per_game": 4.97,
+      "payroll_ok": 21
     },
     {
       "en": "Doosan Bears",
       "ko": "두산",
-      "rank": 8,
-      "championship": 1.94,
-      "pennant": 5.9,
-      "playoff": 36.0,
-      "first": 1.1,
-      "off_rating": 92.1,
-      "def_rating": 101.3,
-      "proj_wins": 70.2,
-      "rs_per_game": 4.58,
-      "ra_per_game": 4.7
+      "rank": 7,
+      "championship": 2.54,
+      "pennant": 6.8,
+      "playoff": 40.2,
+      "first": 1.8,
+      "off_rating": 93.6,
+      "def_rating": 114.9,
+      "proj_wins": 76.0,
+      "rs_per_game": 4.73,
+      "ra_per_game": 4.46,
+      "payroll_ok": 22
     },
     {
       "en": "Lotte Giants",
       "ko": "롯데",
+      "rank": 8,
+      "championship": 0.0,
+      "pennant": 0.0,
+      "playoff": 0.2,
+      "first": 0.0,
+      "off_rating": 82.0,
+      "def_rating": 98.3,
+      "proj_wins": 59.1,
+      "rs_per_game": 4.13,
+      "ra_per_game": 5.08,
+      "payroll_ok": 12
+    },
+    {
+      "en": "SSG Landers",
+      "ko": "SSG",
       "rank": 9,
-      "championship": 0.9,
-      "pennant": 3.0,
-      "playoff": 23.5,
-      "first": 0.5,
-      "off_rating": 99.8,
-      "def_rating": 88.7,
-      "proj_wins": 68.0,
-      "rs_per_game": 4.73,
-      "ra_per_game": 5.01
+      "championship": 0.0,
+      "pennant": 0.0,
+      "playoff": 0.0,
+      "first": 0.0,
+      "off_rating": 102.2,
+      "def_rating": 62.2,
+      "proj_wins": 54.7,
+      "rs_per_game": 4.83,
+      "ra_per_game": 6.34,
+      "payroll_ok": 17
     },
     {
       "en": "Kiwoom Heroes",
@@ -152,96 +160,266 @@
       "rank": 10,
       "championship": 0.0,
       "pennant": 0.0,
-      "playoff": 0.2,
+      "playoff": 0.0,
       "first": 0.0,
-      "off_rating": 73.2,
-      "def_rating": 69.3,
-      "proj_wins": 54.5,
-      "rs_per_game": 4.2,
-      "ra_per_game": 5.5
+      "off_rating": 64.1,
+      "def_rating": 92.1,
+      "proj_wins": 37.6,
+      "rs_per_game": 3.15,
+      "ra_per_game": 5.66,
+      "payroll_ok": 6
     }
   ],
-  "sensitivity": [
+  "players": [
     {
-      "axis": "projection_weight",
-      "proj_w": 0.3,
-      "rating_sd": 0.0,
-      "champion_en": "LG Twins",
-      "champion_ko": "LG",
-      "champion_prob": 0.531
+      "name": "오스틴",
+      "franchise_ko": "LG",
+      "kind": "bat",
+      "war": 5.0,
+      "metric": 199.0,
+      "metric_label": "wRC+",
+      "salary_ok": 8.6
     },
     {
-      "axis": "projection_weight",
-      "proj_w": 0.45,
-      "rating_sd": 0.0,
-      "champion_en": "LG Twins",
-      "champion_ko": "LG",
-      "champion_prob": 0.5294
+      "name": "페라자",
+      "franchise_ko": "한화",
+      "kind": "bat",
+      "war": 4.0,
+      "metric": 173.0,
+      "metric_label": "wRC+",
+      "salary_ok": 6.5
     },
     {
-      "axis": "projection_weight",
-      "proj_w": 0.6,
-      "rating_sd": 0.0,
-      "champion_en": "LG Twins",
-      "champion_ko": "LG",
-      "champion_prob": 0.5272
+      "name": "최원준",
+      "franchise_ko": "KT",
+      "kind": "bat",
+      "war": 3.9,
+      "metric": 167.0,
+      "metric_label": "wRC+",
+      "salary_ok": 6.4
     },
     {
-      "axis": "projection_weight",
-      "proj_w": 0.75,
-      "rating_sd": 0.0,
-      "champion_en": "LG Twins",
-      "champion_ko": "LG",
-      "champion_prob": 0.5125
+      "name": "김도영",
+      "franchise_ko": "KIA",
+      "kind": "bat",
+      "war": 3.5,
+      "metric": 163.0,
+      "metric_label": "wRC+",
+      "salary_ok": 5.6
     },
     {
-      "axis": "projection_weight",
-      "proj_w": 0.9,
-      "rating_sd": 0.0,
-      "champion_en": "LG Twins",
-      "champion_ko": "LG",
-      "champion_prob": 0.4857
+      "name": "강백호",
+      "franchise_ko": "한화",
+      "kind": "bat",
+      "war": 3.1,
+      "metric": 157.0,
+      "metric_label": "wRC+",
+      "salary_ok": 4.9
     },
     {
-      "axis": "season_uncertainty",
-      "proj_w": 0.6,
-      "rating_sd": 0.03,
-      "champion_en": "LG Twins",
-      "champion_ko": "LG",
-      "champion_prob": 0.4973
+      "name": "박성한",
+      "franchise_ko": "SSG",
+      "kind": "bat",
+      "war": 3.0,
+      "metric": 150.0,
+      "metric_label": "wRC+",
+      "salary_ok": 4.7
     },
     {
-      "axis": "season_uncertainty",
-      "proj_w": 0.6,
-      "rating_sd": 0.05,
-      "champion_en": "LG Twins",
-      "champion_ko": "LG",
-      "champion_prob": 0.4536
+      "name": "힐리어드",
+      "franchise_ko": "KT",
+      "kind": "bat",
+      "war": 3.0,
+      "metric": 148.0,
+      "metric_label": "wRC+",
+      "salary_ok": 4.6
     },
     {
-      "axis": "season_uncertainty",
-      "proj_w": 0.6,
-      "rating_sd": 0.07,
-      "champion_en": "LG Twins",
-      "champion_ko": "LG",
-      "champion_prob": 0.4052
+      "name": "최정",
+      "franchise_ko": "SSG",
+      "kind": "bat",
+      "war": 2.8,
+      "metric": 164.0,
+      "metric_label": "wRC+",
+      "salary_ok": 4.3
+    },
+    {
+      "name": "레이예스",
+      "franchise_ko": "롯데",
+      "kind": "bat",
+      "war": 2.8,
+      "metric": 144.0,
+      "metric_label": "wRC+",
+      "salary_ok": 4.3
+    },
+    {
+      "name": "최형우",
+      "franchise_ko": "삼성",
+      "kind": "bat",
+      "war": 2.8,
+      "metric": 148.0,
+      "metric_label": "wRC+",
+      "salary_ok": 4.2
+    },
+    {
+      "name": "박민우",
+      "franchise_ko": "NC",
+      "kind": "bat",
+      "war": 2.7,
+      "metric": 148.0,
+      "metric_label": "wRC+",
+      "salary_ok": 4.1
+    },
+    {
+      "name": "김주원",
+      "franchise_ko": "NC",
+      "kind": "bat",
+      "war": 2.6,
+      "metric": 139.0,
+      "metric_label": "wRC+",
+      "salary_ok": 3.9
+    },
+    {
+      "name": "나성범",
+      "franchise_ko": "KIA",
+      "kind": "bat",
+      "war": 2.4,
+      "metric": 140.0,
+      "metric_label": "wRC+",
+      "salary_ok": 3.5
+    },
+    {
+      "name": "구자욱",
+      "franchise_ko": "삼성",
+      "kind": "bat",
+      "war": 2.3,
+      "metric": 153.0,
+      "metric_label": "wRC+",
+      "salary_ok": 3.4
+    },
+    {
+      "name": "박승규",
+      "franchise_ko": "삼성",
+      "kind": "bat",
+      "war": 2.3,
+      "metric": 154.0,
+      "metric_label": "wRC+",
+      "salary_ok": 3.3
+    },
+    {
+      "name": "디아즈",
+      "franchise_ko": "삼성",
+      "kind": "bat",
+      "war": 2.2,
+      "metric": 129.0,
+      "metric_label": "wRC+",
+      "salary_ok": 3.3
+    },
+    {
+      "name": "문현빈",
+      "franchise_ko": "한화",
+      "kind": "bat",
+      "war": 2.2,
+      "metric": 127.0,
+      "metric_label": "wRC+",
+      "salary_ok": 3.2
+    },
+    {
+      "name": "이우성",
+      "franchise_ko": "NC",
+      "kind": "bat",
+      "war": 2.0,
+      "metric": 135.0,
+      "metric_label": "wRC+",
+      "salary_ok": 2.9
+    },
+    {
+      "name": "카메론",
+      "franchise_ko": "두산",
+      "kind": "bat",
+      "war": 1.9,
+      "metric": 125.0,
+      "metric_label": "wRC+",
+      "salary_ok": 2.8
+    },
+    {
+      "name": "박건우",
+      "franchise_ko": "NC",
+      "kind": "bat",
+      "war": 1.9,
+      "metric": 128.0,
+      "metric_label": "wRC+",
+      "salary_ok": 2.8
     }
   ],
-  "seed_stability": [
-    {
-      "seed": 42,
-      "champion_en": "LG Twins",
-      "champion_prob": 0.5272
-    },
-    {
-      "seed": 1,
-      "champion_en": "LG Twins",
-      "champion_prob": 0.5267
-    },
-    {
-      "seed": 7,
-      "champion_en": "LG Twins",
-      "champion_prob": 0.5262
-    }
-  ]
+  "backtest": {
+    "seasons": [
+      2015,
+      2016,
+      2017,
+      2018,
+      2019
+    ],
+    "mean_standings_rho": 0.803,
+    "champion_hit_rate": 0.4,
+    "mean_prob_of_actual_champ": 29.1,
+    "rows": [
+      {
+        "season": 2015,
+        "standings_rho": 0.818,
+        "pick": "SS",
+        "pick_ko": "삼성",
+        "actual_champ": "OB",
+        "actual_champ_ko": "두산",
+        "pick_correct": false,
+        "champ_prob_of_actual": 0.7,
+        "actual_champ_reg_rank": 3
+      },
+      {
+        "season": 2016,
+        "standings_rho": 0.863,
+        "pick": "OB",
+        "pick_ko": "두산",
+        "actual_champ": "OB",
+        "actual_champ_ko": "두산",
+        "pick_correct": true,
+        "champ_prob_of_actual": 47.7,
+        "actual_champ_reg_rank": 1
+      },
+      {
+        "season": 2017,
+        "standings_rho": 0.906,
+        "pick": "HT",
+        "pick_ko": "KIA",
+        "actual_champ": "HT",
+        "actual_champ_ko": "KIA",
+        "pick_correct": true,
+        "champ_prob_of_actual": 41.5,
+        "actual_champ_reg_rank": 1
+      },
+      {
+        "season": 2018,
+        "standings_rho": 0.554,
+        "pick": "OB",
+        "pick_ko": "두산",
+        "actual_champ": "SK",
+        "actual_champ_ko": "SSG",
+        "pick_correct": false,
+        "champ_prob_of_actual": 42.0,
+        "actual_champ_reg_rank": 2
+      },
+      {
+        "season": 2019,
+        "standings_rho": 0.872,
+        "pick": "WO",
+        "pick_ko": "키움",
+        "actual_champ": "OB",
+        "actual_champ_ko": "두산",
+        "pick_correct": false,
+        "champ_prob_of_actual": 13.6,
+        "actual_champ_reg_rank": 3
+      }
+    ]
+  },
+  "caveat": "선수 단위 bottom-up 예측. 엔진은 2015-2019 전체 로스터로 백테스트 검증됨. 2026은 규정 선수(실데이터)+팀 합계 앵커 벤치로 구성(뎁스 근사). 독립 경기 노이즈로 1순위 확률은 다소 과대. statiz 미사용."
 }

@@ -323,6 +323,31 @@ const en = {
   "kbo.method.limits":
     "Limits: park factors neutral; the WAR proxy omits defense/baserunning; independent game noise understates season spread, so the favorite's title % runs a little high — see the sensitivity rows.",
 
+  // KBO v2 — bottom-up (player-level)
+  "kbo.strength.title": "Team strength & payroll",
+  "kbo.col.payroll": "₩억",
+  "kbo.col.player": "Player",
+  "kbo.col.war": "WAR",
+  "kbo.col.metric": "Rate",
+  "kbo.col.salary": "Est. ₩",
+  "kbo.players.title": "Player value leaderboard",
+  "kbo.players.note": "Top players by in-house WAR, with an estimated value (₩억) from the WAR→salary model.",
+  "kbo.bt.rho": "Backtest ρ",
+  "kbo.bt.rhosub": "standings, 2015–19",
+  "kbo.bt.signal": "Champion signal",
+  "kbo.bt.signalsub": "vs 10% naive",
+  "kbo.bt.title": "Backtest — 2015–2019",
+  "kbo.bt.note": "The engine, run on full real rosters, versus what actually happened. Reported as-is.",
+  "kbo.bt.col.season": "Yr",
+  "kbo.bt.col.pick": "Model pick",
+  "kbo.bt.col.actual": "Actual champ",
+  "kbo.bt.col.prob": "P(actual)",
+  "kbo.bt.summary": "Across 2015–19: mean standings ρ {rho}, exact champion {hit}%, and the eventual champion got {sig}% of the model's title odds on average (naive = 10%).",
+  "kbo.method.pipeline":
+    "Pipeline: player stats → value (wOBA/wRC+/FIP/WAR) → estimated salary → lineup + playing-time preset + manager tactics → team run scoring/prevention → winning-environment (payroll+synergy) → 144-game + Korean Series Monte-Carlo.",
+  "kbo.method.backtest":
+    "Validation: backtested on 2015–2019 full rosters (standings ρ ≈ 0.8, the eventual champion credited ~3× the naive rate) before forecasting 2026.",
+
   // Common
   "loading": "Loading…",
   "common.cancel": "Cancel",
@@ -630,6 +655,31 @@ const ko: Record<keyof typeof en, string> = {
     "모델: Marcel식 팀 투영 → 음이항분포 득점 모델 → 144경기 정규시즌과 와일드카드~한국시리즈 사다리 몬테카를로.",
   "kbo.method.limits":
     "한계: 구장 보정 중립, WAR는 수비/주루 생략, 독립 경기 노이즈가 시즌 분산을 과소평가해 1순위 확률이 다소 높습니다 — 민감도 표를 참고하세요.",
+
+  // KBO v2 — 선수 단위 bottom-up
+  "kbo.strength.title": "팀 전력 & 연봉",
+  "kbo.col.payroll": "연봉(억)",
+  "kbo.col.player": "선수",
+  "kbo.col.war": "WAR",
+  "kbo.col.metric": "지표",
+  "kbo.col.salary": "추정연봉",
+  "kbo.players.title": "선수 가치 리더보드",
+  "kbo.players.note": "자체 계산 WAR 상위 선수와 WAR→연봉 모델의 추정 가치(억원).",
+  "kbo.bt.rho": "백테스트 ρ",
+  "kbo.bt.rhosub": "순위 상관, 2015–19",
+  "kbo.bt.signal": "우승팀 신호",
+  "kbo.bt.signalsub": "무작위 10% 대비",
+  "kbo.bt.title": "백테스트 — 2015–2019",
+  "kbo.bt.note": "엔진을 실제 전체 로스터로 돌려 실제 결과와 비교. 있는 그대로 보고합니다.",
+  "kbo.bt.col.season": "연도",
+  "kbo.bt.col.pick": "모델 예측",
+  "kbo.bt.col.actual": "실제 우승",
+  "kbo.bt.col.prob": "P(실제)",
+  "kbo.bt.summary": "2015–19 평균: 순위 상관 ρ {rho}, 우승 정확 적중 {hit}%, 실제 우승팀에 평균 {sig}%의 우승확률 부여(무작위 10%).",
+  "kbo.method.pipeline":
+    "파이프라인: 선수 스탯 → 가치(wOBA/wRC+/FIP/WAR) → 추정연봉 → 라인업·출전 preset·감독 전술 → 팀 공격/수비 득점 → 승리환경(연봉+시너지) → 144경기+한국시리즈 몬테카를로.",
+  "kbo.method.backtest":
+    "검증: 2015–2019 전체 로스터로 백테스트(순위 상관 ρ≈0.8, 실제 우승팀에 무작위의 약 3배 확률 부여) 후 2026 예측.",
 
   // Common
   "loading": "불러오는 중…",
