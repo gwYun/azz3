@@ -24,11 +24,22 @@ const en = {
   // Nav
   "nav.glossary": "Glossary",
   "nav.build": "Predict",
+  "nav.forecast": "Predict",
+  "nav.sub.fee": "Transfer Fee",
   "nav.saved": "Saved",
   "nav.worldcup": "World Cup 2026",
   "nav.kbo": "KBO 2026",
-  "nav.transfers": "Transfer Market",
+  "nav.transfers": "2026 Transfers",
+  "nav.salary": "Salary",
   "nav.contact": "Contact",
+  // Reorganized top-level sections + sub-tabs
+  "nav.market": "Transfer Market",
+  "nav.match": "Match Forecast",
+  "nav.sub.soccer": "Football",
+  "nav.sub.baseball": "Baseball",
+  "nav.sub.build": "Player Builder",
+  "nav.sub.worldcup": "World Cup",
+  "nav.sub.kbo": "KBO",
   "nav.lang.label": "Language",
   "nav.lang.en": "English",
   "nav.lang.ko": "한국어",
@@ -348,6 +359,30 @@ const en = {
   "kbo.method.backtest":
     "Validation: backtested on 2015–2019 full rosters (standings ρ ≈ 0.8, the eventual champion credited ~3× the naive rate) before forecasting 2026.",
 
+  // Salary / valuation estimator (KBO ⚾ + football ⚽)
+  "salary.eyebrow": "Player valuation",
+  "salary.title": "Star player salary predictor",
+  "salary.subtitle.kbo":
+    "Estimate a KBO player's value from WAR with the same WAR→₩ curve behind the KBO leaderboard. Load a star player or move the sliders.",
+  "salary.preset.label": "Load a star player",
+  "salary.preset.placeholder": "Pick a player…",
+  "salary.war.label": "WAR (wins above replacement)",
+  "salary.war.hint": "replacement → elite",
+  "salary.age.toggle": "Factor in age",
+  "salary.age.label": "Age",
+  "salary.age.off": "Age unknown — no age tilt applied (factor ×1.00).",
+  "salary.age.peak": "FA/prime ≈ 30",
+  "salary.breakdown.title": "How it's built",
+  "salary.breakdown.floor": "League minimum",
+  "salary.breakdown.premium": "WAR premium (WAR^1.25 × ₩1.1B)",
+  "salary.breakdown.age": "Age tilt",
+  "salary.breakdown.cap": "Megadeal cap",
+  "salary.breakdown.total": "Estimated value",
+  "salary.result.kbo.label": "Estimated annual value",
+  "salary.result.kbo.ref": "{name} — {metric}. Value estimate, not a reported salary.",
+  "salary.result.kbo.caveat":
+    "A transparent value estimate, not an actual contract figure. KBO salaries aren't published as open data, so this maps WAR to won via a league-anchored curve (min ₩30M, elite cap ₩2.5B).",
+
   // Common
   "loading": "Loading…",
   "common.cancel": "Cancel",
@@ -357,11 +392,22 @@ const ko: Record<keyof typeof en, string> = {
   // Nav
   "nav.glossary": "용어집",
   "nav.build": "예측",
+  "nav.forecast": "예측",
+  "nav.sub.fee": "이적료 예측",
   "nav.saved": "저장 목록",
   "nav.worldcup": "2026 월드컵",
   "nav.kbo": "2026 KBO",
-  "nav.transfers": "이적시장 예측",
+  "nav.transfers": "2026 축구 이적시장",
+  "nav.salary": "연봉 예측",
   "nav.contact": "문의",
+  // 재구성된 상위 섹션 + 하위 탭
+  "nav.market": "이적시장 예측",
+  "nav.match": "승부 예측",
+  "nav.sub.soccer": "축구",
+  "nav.sub.baseball": "야구",
+  "nav.sub.build": "가상 선수빌드",
+  "nav.sub.worldcup": "월드컵",
+  "nav.sub.kbo": "KBO",
   "nav.lang.label": "언어",
   "nav.lang.en": "English",
   "nav.lang.ko": "한국어",
@@ -680,6 +726,30 @@ const ko: Record<keyof typeof en, string> = {
     "파이프라인: 선수 스탯 → 가치(wOBA/wRC+/FIP/WAR) → 추정연봉 → 라인업·출전 preset·감독 전술 → 팀 공격/수비 득점 → 승리환경(연봉+시너지) → 144경기+한국시리즈 몬테카를로.",
   "kbo.method.backtest":
     "검증: 2015–2019 전체 로스터로 백테스트(순위 상관 ρ≈0.8, 실제 우승팀에 무작위의 약 3배 확률 부여) 후 2026 예측.",
+
+  // 선수 가치/연봉 예측기 (KBO ⚾ + 축구 ⚽)
+  "salary.eyebrow": "선수 가치 예측",
+  "salary.title": "대표 선수 연봉 예측",
+  "salary.subtitle.kbo":
+    "KBO 리더보드에 쓰인 WAR→₩ 곡선 그대로, 선수의 WAR로 예상 연봉을 계산합니다. 대표 선수를 불러오거나 슬라이더를 움직여 보십시오.",
+  "salary.preset.label": "대표 선수 불러오기",
+  "salary.preset.placeholder": "선수를 선택하십시오…",
+  "salary.war.label": "WAR (대체 대비 승리 기여)",
+  "salary.war.hint": "대체 → 리그 정상",
+  "salary.age.toggle": "나이 반영",
+  "salary.age.label": "나이",
+  "salary.age.off": "나이 미지정 — 나이 보정 없음 (계수 ×1.00).",
+  "salary.age.peak": "FA/전성기 ≈ 30세",
+  "salary.breakdown.title": "산출 방식",
+  "salary.breakdown.floor": "리그 최저",
+  "salary.breakdown.premium": "WAR 프리미엄 (WAR^1.25 × 11억)",
+  "salary.breakdown.age": "나이 보정",
+  "salary.breakdown.cap": "초대형 계약 상한",
+  "salary.breakdown.total": "예상 가치",
+  "salary.result.kbo.label": "예상 연봉 가치",
+  "salary.result.kbo.ref": "{name} — {metric}. 실제 연봉이 아닌 가치 추정치입니다.",
+  "salary.result.kbo.caveat":
+    "실제 계약 금액이 아니라 투명한 가치 추정치입니다. KBO 개별 연봉은 공개 데이터가 아니므로, WAR을 리그 기준점에 맞춘 곡선(최저 3천만원, 상한 25억)으로 원화로 환산합니다.",
 
   // Common
   "loading": "불러오는 중…",

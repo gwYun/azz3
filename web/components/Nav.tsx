@@ -6,28 +6,74 @@ import { useT } from "@/lib/i18n-context";
 import { LangToggle } from "./LangToggle";
 import { Logo } from "./Logo";
 
+type NavItem = { href: string; label: string; activePaths?: string[] };
+
+// Two parent sections, each with forecasts in a secondary sub-tab row (하단 탭)
+// shown only while inside that section:
+//   이적시장 예측 (Transfer Market) → 축구 · 야구 · 가상 선수빌드
+//   승부 예측     (Match Forecast)  → 월드컵 · KBO
+const MARKET_PATHS = ["/transfers", "/salary", "/build"];
+const MATCH_PATHS = ["/worldcup", "/kbo"];
+
 export function Nav() {
   const t = useT();
   const path = usePathname();
-  const items: Array<{ href: string; label: string }> = [
+
+  const matches = (href: string) => path === href || path.startsWith(href + "/");
+  const inMarket = MARKET_PATHS.some(matches);
+  const inMatch = MATCH_PATHS.some(matches);
+
+  const items: NavItem[] = [
     { href: "/glossary", label: t("nav.glossary") },
-    { href: "/build", label: t("nav.build") },
-    { href: "/transfers", label: t("nav.transfers") },
-    { href: "/worldcup", label: t("nav.worldcup") },
-    { href: "/kbo", label: t("nav.kbo") },
+    { href: "/transfers", label: t("nav.market"), activePaths: MARKET_PATHS },
+    { href: "/worldcup", label: t("nav.match"), activePaths: MATCH_PATHS },
     { href: "/saved", label: t("nav.saved") },
     { href: "/contact", label: t("nav.contact") },
   ];
 
-  const renderItem = (item: { href: string; label: string }) => {
-    const active = path === item.href || (item.href !== "/" && path.startsWith(item.href));
+  const marketSubItems: NavItem[] = [
+    { href: "/transfers", label: t("nav.sub.soccer") },
+    { href: "/salary", label: t("nav.sub.baseball") },
+    { href: "/build", label: t("nav.sub.build") },
+  ];
+
+  const matchSubItems: NavItem[] = [
+    { href: "/worldcup", label: t("nav.sub.worldcup") },
+    { href: "/kbo", label: t("nav.sub.kbo") },
+  ];
+
+  const isActive = (item: NavItem) =>
+    item.activePaths ? item.activePaths.some(matches) : matches(item.href);
+
+  const renderItem = (item: NavItem) => {
+    const active = isActive(item);
+    return (
+      <Link
+        key={item.href + item.label}
+        href={item.href}
+        className={
+          "relative whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium transition " +
+          (active ? "text-white" : "text-fg-muted hover:bg-white/5 hover:text-fg")
+        }
+        aria-current={active ? "page" : undefined}
+      >
+        {item.label}
+        {active && (
+          <span className="absolute inset-x-3 -bottom-px h-0.5 rounded-full bg-accent" />
+        )}
+      </Link>
+    );
+  };
+
+  const renderSubItem = (item: NavItem) => {
+    const active = matches(item.href);
     return (
       <Link
         key={item.href}
         href={item.href}
         className={
-          "relative whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium transition " +
-          (active ? "text-white" : "text-fg-muted hover:bg-white/5 hover:text-fg")
+          "relative whitespace-nowrap rounded-md px-3 py-1 text-[13px] font-medium transition " +
+          (active ? "text-accent" : "text-fg-dim hover:bg-white/5 hover:text-fg")
         }
         aria-current={active ? "page" : undefined}
       >
@@ -45,9 +91,7 @@ export function Nav() {
         <Link href="/" aria-label="ValueTrack" className="shrink-0">
           <Logo />
         </Link>
-        <nav className="hidden items-center gap-1 sm:flex">
-          {items.map(renderItem)}
-        </nav>
+        <nav className="hidden items-center gap-1 sm:flex">{items.map(renderItem)}</nav>
         <LangToggle />
       </div>
       {/* Mobile: horizontally scrollable tab row (desktop uses the inline nav above) */}
@@ -57,6 +101,20 @@ export function Nav() {
       >
         {items.map(renderItem)}
       </nav>
+      {/* Section sub-tabs (하단 탭) — shown only while inside that section */}
+      {(inMarket || inMatch) && (
+        <div className="border-t border-line/70 bg-ink-900/40">
+          <nav
+            aria-label={inMarket ? "transfer-market" : "match-forecast"}
+            className="mx-auto flex max-w-6xl items-center gap-1 overflow-x-auto px-3 py-2 sm:px-6 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          >
+            <span className="mr-1.5 hidden shrink-0 text-[11px] font-semibold uppercase tracking-wide text-fg-dim sm:inline">
+              {t(inMarket ? "nav.market" : "nav.match")}
+            </span>
+            {(inMarket ? marketSubItems : matchSubItems).map(renderSubItem)}
+          </nav>
+        </div>
+      )}
     </header>
   );
 }
