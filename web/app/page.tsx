@@ -45,7 +45,7 @@ export default function LandingPage() {
           <p className="mt-6 text-xs font-semibold uppercase tracking-[0.2em] text-cyan">
             {t("landing.eyebrow")}
           </p>
-          <h1 className="mt-3 font-display text-4xl font-bold uppercase leading-[1.05] tracking-tight text-fg sm:text-5xl">
+          <h1 className="mt-3 font-display text-4xl font-bold leading-[1.1] tracking-tight text-fg sm:text-5xl">
             {t("landing.title")}
           </h1>
           <p className="mt-5 max-w-xl text-base leading-relaxed text-fg-muted">

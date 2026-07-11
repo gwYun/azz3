@@ -50,7 +50,7 @@ const en = {
   "landing.badge.baseball": "KBO Baseball",
   "landing.badge.esports": "Esports",
   "landing.badge.poker": "Pro Poker",
-  "landing.title": "THE ACCURATE PULSE OF CROSS-INDUSTRY COMPETITIVE VALUE",
+  "landing.title": "True value is born from data, and proven by prediction.",
   "landing.subtitle":
     "Achieving disruptive innovation in cross-industry sports intelligence, from AI-driven transfer value forecasting to match prediction.",
   "landing.cta.primary": "Forecast a transfer fee",
@@ -418,7 +418,7 @@ const ko: Record<keyof typeof en, string> = {
   "landing.badge.baseball": "KBO 야구",
   "landing.badge.esports": "e스포츠",
   "landing.badge.poker": "프로 포커",
-  "landing.title": "종목을 넘어, 경쟁 가치를 가장 정확하게",
+  "landing.title": "진정한 가치는 데이터로부터 탄생하고, 예측을 통해 증명됩니다.",
   "landing.subtitle":
     "AI 기반 이적시장의 선수 가치 예측부터 경기 결과까지, 크로스 인더스트리 스포츠 인텔리전스 고도화의 와해적 혁신을 이룩합니다.",
   "landing.cta.primary": "이적료 예측하기",
