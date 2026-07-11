@@ -9,6 +9,7 @@ import { deleteBuild, isStale, listBuilds } from "@/lib/storage";
 import type { CompareResponse, ModelInfo, SavedBuild } from "@/lib/types";
 import { dateLabel, euro } from "@/lib/format";
 import { CompareView } from "@/components/CompareView";
+import { BuildTabs } from "@/components/BuildTabs";
 
 export default function SavedPage() {
   const t = useT();
@@ -92,10 +93,8 @@ export default function SavedPage() {
 
   return (
     <div>
-      <div className="flex items-baseline justify-between gap-4">
-        <h1 className="font-display text-3xl font-semibold tracking-tight text-fg">
-          {t("saved.title")}
-        </h1>
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <BuildTabs />
         {builds.length > 0 ? (
           <button
             type="button"

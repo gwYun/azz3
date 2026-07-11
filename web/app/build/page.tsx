@@ -22,6 +22,7 @@ import { StatSlider } from "@/components/StatSlider";
 import { FeeDisplay } from "@/components/FeeDisplay";
 import { CounterfactualList } from "@/components/CounterfactualList";
 import { SaveBuildButton } from "@/components/SaveBuildButton";
+import { BuildTabs } from "@/components/BuildTabs";
 
 const NUISANCE: ReadonlySet<string> = new Set([
   "MP_Playing", "Min_Playing", "CrdR", "Ast", "PK",
@@ -256,13 +257,21 @@ export default function BuildPage() {
   // Render gates
   if (loadError) {
     return (
-      <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800">
-        {t("build.error.load", { error: loadError })}
+      <div className="space-y-8">
+        <BuildTabs />
+        <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+          {t("build.error.load", { error: loadError })}
+        </div>
       </div>
     );
   }
   if (!info) {
-    return <p className="text-sm text-fg-dim">{t("loading")}</p>;
+    return (
+      <div className="space-y-8">
+        <BuildTabs />
+        <p className="text-sm text-fg-dim">{t("loading")}</p>
+      </div>
+    );
   }
 
   // Compose visible features.
@@ -271,7 +280,9 @@ export default function BuildPage() {
     : [];
 
   return (
-    <div className="grid gap-10 md:grid-cols-[1fr_360px]">
+    <div className="space-y-8">
+      <BuildTabs />
+      <div className="grid gap-10 md:grid-cols-[1fr_360px]">
       {/* Left column: hero fee + controls + sliders */}
       <div className="space-y-8">
         <div>
@@ -417,6 +428,7 @@ export default function BuildPage() {
           eurKrwRate={eurKrwRate}
         />
       </aside>
+      </div>
     </div>
   );
 }

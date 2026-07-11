@@ -12,7 +12,9 @@ type NavItem = { href: string; label: string; activePaths?: string[] };
 // shown only while inside that section:
 //   이적시장 예측 (Transfer Market) → 축구 · 야구 · 가상 선수빌드
 //   승부 예측     (Match Forecast)  → 월드컵 · KBO
-const MARKET_PATHS = ["/transfers", "/salary", "/build"];
+// /saved lives under 가상 선수빌드 (/build) — it shows the market sub-tabs with
+// 가상 선수빌드 active, and is reached via the in-page toggle, not a top-level tab.
+const MARKET_PATHS = ["/transfers", "/salary", "/build", "/saved"];
 const MATCH_PATHS = ["/worldcup", "/kbo"];
 
 export function Nav() {
@@ -27,14 +29,13 @@ export function Nav() {
     { href: "/glossary", label: t("nav.glossary") },
     { href: "/transfers", label: t("nav.market"), activePaths: MARKET_PATHS },
     { href: "/worldcup", label: t("nav.match"), activePaths: MATCH_PATHS },
-    { href: "/saved", label: t("nav.saved") },
     { href: "/contact", label: t("nav.contact") },
   ];
 
   const marketSubItems: NavItem[] = [
     { href: "/transfers", label: t("nav.sub.soccer") },
     { href: "/salary", label: t("nav.sub.baseball") },
-    { href: "/build", label: t("nav.sub.build") },
+    { href: "/build", label: t("nav.sub.build"), activePaths: ["/build", "/saved"] },
   ];
 
   const matchSubItems: NavItem[] = [
@@ -66,7 +67,7 @@ export function Nav() {
   };
 
   const renderSubItem = (item: NavItem) => {
-    const active = matches(item.href);
+    const active = item.activePaths ? item.activePaths.some(matches) : matches(item.href);
     return (
       <Link
         key={item.href}

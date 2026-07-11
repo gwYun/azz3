@@ -121,8 +121,11 @@ function Radar({ t }: { t: ReturnType<typeof useT> }) {
   };
   const ringPoly = (r: number) =>
     axes.map((_, i) => pt(i, r).join(",")).join(" ");
+  // Two overlaid prediction profiles — cyan + orange (2중 육각형 = 두 가지 예측).
   const values = [0.92, 0.74, 0.81, 0.97, 0.68, 0.85];
+  const values2 = [0.66, 0.95, 0.58, 0.7, 0.93, 0.62];
   const dataPoly = values.map((v, i) => pt(i, R * v).join(",")).join(" ");
+  const dataPoly2 = values2.map((v, i) => pt(i, R * v).join(",")).join(" ");
 
   return (
     <div className="relative mx-auto aspect-square w-full max-w-md">
@@ -153,16 +156,29 @@ function Radar({ t }: { t: ReturnType<typeof useT> }) {
             />
           );
         })}
-        {/* data */}
+        {/* Prediction 1 — cyan profile */}
         <polygon
           points={dataPoly}
-          fill="rgba(54,197,208,0.18)"
+          fill="rgba(54,197,208,0.16)"
           stroke="#36C5D0"
           strokeWidth={2}
+          strokeLinejoin="round"
+        />
+        {/* Prediction 2 — orange profile overlaid (주황색 2중 육각형 = 두 가지 예측) */}
+        <polygon
+          points={dataPoly2}
+          fill="rgba(232,131,58,0.16)"
+          stroke="#E8833A"
+          strokeWidth={2}
+          strokeLinejoin="round"
         />
         {values.map((v, i) => {
           const [x, y] = pt(i, R * v);
-          return <circle key={i} cx={x} cy={y} r={3.5} fill="#E8833A" />;
+          return <circle key={`a${i}`} cx={x} cy={y} r={3.5} fill="#36C5D0" />;
+        })}
+        {values2.map((v, i) => {
+          const [x, y] = pt(i, R * v);
+          return <circle key={`b${i}`} cx={x} cy={y} r={3.5} fill="#E8833A" />;
         })}
         {/* axis labels */}
         {axes.map((ax, i) => {

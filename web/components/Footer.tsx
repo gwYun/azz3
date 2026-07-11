@@ -3,7 +3,7 @@
 import { Fragment, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useT } from "@/lib/i18n-context";
+import { useI18n } from "@/lib/i18n-context";
 
 function FootLink({ href, children }: { href: string; children: ReactNode }) {
   return (
@@ -35,7 +35,6 @@ const koSegments: ReactNode[] = [
   "본점: 대전광역시 유성구 과학나래2길 1, 201-2호 (구룡동)",
   "지점(서울): 서울특별시 영등포구 63로 50, 6층(여의도동, 63한화생명빌딩)",
   "사업자등록번호: 842-85-02262",
-  "전문소매업 면허 번호 : 318-5-23066",
   "통신판매업 신고번호 : 제 2022-대전유성-0485호",
   "대표 박상욱",
   <Fragment key="ko-email">문의: <FootLink href="mailto:admin@blinkers.company">admin@blinkers.company</FootLink></Fragment>,
@@ -47,7 +46,6 @@ const enSegments: ReactNode[] = [
   "Head Office: 1 Gwahaknarae 2-gil, Yuseong-gu, Daejeon, Suite 201-2 (Guryong-dong)",
   "Branch (Seoul): 6th Floor, 63 Hanwha Life Insurance Building, 50, 63-ro, Yeongdeungpo-gu, Seoul (Yeouido-dong)",
   "Business Registration Number: 842-85-02262",
-  "Specialty Retail Business License Number: 318-5-23066",
   "Mail-order Business Registration Number: 2022-Daejeon Yuseong-0485",
   "Representative: Sangwook Park",
   <Fragment key="en-email">Inquiries: <FootLink href="mailto:admin@blinkers.company">admin@blinkers.company</FootLink></Fragment>,
@@ -55,7 +53,7 @@ const enSegments: ReactNode[] = [
 ];
 
 export function Footer() {
-  const t = useT();
+  const { t, locale } = useI18n();
   const pathname = usePathname();
   // The /contact page is itself the partnership CTA's destination, so hide the
   // CTA there to avoid a circular "Contact Us" link back to the same page.
@@ -104,8 +102,7 @@ export function Footer() {
           Copyright © 2024 Blinkers, Inc. All rights reserved.
         </p>
         <div className="mt-5 space-y-3">
-          <LegalLine segments={koSegments} />
-          <LegalLine segments={enSegments} />
+          <LegalLine segments={locale === "ko" ? koSegments : enSegments} />
         </div>
       </div>
     </footer>
