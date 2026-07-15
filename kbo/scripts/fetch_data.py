@@ -44,6 +44,16 @@ def main():
         print(f"{s:>6} {len(tb):>5} {g:>4} {rpg:>5.2f} {hr:>5} {bb_rate:>5.3f} "
               f"{era:>5.2f} {len(pb):>5} {len(pp):>5}")
 
+    # Full per-team rosters (regulars + bench) for the current season — the matchup
+    # predictor needs real 9-man lineups + full staffs, which the qualified-only
+    # leaderboards can't provide (iterates ddlTeam over all 10 teams).
+    cs = config.CURRENT_SEASON
+    if cs in args.seasons:
+        fb = data.player_batting_full(cs, use_cache=use_cache, client=client)
+        fp = data.player_pitching_full(cs, use_cache=use_cache, client=client)
+        print(f"\nfull rosters {cs}: {len(fb)} batters / {len(fp)} pitchers "
+              f"across {fb['franchise'].nunique()} teams")
+
     # Game log (for the simulator's run-variance + home-field calibration).
     games = data.load_game_results()
     by_season = games.groupby("season").size()

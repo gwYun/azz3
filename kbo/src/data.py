@@ -92,6 +92,9 @@ _TEAM_PIT2 = "/Record/Team/Pitcher/Basic2.aspx"
 _HIDDEN_RE = re.compile(r'<input[^>]*type="hidden"[^>]*>', re.I)
 _NAME_RE = re.compile(r'name="([^"]*)"')
 _VALUE_RE = re.compile(r'value="([^"]*)"')
+# The ranking grid's numbered pager buttons (__doPostBack targets). Full rosters
+# (with a team filter) can span 2 pages; qualified leaderboards fit in 1.
+_PAGE_NO_RE = re.compile(r'ucPager\$btnNo(\d+)')
 
 
 class KBORecordClient:
@@ -165,6 +168,29 @@ class KBORecordClient:
                           **{_SEASON_FIELD: str(season), _TEAM_FIELD: ""})
         return self._read_table(html).drop_duplicates(["선수명", "팀명"])
 
+    def fetch_player_table_by_team(self, path: str, season: int, team: str) -> pd.DataFrame:
+        """A season's FULL roster for one team (regulars + bench), across pager pages.
+
+        The ranking grid, when filtered to a single team via ddlTeam, drops the
+        qualified-only cut and lists every player who has appeared — so iterating all
+        10 teams yields full rosters (bench + depth), which the qualified-only
+        `fetch_player_table` cannot. Paging is a real ASP.NET __doPostBack on the
+        ucPager buttons, so the same viewstate form-POST reaches page 2+.
+        """
+        url = _RECORD_BASE + path
+        html0 = self._get(url)
+        # Change the team dropdown (also carries the season) -> that team's page 1.
+        html1 = self._post(url, html0, _TEAM_FIELD,
+                           **{_SEASON_FIELD: str(season), _TEAM_FIELD: team})
+        tables = [self._read_table(html1)]
+        for n in sorted({int(m) for m in _PAGE_NO_RE.findall(html1)}):
+            if n <= 1:
+                continue
+            htmln = self._post(url, html1, _PFX + f"ucPager$btnNo{n}",
+                               **{_SEASON_FIELD: str(season), _TEAM_FIELD: team})
+            tables.append(self._read_table(htmln))
+        return pd.concat(tables, ignore_index=True).drop_duplicates(["선수명", "팀명"])
+
 
 # --------------------------------------------------------------------------- #
 # Canonical column maps + parsing helpers.                                     #
@@ -219,6 +245,7 @@ def _finalize(df: pd.DataFrame, rename: dict, num_cols: list[str],
     df["season"] = season
     if is_pitcher:
         df["IP"] = df["IP_raw"].map(_parse_ip)
+        df["IP_raw"] = df["IP_raw"].astype(str)   # 0-IP bench arms come back int; keep parquet-safe
     for c in num_cols:
         if c in df.columns:
             df[c] = pd.to_numeric(df[c], errors="coerce")
@@ -286,6 +313,42 @@ def player_pitching(season: int, use_cache: bool = True, client: KBORecordClient
     df = _finalize(df, _PIT_RENAME, _PIT_NUM, season, is_pitcher=True)
     df.to_parquet(cache, index=False)
     return df
+
+
+def _player_table_full(hit1: str, hit2: str, rename: dict, num_cols: list[str],
+                       season: int, is_pitcher: bool, cache_name: str,
+                       use_cache: bool, client: KBORecordClient | None) -> pd.DataFrame:
+    """Full per-team rosters (regulars + bench): iterate ddlTeam over all 10 teams."""
+    cache = _cache(cache_name)
+    if use_cache and cache.exists():
+        return pd.read_parquet(cache)
+    c = client or _client()
+    frames = []
+    for code in TEAM_CODES:
+        t1 = c.fetch_player_table_by_team(hit1, season, code)
+        if t1.empty:
+            continue
+        t2 = c.fetch_player_table_by_team(hit2, season, code)
+        frames.append(_merge_tabs(t1, t2))
+    df = pd.concat(frames, ignore_index=True)
+    df = _finalize(df, rename, num_cols, season, is_pitcher=is_pitcher)
+    df = df.drop_duplicates(["name", "franchise"]).reset_index(drop=True)
+    df.to_parquet(cache, index=False)
+    return df
+
+
+def player_batting_full(season: int, use_cache: bool = True,
+                        client: KBORecordClient | None = None) -> pd.DataFrame:
+    """Every batter on every roster for a season (regulars + bench), canonical columns."""
+    return _player_table_full(_HITTER1, _HITTER2, _BAT_RENAME, _BAT_NUM, season,
+                              False, f"player_batting_full_{season}.parquet", use_cache, client)
+
+
+def player_pitching_full(season: int, use_cache: bool = True,
+                         client: KBORecordClient | None = None) -> pd.DataFrame:
+    """Every pitcher on every staff for a season (rotation + bullpen + depth)."""
+    return _player_table_full(_PITCHER1, _PITCHER2, _PIT_RENAME, _PIT_NUM, season,
+                              True, f"player_pitching_full_{season}.parquet", use_cache, client)
 
 
 # --------------------------------------------------------------------------- #

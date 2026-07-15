@@ -15,7 +15,7 @@ type NavItem = { href: string; label: string; activePaths?: string[] };
 // /saved lives under 가상 선수빌드 (/build) — it shows the market sub-tabs with
 // 가상 선수빌드 active, and is reached via the in-page toggle, not a top-level tab.
 const MARKET_PATHS = ["/transfers", "/salary", "/build", "/saved"];
-const MATCH_PATHS = ["/worldcup", "/kbo"];
+const MATCH_PATHS = ["/worldcup", "/kbo", "/matchup"];
 
 export function Nav() {
   const t = useT();
@@ -41,6 +41,7 @@ export function Nav() {
   const matchSubItems: NavItem[] = [
     { href: "/worldcup", label: t("nav.sub.worldcup") },
     { href: "/kbo", label: t("nav.sub.kbo") },
+    { href: "/matchup", label: t("nav.sub.matchup") },
   ];
 
   const isActive = (item: NavItem) =>

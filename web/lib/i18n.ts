@@ -40,6 +40,7 @@ const en = {
   "nav.sub.build": "Player Builder",
   "nav.sub.worldcup": "'26 World Cup",
   "nav.sub.kbo": "KBO",
+  "nav.sub.matchup": "KBO Matchup",
   "nav.lang.label": "Language",
   "nav.lang.en": "English",
   "nav.lang.ko": "한국어",
@@ -383,6 +384,46 @@ const en = {
   "salary.result.kbo.caveat":
     "A transparent value estimate, not an actual contract figure. KBO salaries aren't published as open data, so this maps WAR to won via a league-anchored curve (min ₩30M, elite cap ₩2.5B).",
 
+  // KBO matchup prediction (야구 승부 예측)
+  "matchup.eyebrow": "KBO Matchup Prediction",
+  "matchup.title": "{season} KBO Head-to-Head",
+  "matchup.subtitle":
+    "Pick two teams. Each side's projected lineup is built from real full rosters, then the game is simulated {sims} times with an order-sensitive base-out model.",
+  "matchup.home": "Home",
+  "matchup.away": "Away",
+  "matchup.swap": "Swap",
+  "matchup.winprob": "Win probability",
+  "matchup.expscore": "Expected score",
+  "matchup.mu": "Exp. runs",
+  "matchup.series": "Series game",
+  "matchup.starter": "Starter",
+  "matchup.bullpen": "Bullpen",
+  "matchup.toggle.optimal": "Win-max lineup",
+  "matchup.toggle.leverage": "Late bullpen leverage",
+  "matchup.sims": "{sims} simulations",
+  "matchup.simconfirm": "1,000,000-sim Monte Carlo confirms {pct}",
+  "matchup.win": "{team} to win",
+  "matchup.lineup.projected": "Projected lineup",
+  "matchup.lineup.optimal": "Win-max lineup",
+  "matchup.lineup.gain": "+{gain} runs vs projected",
+  "matchup.lineup.note":
+    "Batting order is modeled — KBO lineup cards live behind a blocked API. The win-max order is found by hill-climbing expected runs against tonight's opponent.",
+  "matchup.col.order": "#",
+  "matchup.col.player": "Batter",
+  "matchup.col.wrc": "wRC+",
+  "matchup.col.ob": "OB%",
+  "matchup.rotation.title": "Projected rotation",
+  "matchup.rotation.note": "Rotation is modeled and advanced by series game so a starter isn't reused back-to-back.",
+  "matchup.dist.title": "Run distribution",
+  "matchup.calc": "Simulating…",
+  "matchup.method.title": "Method",
+  "matchup.method.data":
+    "Data: every player on all 10 rosters (regulars + bench) from the KBO /Record pages, current season. Rates and value computed in-house; statiz never scraped.",
+  "matchup.method.model":
+    "Model: log5 batter×pitcher outcomes → a base-out Markov chain over the 9-batter order (starter early, bullpen late, home +10%) → Negative-Binomial score convolution, confirmed by a 1,000,000-draw Monte Carlo in your browser.",
+  "matchup.method.limits":
+    "Limits: batting order and rotation are modeled (real lineups / probable starters are behind the robots-blocked /ws/ API); no positions or park factors; order effects are real but modest.",
+
   // Common
   "loading": "Loading…",
   "common.cancel": "Cancel",
@@ -408,6 +449,7 @@ const ko: Record<keyof typeof en, string> = {
   "nav.sub.build": "가상 선수빌드",
   "nav.sub.worldcup": "26월드컵(WWW)",
   "nav.sub.kbo": "KBO",
+  "nav.sub.matchup": "KBO 승부예측",
   "nav.lang.label": "언어",
   "nav.lang.en": "English",
   "nav.lang.ko": "한국어",
@@ -418,7 +460,8 @@ const ko: Record<keyof typeof en, string> = {
   "landing.badge.baseball": "KBO 야구",
   "landing.badge.esports": "e스포츠",
   "landing.badge.poker": "프로 포커",
-  "landing.title": "진정한 가치는 데이터로부터 탄생하고, 예측을 통해 증명됩니다.",
+  // Brand tagline: kept in English across locales (shown as-is on the KO page too).
+  "landing.title": "True value is born from data, and proven by prediction.",
   "landing.subtitle":
     "AI 기반 이적시장의 선수 가치 예측부터 경기 결과까지, 크로스 인더스트리 스포츠 인텔리전스 고도화의 와해적 혁신을 이룩합니다.",
   "landing.cta.primary": "이적료 예측하기",
@@ -750,6 +793,46 @@ const ko: Record<keyof typeof en, string> = {
   "salary.result.kbo.ref": "{name} — {metric}. 실제 연봉이 아닌 가치 추정치입니다.",
   "salary.result.kbo.caveat":
     "실제 계약 금액이 아니라 투명한 가치 추정치입니다. KBO 개별 연봉은 공개 데이터가 아니므로, WAR을 리그 기준점에 맞춘 곡선(최저 3천만원, 상한 25억)으로 원화로 환산합니다.",
+
+  // KBO matchup prediction (야구 승부 예측)
+  "matchup.eyebrow": "KBO 승부 예측",
+  "matchup.title": "{season} KBO 맞대결 예측",
+  "matchup.subtitle":
+    "두 팀을 고르면, 전 구단 실제 로스터로 예상 라인업을 짜고 타순까지 반영한 베이스-아웃 모델로 경기를 {sims}회 시뮬레이션합니다.",
+  "matchup.home": "홈",
+  "matchup.away": "원정",
+  "matchup.swap": "홈/원정 교체",
+  "matchup.winprob": "승리 확률",
+  "matchup.expscore": "예상 스코어",
+  "matchup.mu": "기대 득점",
+  "matchup.series": "시리즈 경기",
+  "matchup.starter": "선발",
+  "matchup.bullpen": "불펜",
+  "matchup.toggle.optimal": "승리확률 최대 라인업",
+  "matchup.toggle.leverage": "후반 불펜 레버리지",
+  "matchup.sims": "{sims}회 시뮬레이션",
+  "matchup.simconfirm": "100만 회 몬테카를로로 {pct} 확인",
+  "matchup.win": "{team} 승리",
+  "matchup.lineup.projected": "예상 라인업",
+  "matchup.lineup.optimal": "승리확률 최대 라인업",
+  "matchup.lineup.gain": "예상 대비 +{gain}점",
+  "matchup.lineup.note":
+    "타순은 모델링입니다 — 실제 라인업지는 차단된 API에만 있습니다. 최대 라인업은 오늘 상대에 대한 기대 득점을 최적화해 찾습니다.",
+  "matchup.col.order": "타순",
+  "matchup.col.player": "타자",
+  "matchup.col.wrc": "wRC+",
+  "matchup.col.ob": "출루율",
+  "matchup.rotation.title": "예상 로테이션",
+  "matchup.rotation.note": "로테이션은 모델링이며 시리즈 경기에 따라 선발이 연속으로 겹치지 않게 진행됩니다.",
+  "matchup.dist.title": "득점 분포",
+  "matchup.calc": "시뮬레이션 중…",
+  "matchup.method.title": "방법론",
+  "matchup.method.data":
+    "데이터: KBO /Record 페이지의 전 구단 10팀 전체 선수(주전+벤치), 현재 시즌. 지표·가치는 자체 계산. statiz 미사용.",
+  "matchup.method.model":
+    "모델: log5 타자×투수 결과 → 9인 타순 베이스-아웃 마르코프(초반 선발·후반 불펜·홈 +10%) → 음이항 스코어 합성, 브라우저 내 100만 회 몬테카를로로 확인.",
+  "matchup.method.limits":
+    "한계: 타순·로테이션은 모델링(실제 라인업/예고선발은 robots 차단 /ws/ API에만 존재). 포지션·파크팩터 미반영. 타순 효과는 실재하나 크지 않음.",
 
   // Common
   "loading": "불러오는 중…",

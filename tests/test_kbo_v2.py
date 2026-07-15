@@ -5,11 +5,16 @@ salary curve, the playing-time allocation, and the positional WAR adjustment.
 """
 from __future__ import annotations
 
+import json
+
 import numpy as np
 import pandas as pd
 
-from kbo.src import boxscore_data as bd, salary_model as sal, roster
-from kbo.src import player_value as pv
+from kbo.src import boxscore_data as bd, salary_model as sal, roster, config
+from kbo.src import player_value as pv, matchup_export as mx
+
+_LG = {"bb": 0.090, "b1": 0.150, "b2": 0.045, "b3": 0.005, "hr": 0.028, "out": 0.682}
+_LG_FULL = {"event": _LG, "hit_split_nonhr": {"b1": 0.75, "b2": 0.22, "b3": 0.03}}
 
 
 def _synthetic_batter_games():
@@ -70,3 +75,66 @@ def test_positional_adjustment_in_war():
     out = pv.batter_value(bat, c)
     war = dict(zip(out["name"], out["WAR"]))
     assert war["catcher"] > war["dh"]
+
+
+# --------------------------------------------------------------------------- #
+# Matchup predictor (야구 승부 예측).                                          #
+# --------------------------------------------------------------------------- #
+def test_batter_rates_form_multinomial():
+    row = pd.Series({"PA": 400, "BB": 50, "HBP": 5, "B1": 70, "B2": 25, "B3": 2, "HR": 18})
+    r = mx.batter_rates(row, _LG_FULL)
+    assert abs(sum(r.values()) - 1.0) < 1e-5          # rates rounded to 6dp for JSON
+    assert all(0.0 <= v <= 1.0 for v in r.values())
+    row0 = pd.Series({"PA": 0, "BB": 0, "HBP": 0, "B1": 0, "B2": 0, "B3": 0, "HR": 0})
+    assert mx.batter_rates(row0, _LG_FULL) is None
+
+
+def test_pitcher_rates_bf_fallback_and_valid():
+    # No TBF -> BF estimated as 3*IP + H + BB + HBP; rates stay a valid simplex.
+    row = pd.Series({"IP": 100.0, "H": 90, "HR": 10, "BB": 30, "HBP": 4, "TBF": float("nan")})
+    r = mx.pitcher_rates(row, _LG_FULL)
+    assert abs(sum(r.values()) - 1.0) < 1e-5          # rates rounded to 6dp for JSON
+    assert all(v >= 0.0 for v in r.values())
+
+
+def test_matchup_log5_suppresses_vs_tougher_pitcher():
+    """A HR-suppressing pitcher lowers the batter's realized HR share (log5 direction)."""
+    bvec = [_LG[e] for e in mx.EVENTS]
+    lgv = list(bvec)
+    neutral = list(bvec)
+    tough = list(bvec); tough[4] = bvec[4] * 0.4          # allows 60% fewer HR
+    hr_neutral = mx._matchup_dist(bvec, neutral, lgv)[4]
+    hr_tough = mx._matchup_dist(bvec, tough, lgv)[4]
+    assert hr_tough < hr_neutral
+
+
+def test_markov_order_sensitive():
+    def R(bb, b1, b2, b3, hr):
+        return {"bb": bb, "b1": b1, "b2": b2, "b3": b3, "hr": hr, "out": 1 - (bb + b1 + b2 + b3 + hr)}
+    strong = R(0.12, 0.17, 0.06, 0.004, 0.05)
+    weak = R(0.06, 0.13, 0.03, 0.002, 0.01)
+    top = [strong] * 4 + [weak] * 5
+    bottom = [weak] * 5 + [strong] * 4
+    mu_top = mx.markov_expected_runs(top, _LG, _LG, _LG, 6, False)
+    mu_bottom = mx.markov_expected_runs(bottom, _LG, _LG, _LG, 6, False)
+    assert mu_top > mu_bottom                                    # best hitters up top score more
+    assert 0.0 < (mu_top - mu_bottom) < 1.0                      # but the effect is modest
+
+
+def test_markov_home_factor():
+    from kbo.src.game_model import HOME_FACTOR
+    order = [_LG] * 9
+    away = mx.markov_expected_runs(order, _LG, _LG, _LG, 6, False)
+    home = mx.markov_expected_runs(order, _LG, _LG, _LG, 6, True)
+    assert abs(home - away * HOME_FACTOR) < 1e-9
+
+
+def test_markov_parity_fixture():
+    """Pin the Python reference to the committed fixture the TS engine also checks."""
+    fx = json.loads((config.PROJECT_ROOT / "web" / "lib" / "__fixtures__" /
+                     "markov-parity.json").read_text())
+    lg = fx["lg_event"]
+    for c in fx["cases"]:
+        mu = mx.markov_expected_runs(c["order"], c["sp"], c["pen"], lg,
+                                     c["sp_innings"], c["home"], c["elite"], c["calib"])
+        assert abs(mu - c["mu"]) < 1e-9, c["label"]
