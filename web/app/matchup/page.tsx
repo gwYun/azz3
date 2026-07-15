@@ -293,23 +293,27 @@ function Histogram({ home, away, homeLabel, awayLabel }: {
   home: number[]; away: number[]; homeLabel: string; awayLabel: string;
 }) {
   const cap = 14;
-  const max = Math.max(...home.slice(0, cap + 1), ...away.slice(0, cap + 1), 0.01);
+  const CHART_H = 128; // px — pixel heights avoid percentage-of-indefinite-parent collapse
+  const max = Math.max(...home.slice(0, cap + 1), ...away.slice(0, cap + 1), 0.001);
   const bars = Array.from({ length: cap + 1 }, (_, r) => r);
+  const px = (v: number) => (v > 0 ? Math.max(2, (v / max) * CHART_H) : 0);
   return (
     <div className="mt-3 rounded-xl border border-line bg-ink-850/30 p-4">
       <div className="mb-3 flex gap-4 text-xs">
         <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-accent/70" />{homeLabel}</span>
         <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-cyan/60" />{awayLabel}</span>
       </div>
-      <div className="flex h-32 items-end gap-1">
+      <div className="flex items-end gap-1" style={{ height: CHART_H }}>
         {bars.map((r) => (
-          <div key={r} className="flex flex-1 flex-col items-center gap-0.5">
-            <div className="flex w-full items-end justify-center gap-px" style={{ height: "100%" }}>
-              <span className="w-1/2 rounded-sm bg-accent/70" style={{ height: `${(home[r] / max) * 100}%` }} />
-              <span className="w-1/2 rounded-sm bg-cyan/60" style={{ height: `${(away[r] / max) * 100}%` }} />
-            </div>
-            <span className="font-mono text-[10px] text-fg-dim">{r}</span>
+          <div key={r} className="flex flex-1 items-end justify-center gap-px">
+            <span className="w-1/2 rounded-sm bg-accent/70" style={{ height: px(home[r]) }} />
+            <span className="w-1/2 rounded-sm bg-cyan/60" style={{ height: px(away[r]) }} />
           </div>
+        ))}
+      </div>
+      <div className="mt-1 flex gap-1">
+        {bars.map((r) => (
+          <span key={r} className="flex-1 text-center font-mono text-[10px] text-fg-dim">{r}</span>
         ))}
       </div>
     </div>
