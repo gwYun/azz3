@@ -43,6 +43,7 @@ K_PIT = 180.0
 # Roster shaping.
 POOL_SIZE = 14          # batters exported per team (9 starters + bench for the optimizer)
 ROTATION = 5
+BULLPEN_ARMS = 8        # individual relievers exported for the client's availability model
 _SIM_PARAMS = dict(breadth=6.0, mode="actual", wexp_weight=0.04, tactics_weight=1.0, fip_blend=0.25)
 
 # Base-out advancement table: _ADV[state][e] = (new_state, runs), state bit0=1B,1=2B,2=3B.
@@ -153,7 +154,18 @@ def classify_staff(pit_valued: pd.DataFrame, lg: dict) -> dict:
                  "sp_innings": round(float(np.clip(r["ipg"], 4.5, 6.5)), 2),
                  "fip": round(float(r["FIP"]), 2), "rates": r["_rates"]}
                 for _, r in rot.iterrows()]
-    return {"rotation": rotation,
+    # Individual relievers ranked by leverage (best FIP first, min IP so small-sample
+    # arms don't masquerade as the closer) so the client can model per-game availability:
+    # a top arm that "threw" the previous game rests today, and the bullpen the opponent
+    # faces is recomposed from whoever's available.
+    arm_pool = pen[pen["IP"] >= 10]
+    if len(arm_pool) < 4:
+        arm_pool = pen.sort_values("IP", ascending=False).head(BULLPEN_ARMS)
+    arms = arm_pool.sort_values("FIP").head(BULLPEN_ARMS)
+    bullpen_arms = [{"name": str(r["name"]), "ip": round(float(r["IP"]), 1),
+                     "fip": round(float(r["FIP"]), 2), "war": round(float(r["WAR"]), 1),
+                     "rates": r["_rates"]} for _, r in arms.iterrows()]
+    return {"rotation": rotation, "bullpen_arms": bullpen_arms,
             "bullpen": _composite_rates(pen, lg),
             "bullpen_elite": _composite_rates(elite if not elite.empty else pen, lg)}
 
@@ -292,8 +304,8 @@ def build_team_matchup(code: str, ratings: pd.DataFrame, bat_valued: pd.DataFram
         "def_rating": round(float(row["def_rating"]), 0),
         "mu_calib": calib,
         "batters": pool, "lineup_projected": order,
-        "rotation": staff["rotation"], "bullpen": staff["bullpen"],
-        "bullpen_elite": staff["bullpen_elite"],
+        "rotation": staff["rotation"], "bullpen_arms": staff["bullpen_arms"],
+        "bullpen": staff["bullpen"], "bullpen_elite": staff["bullpen_elite"],
     }
 
 

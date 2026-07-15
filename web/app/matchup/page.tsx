@@ -4,8 +4,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useI18n, useT } from "@/lib/i18n-context";
 import type { Locale } from "@/lib/i18n";
 import {
-  type MatchupData, type Team, type Pitcher, type Batter,
-  starterForGame, optimizeLineup, muForOrder, evaluateMatchup, negBinomPmf,
+  type MatchupData, type Team, type Pitcher, type Batter, type BullpenState,
+  starterForGame, bullpenForGame, optimizeLineup, muForOrder, evaluateMatchup, negBinomPmf,
 } from "@/lib/matchup-sim";
 import type { SimResult, SimRequest } from "@/lib/matchup.worker";
 
@@ -53,18 +53,21 @@ export default function MatchupPage() {
     const lg = data.league;
     const hs = starterForGame(home.rotation, game);
     const as = starterForGame(away.rotation, game);
-    const eliteA = leverage ? away.bullpen_elite.rates : null;
-    const eliteH = leverage ? home.bullpen_elite.rates : null;
+    // Model each bullpen's availability for THIS game (top arms rest after throwing).
+    const homePen = bullpenForGame(home.bullpen_arms, game, home.bullpen);
+    const awayPen = bullpenForGame(away.bullpen_arms, game, away.bullpen);
+    const eliteA = leverage ? awayPen.eliteRates : null;   // home offense faces away's pen
+    const eliteH = leverage ? homePen.eliteRates : null;
     const hProj = home.lineup_projected.slice(0, 9);
     const aProj = away.lineup_projected.slice(0, 9);
-    const hOpt = optimizeLineup(home.batters, hProj, as.rates, away.bullpen.rates, eliteA, as.sp_innings, lg, true, home.mu_calib);
-    const aOpt = optimizeLineup(away.batters, aProj, hs.rates, home.bullpen.rates, eliteH, hs.sp_innings, lg, false, away.mu_calib);
+    const hOpt = optimizeLineup(home.batters, hProj, as.rates, awayPen.rates, eliteA, as.sp_innings, lg, true, home.mu_calib);
+    const aOpt = optimizeLineup(away.batters, aProj, hs.rates, homePen.rates, eliteH, hs.sp_innings, lg, false, away.mu_calib);
     const hOrder = useOptimal ? hOpt.order : hProj;
     const aOrder = useOptimal ? aOpt.order : aProj;
-    const res = evaluateMatchup(lg, home, away, hOrder, aOrder, hs, as, leverage);
-    const projHmu = muForOrder(home.batters, hProj, as.rates, away.bullpen.rates, eliteA, as.sp_innings, lg, true, home.mu_calib);
-    const projAmu = muForOrder(away.batters, aProj, hs.rates, home.bullpen.rates, eliteH, hs.sp_innings, lg, false, away.mu_calib);
-    return { home, away, lg, hs, as, hProj, aProj, hOpt, aOpt, hOrder, aOrder, res, projHmu, projAmu };
+    const res = evaluateMatchup(lg, home, away, hOrder, aOrder, hs, as, homePen, awayPen, leverage);
+    const projHmu = muForOrder(home.batters, hProj, as.rates, awayPen.rates, eliteA, as.sp_innings, lg, true, home.mu_calib);
+    const projAmu = muForOrder(away.batters, aProj, hs.rates, homePen.rates, eliteH, hs.sp_innings, lg, false, away.mu_calib);
+    return { home, away, lg, hs, as, homePen, awayPen, hProj, aProj, hOpt, aOpt, hOrder, aOrder, res, projHmu, projAmu };
   }, [data, homeCode, awayCode, game, useOptimal, leverage]);
 
   // Kick the Monte Carlo whenever the μ pair changes.
@@ -157,10 +160,10 @@ export default function MatchupPage() {
 
           {/* Lineups */}
           <section className="mt-10 grid gap-6 md:grid-cols-2">
-            <LineupColumn t={t} locale={locale} team={engine.home} starter={engine.hs}
+            <LineupColumn t={t} locale={locale} team={engine.home} starter={engine.hs} pen={engine.homePen}
               projOrder={engine.hProj} optOrder={engine.hOpt.order}
               projMu={engine.projHmu} optMu={engine.hOpt.mu} side={t("matchup.home")} />
-            <LineupColumn t={t} locale={locale} team={engine.away} starter={engine.as}
+            <LineupColumn t={t} locale={locale} team={engine.away} starter={engine.as} pen={engine.awayPen}
               projOrder={engine.aProj} optOrder={engine.aOpt.order}
               projMu={engine.projAmu} optMu={engine.aOpt.mu} side={t("matchup.away")} />
           </section>
@@ -218,8 +221,8 @@ function Stat({ label, value, sub }: { label: string; value: string; sub?: strin
   );
 }
 
-function LineupColumn({ t, locale, team, starter, projOrder, optOrder, projMu, optMu, side }: {
-  t: ReturnType<typeof useT>; locale: Locale; team: Team; starter: Pitcher;
+function LineupColumn({ t, locale, team, starter, pen, projOrder, optOrder, projMu, optMu, side }: {
+  t: ReturnType<typeof useT>; locale: Locale; team: Team; starter: Pitcher; pen: BullpenState;
   projOrder: number[]; optOrder: number[]; projMu: number; optMu: number; side: string;
 }) {
   const gain = optMu - projMu;
@@ -233,6 +236,14 @@ function LineupColumn({ t, locale, team, starter, projOrder, optOrder, projMu, o
       <p className="mt-1 text-xs text-fg-dim">
         {t("matchup.starter")}: <span className="text-fg-muted">{starter.name}</span> · FIP {starter.fip.toFixed(2)} · {starter.sp_innings.toFixed(1)} IP
       </p>
+      {pen.available.length + pen.down.length > 0 && (
+        <p className="mt-1 text-xs text-fg-dim">
+          {t("matchup.bullpen")}: <span className="text-fg-muted">{pen.available.slice(0, 4).map((a) => a.name).join(", ")}</span>
+          {pen.down.length > 0 && (
+            <> · {t("matchup.rested")}: <span className="text-fg-dim line-through">{pen.down.map((a) => a.name).join(", ")}</span></>
+          )}
+        </p>
+      )}
       <LineupTable t={t} team={team} order={projOrder} title={t("matchup.lineup.projected")} />
       {changed && (
         <LineupTable t={t} team={team} order={optOrder}

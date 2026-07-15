@@ -1,8 +1,8 @@
 import { describe, it, expect } from "vitest";
 import fx from "./__fixtures__/markov-parity.json";
 import {
-  markovExpectedRuns, negBinomPmf, winProbExact, matchupDist, rateVec,
-  type Rates,
+  markovExpectedRuns, negBinomPmf, winProbExact, matchupDist, rateVec, bullpenForGame,
+  type Rates, type Reliever, type Segment,
 } from "./matchup-sim";
 
 const HOME_FACTOR = 1.1; // baked into the Python reference that produced the fixture
@@ -47,5 +47,29 @@ describe("engine properties", () => {
     const b = rateVec(lg), l = rateVec(lg);
     const tough = rateVec(lg); tough[4] *= 0.4;
     expect(matchupDist(b, tough, l)[4]).toBeLessThan(matchupDist(b, rateVec(lg), l)[4]);
+  });
+});
+
+describe("bullpen availability model", () => {
+  const lg = fx.lg_event as Rates;
+  const arms: Reliever[] = [0, 1, 2, 3, 4, 5].map((i) => ({ name: `r${i}`, fip: 3 + i * 0.3, ip: 20, war: 0, rates: lg }));
+  const fallback: Segment = { fip: 4.5, rates: lg };
+
+  it("all arms available for game 1", () => {
+    const s = bullpenForGame(arms, 0, fallback);
+    expect(s.down.length).toBe(0);
+    expect(s.available.length).toBe(arms.length);
+    expect(s.eliteRates).toEqual(arms[0].rates);       // closer available
+  });
+
+  it("top arms rest on game 2 (excludes the previous game's bullpen)", () => {
+    const s = bullpenForGame(arms, 1, fallback);
+    expect(s.down.length).toBeGreaterThan(0);
+    expect(s.down.map((a) => a.name)).toContain("r0"); // closer threw game 1 → resting
+  });
+
+  it("empty arms fall back to the static composite", () => {
+    const s = bullpenForGame([], 3, fallback);
+    expect(s.rates).toEqual(fallback.rates);
   });
 });

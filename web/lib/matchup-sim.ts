@@ -15,12 +15,13 @@
 export type Rates = { bb: number; b1: number; b2: number; b3: number; hr: number; out: number };
 export type Segment = { fip: number; rates: Rates };
 export type Pitcher = Segment & { name: string; gs: number; sp_innings: number };
+export type Reliever = { name: string; ip: number; fip: number; war: number; rates: Rates };
 export type Batter = { name: string; pa: number; wrc_plus: number; war: number; rates: Rates };
 export type Team = {
   code: string; ko: string; en: string; park: string;
   rs_per_game: number; ra_per_game: number; off_rating: number; def_rating: number;
   mu_calib: number; batters: Batter[]; lineup_projected: number[];
-  rotation: Pitcher[]; bullpen: Segment; bullpen_elite: Segment;
+  rotation: Pitcher[]; bullpen_arms: Reliever[]; bullpen: Segment; bullpen_elite: Segment;
 };
 export type League = {
   lg_R_per_G: number; k: number; home_factor: number;
@@ -215,11 +216,50 @@ export function optimizeLineup(
   return { order, mu: best };
 }
 
-// ---- rotation state -------------------------------------------------------- //
+// ---- rotation + bullpen availability (model-based, no per-game feed) -------- //
 
 /** The starter for a given game in a series: advance the rotation so no back-to-back reuse. */
 export function starterForGame(rotation: Pitcher[], gameIndex: number): Pitcher {
   return rotation[((gameIndex % rotation.length) + rotation.length) % rotation.length];
+}
+
+const EVKEYS = ["bb", "b1", "b2", "b3", "hr", "out"] as const;
+const REL_USE_PER_GAME = 3;   // ~3 relievers cover the late innings each game
+
+export type BullpenState = { rates: Rates; eliteRates: Rates; available: Reliever[]; down: Reliever[] };
+
+function compositeRates(arms: Reliever[]): Rates {
+  let w = 0;
+  const acc: Rates = { bb: 0, b1: 0, b2: 0, b3: 0, hr: 0, out: 0 };
+  for (const a of arms) {
+    const ip = Math.max(a.ip, 0.1);
+    w += ip;
+    for (const e of EVKEYS) acc[e] += a.rates[e] * ip;
+  }
+  const r = {} as Rates;
+  for (const e of EVKEYS) r[e] = acc[e] / (w || 1);
+  return r;
+}
+
+// Model each team's available bullpen for a given game in a series. Arms are leverage-
+// ranked (index 0 = closer/highest leverage); the top two need a day off after throwing.
+// We forward-simulate usage across the prior games so that on game 2 the best arms are
+// down and the opponent faces a weaker, recomposed bullpen — the "excluding the previous
+// game's bullpen" behavior, without any per-game feed (which is robots-blocked).
+export function bullpenForGame(arms: Reliever[], day: number, fallback: Segment): BullpenState {
+  if (!arms.length) return { rates: fallback.rates, eliteRates: fallback.rates, available: [], down: [] };
+  const rest = arms.map((_, j) => (j < 2 ? 1 : 0));
+  const lastUsed = arms.map(() => -99);
+  for (let d = 0; d < day; d++) {
+    let used = 0;
+    for (let j = 0; j < arms.length && used < REL_USE_PER_GAME; j++) {
+      if (d - lastUsed[j] > rest[j]) { lastUsed[j] = d; used++; }
+    }
+  }
+  const available: Reliever[] = [], down: Reliever[] = [];
+  arms.forEach((a, j) => (day - lastUsed[j] > rest[j] ? available : down).push(a));
+  const pool = available.length ? available : arms;
+  return { rates: compositeRates(pool), eliteRates: pool[0].rates, available, down };
 }
 
 export type MatchupResult = {
@@ -228,15 +268,16 @@ export type MatchupResult = {
   expHome: number; expAway: number;
 };
 
-/** One matchup's μ + exact win prob for a chosen pair of ordered lineups + starters. */
+/** One matchup's μ + exact win prob for chosen lineups, starters, and per-game bullpens. */
 export function evaluateMatchup(
   lg: League, home: Team, away: Team, homeOrder: number[], awayOrder: number[],
-  homeStarter: Pitcher, awayStarter: Pitcher, useElite: boolean,
+  homeStarter: Pitcher, awayStarter: Pitcher, homePen: BullpenState, awayPen: BullpenState,
+  useElite: boolean,
 ): MatchupResult {
-  const muHome = muForOrder(home.batters, homeOrder, awayStarter.rates, away.bullpen.rates,
-    useElite ? away.bullpen_elite.rates : null, awayStarter.sp_innings, lg, true, home.mu_calib);
-  const muAway = muForOrder(away.batters, awayOrder, homeStarter.rates, home.bullpen.rates,
-    useElite ? home.bullpen_elite.rates : null, homeStarter.sp_innings, lg, false, away.mu_calib);
+  const muHome = muForOrder(home.batters, homeOrder, awayStarter.rates, awayPen.rates,
+    useElite ? awayPen.eliteRates : null, awayStarter.sp_innings, lg, true, home.mu_calib);
+  const muAway = muForOrder(away.batters, awayOrder, homeStarter.rates, homePen.rates,
+    useElite ? homePen.eliteRates : null, homeStarter.sp_innings, lg, false, away.mu_calib);
   const homeWin = winProbExact(muHome, muAway, lg.k);
   return { muHome, muAway, homeWin, awayWin: 1 - homeWin, expHome: muHome, expAway: muAway };
 }
