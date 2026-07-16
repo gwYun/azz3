@@ -1,24 +1,40 @@
-"""Salary / value estimator (v2, user step 3) — value-based, not real-salary-trained.
+"""Salary / value estimator (v2) — a VALUE curve, deliberately NOT a salary regression.
 
-Real per-player KBO salaries are not published as a dataset (the stats sites don't
-carry them and statiz is off-limits), so this is a transparent VALUE model: it maps a
-player's WAR to a won figure via a convex WAR→₩ curve, anchored to public KBO reference
-points (league minimum ≈ ₩30M; elite ≈ ₩1.5B). An optional age tilt nudges toward the
-FA-age premium when age is available (it isn't in the open backtest dump). Clearly an
-*estimate of value*, not a claim of actual salary.
+This maps a player's WAR to a won figure via a convex WAR→₩ curve, anchored to public
+KBO reference points (league minimum ≈ ₩30M; ceiling from observed top salaries). An
+optional age tilt nudges toward the FA-age premium when age is available (it isn't in the
+open backtest dump). It is an *estimate of value*, not a claim of actual salary.
 
-Team payroll (the sum of these estimates over a roster, weighted by playing time) is the
-"investment" signal the winning-environment factor uses in team_build.py.
+We do NOT scrape statiz (robots-blocked). A static, user-provided reference of real
+salaries (public Statiz historical top earners + KBO official 2026 — see data.py
+`load_salary_reference`) IS available, but it is used to **validate** the curve only —
+never to refit it. Reason: that reference is a censored top-earner sample (salary ≥
+₩13.65억), so within it WAR and salary are essentially uncorrelated (corr ≈ 0); regressing
+salary on WAR from it would flatten the curve to a ~₩18억 constant and destroy the value
+signal. `evaluate_against_reference` quantifies the gap (the curve under-predicts these
+stars ~3×) so the honesty is measured, not asserted.
+
+This is a DISPLAY/valuation artifact only: the simulation's winning-environment factor
+reads team WAR, not salary (see team_build.py). Team payroll (Σ of these estimates) is
+still computed and shown as an investment indicator, but it does not feed the ratings.
 """
 from __future__ import annotations
 
 import numpy as np
 import pandas as pd
 
+# NOTE: These are hand-mirrored in web/lib/kbo-salary.ts — change both in the same commit.
+# Do NOT refit _WAR_SCALE_WON / _WAR_EXP to the real-salary reference: it's a censored
+# top-earner sample and the fit is not identified (see module docstring + tests).
 MIN_SALARY_WON = 30_000_000        # KBO league minimum (~₩30M)
 _WAR_SCALE_WON = 110_000_000       # ₩ per WAR^exponent above replacement
 _WAR_EXP = 1.25                    # mild convexity: stars paid super-linearly
-MAX_SALARY_WON = 2_500_000_000     # cap (annualized megadeal ceiling)
+MAX_SALARY_WON = 2_500_000_000     # cap. Salary is display-only (the sim uses WAR), so
+                                   # this affects only the shown est-salary/payroll — not
+                                   # the ratings. Real top salaries reach ~₩25-42억; that
+                                   # gap is reported via evaluate_against_reference rather
+                                   # than baked in, and the cap is kept here to keep the
+                                   # displayed payroll numbers stable.
 
 
 def _age_factor(age):
@@ -45,6 +61,45 @@ def add_salary(values: pd.DataFrame, war_col: str = "WAR", age_col: str = "age")
     return out
 
 
+def evaluate_against_reference(ref: pd.DataFrame | None = None) -> dict:
+    """Diagnostics of the value curve vs. real top-earner salaries — NOT a fit target.
+
+    Filters the reference to realized, disclosed Statiz rows with WAR > 0, then compares
+    `est_salary_won(war)` to the actual salary. Expected (and healthy) results:
+    `corr_war_salary ≈ 0` and `median_real_over_est ≈ 3` — the reference is censored
+    (salary ≥ ₩13.65억), so it carries no usable WAR slope and the value curve necessarily
+    under-predicts these stars. These numbers are surfaced in the report and asserted in
+    tests to guard against a future accidental refit that would flatten the curve.
+    """
+    if ref is None:
+        from . import data
+        ref = data.load_salary_reference()
+    war = pd.to_numeric(ref["war"], errors="coerce")
+    mask = (ref["source"] == "statiz") & ref["war_realized"].astype(bool) \
+        & ref["is_disclosed"].astype(bool) & (war > 0)
+    war = war[mask].to_numpy(dtype=float)
+    real = pd.to_numeric(ref["salary_won"][mask], errors="coerce").to_numpy(dtype=float)
+    n = len(war)
+    if n == 0:
+        return {"n": 0}
+    est = np.array([est_salary_won(w) for w in war])
+
+    def _r2(y, yhat):
+        ss_tot = float(np.sum((y - y.mean()) ** 2))
+        return 1.0 - float(np.sum((y - yhat) ** 2)) / ss_tot if ss_tot > 0 else float("nan")
+
+    return {
+        "n": n,
+        "r2_level": round(_r2(real, est), 3),                       # negative: mean beats the curve
+        "r2_log": round(_r2(np.log(real), np.log(est)), 3),
+        "log_bias": round(float(np.mean(np.log(real) - np.log(est))), 3),
+        "median_real_over_est": round(float(np.median(real / est)), 2),
+        "corr_war_salary": round(float(np.corrcoef(war, real)[0, 1]), 3),
+        "ceiling_p90_ok": round(float(np.percentile(real, 90) / 1e8), 1),
+    }
+
+
 if __name__ == "__main__":
     for w in [0, 0.5, 1, 2, 3, 5, 7, 9]:
         print(f"WAR {w}: est ₩{est_salary_won(w)/1e8:.2f}억")
+    print("diagnostics:", evaluate_against_reference())

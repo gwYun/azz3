@@ -342,8 +342,9 @@ const en = {
   "kbo.col.war": "WAR",
   "kbo.col.metric": "Rate",
   "kbo.col.salary": "Est. ₩",
+  "kbo.col.real_salary": "Actual ₩",
   "kbo.players.title": "Player value leaderboard",
-  "kbo.players.note": "Top players by in-house WAR, with an estimated value (₩억) from the WAR→salary model.",
+  "kbo.players.note": "Top players by in-house WAR, with an estimated value (₩억) from the WAR→salary curve. The last column shows the real reported salary where the player matches the salary reference — actual pay reflects FA market and service time, so it runs well above the pure value estimate.",
   "kbo.bt.rho": "Backtest ρ",
   "kbo.bt.rhosub": "standings, 2015–19",
   "kbo.bt.signal": "Champion signal",
@@ -356,7 +357,7 @@ const en = {
   "kbo.bt.col.prob": "P(actual)",
   "kbo.bt.summary": "Across 2015–19: mean standings ρ {rho}, exact champion {hit}%, and the eventual champion got {sig}% of the model's title odds on average (naive = 10%).",
   "kbo.method.pipeline":
-    "Pipeline: player stats → value (wOBA/wRC+/FIP/WAR) → estimated salary → lineup + playing-time preset + manager tactics → team run scoring/prevention → winning-environment (payroll+synergy) → 144-game + Korean Series Monte-Carlo.",
+    "Pipeline: player stats → value (wOBA/wRC+/FIP/WAR) → lineup + playing-time preset + manager tactics → team run scoring/prevention → winning-environment (WAR+synergy) → 144-game + Korean Series Monte-Carlo. Estimated salary is display-only and not fed into the sim.",
   "kbo.method.backtest":
     "Validation: backtested on 2015–2019 full rosters (standings ρ ≈ 0.8, the eventual champion credited ~3× the naive rate) before forecasting 2026.",
 
@@ -382,7 +383,7 @@ const en = {
   "salary.result.kbo.label": "Estimated annual value",
   "salary.result.kbo.ref": "{name} — {metric}. Value estimate, not a reported salary.",
   "salary.result.kbo.caveat":
-    "A transparent value estimate, not an actual contract figure. KBO salaries aren't published as open data, so this maps WAR to won via a league-anchored curve (min ₩30M, elite cap ₩2.5B).",
+    "A transparent value estimate, not an actual contract figure. It maps WAR to won via a league-anchored curve (min ₩30M, cap ₩2.5B). Real KBO salaries are known for top earners and run ~3× higher — they reflect the FA market, not pure WAR value — so that reference is used only to validate the curve, never to refit it.",
 
   // KBO matchup prediction (야구 승부 예측)
   "matchup.eyebrow": "KBO Matchup Prediction",
@@ -753,8 +754,9 @@ const ko: Record<keyof typeof en, string> = {
   "kbo.col.war": "WAR",
   "kbo.col.metric": "지표",
   "kbo.col.salary": "추정연봉",
+  "kbo.col.real_salary": "실연봉",
   "kbo.players.title": "선수 가치 리더보드",
-  "kbo.players.note": "자체 계산 WAR 상위 선수와 WAR→연봉 모델의 추정 가치(억원).",
+  "kbo.players.note": "자체 계산 WAR 상위 선수와 WAR→연봉 곡선의 추정 가치(억원). 마지막 열은 실연봉 레퍼런스에 매칭되는 선수의 실제 공시 연봉 — FA 시장·서비스타임이 반영돼 순수 가치 추정보다 크게 높습니다.",
   "kbo.bt.rho": "백테스트 ρ",
   "kbo.bt.rhosub": "순위 상관, 2015–19",
   "kbo.bt.signal": "우승팀 신호",
@@ -767,7 +769,7 @@ const ko: Record<keyof typeof en, string> = {
   "kbo.bt.col.prob": "P(실제)",
   "kbo.bt.summary": "2015–19 평균: 순위 상관 ρ {rho}, 우승 정확 적중 {hit}%, 실제 우승팀에 평균 {sig}%의 우승확률 부여(무작위 10%).",
   "kbo.method.pipeline":
-    "파이프라인: 선수 스탯 → 가치(wOBA/wRC+/FIP/WAR) → 추정연봉 → 라인업·출전 preset·감독 전술 → 팀 공격/수비 득점 → 승리환경(연봉+시너지) → 144경기+한국시리즈 몬테카를로.",
+    "파이프라인: 선수 스탯 → 가치(wOBA/wRC+/FIP/WAR) → 라인업·출전 preset·감독 전술 → 팀 공격/수비 득점 → 승리환경(WAR+시너지) → 144경기+한국시리즈 몬테카를로. 추정연봉은 표시용이며 시뮬에는 미투입.",
   "kbo.method.backtest":
     "검증: 2015–2019 전체 로스터로 백테스트(순위 상관 ρ≈0.8, 실제 우승팀에 무작위의 약 3배 확률 부여) 후 2026 예측.",
 
@@ -793,7 +795,7 @@ const ko: Record<keyof typeof en, string> = {
   "salary.result.kbo.label": "예상 연봉 가치",
   "salary.result.kbo.ref": "{name} — {metric}. 실제 연봉이 아닌 가치 추정치입니다.",
   "salary.result.kbo.caveat":
-    "실제 계약 금액이 아니라 투명한 가치 추정치입니다. KBO 개별 연봉은 공개 데이터가 아니므로, WAR을 리그 기준점에 맞춘 곡선(최저 3천만원, 상한 25억)으로 원화로 환산합니다.",
+    "실제 계약 금액이 아니라 투명한 가치 추정치입니다. WAR을 리그 기준점에 맞춘 곡선(최저 3천만원, 상한 25억)으로 원화로 환산합니다. 상위 연봉자의 실연봉은 알려져 있고 이 추정치보다 약 3배 높은데(FA 시장·서비스타임 반영), 그 레퍼런스는 검증에만 쓰고 곡선을 재적합하지는 않습니다.",
 
   // KBO matchup prediction (야구 승부 예측)
   "matchup.eyebrow": "KBO 승부 예측",

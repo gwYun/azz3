@@ -52,6 +52,13 @@ RANDOM_SEED = 42
 # the data normalizer share one source of truth.
 TEAM_META_PATH = DATA_DIR / "kbo_team_meta.json"
 
+# Real-salary reference (public Statiz historical top earners + KBO official 2026),
+# converted from KBO_선수연봉_통합_v2.xlsx by scripts/convert_salary_xlsx.py. Used to
+# VALIDATE the salary model only — NOT to refit the curve (it's a censored top-earner
+# sample). See salary_model.evaluate_against_reference.
+SALARY_REF_PATH = DATA_DIR / "salary_reference.csv"
+TEAM_SALARY_PATH = DATA_DIR / "team_salary_2026.csv"
+
 
 def load_team_meta() -> dict:
     with open(TEAM_META_PATH, encoding="utf-8") as f:

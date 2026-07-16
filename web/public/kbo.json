@@ -1,11 +1,11 @@
 {
   "version": "v2-bottomup",
   "season": "2026",
-  "run_id": "2026-07-04T16:17:17Z",
-  "model_commit": "92389b5",
+  "run_id": "2026-07-16T02:55:20Z",
+  "model_commit": "648a132",
   "n_sims": 500000,
   "seed": 42,
-  "method": "bottom-up player-level (value → salary → lineup/playing-time → team rs/ra)",
+  "method": "bottom-up player-level (WAR value → lineup/playing-time → team rs/ra; winning-env from WAR, salary display-only)",
   "params": {
     "breadth": 6.0,
     "mode": "actual",
@@ -16,128 +16,128 @@
   "title_pick": {
     "en": "Samsung Lions",
     "ko": "삼성",
-    "prob": 40.04
+    "prob": 51.85
   },
   "teams": [
     {
       "en": "Samsung Lions",
       "ko": "삼성",
       "rank": 1,
-      "championship": 40.04,
-      "pennant": 67.5,
-      "playoff": 96.2,
-      "first": 46.4,
-      "off_rating": 110.5,
-      "def_rating": 114.8,
-      "proj_wins": 87.8,
-      "rs_per_game": 5.57,
-      "ra_per_game": 4.36,
-      "payroll_ok": 23
+      "championship": 51.85,
+      "pennant": 80.2,
+      "playoff": 98.0,
+      "first": 63.2,
+      "off_rating": 113.5,
+      "def_rating": 112.1,
+      "proj_wins": 89.5,
+      "rs_per_game": 5.78,
+      "ra_per_game": 4.4,
+      "payroll_ok": 27
     },
     {
       "en": "KT Wiz",
       "ko": "KT",
       "rank": 2,
-      "championship": 18.82,
-      "pennant": 38.8,
-      "playoff": 86.3,
-      "first": 18.2,
-      "off_rating": 113.3,
-      "def_rating": 99.0,
-      "proj_wins": 83.6,
-      "rs_per_game": 5.72,
-      "ra_per_game": 4.8,
+      "championship": 10.38,
+      "pennant": 25.0,
+      "playoff": 73.5,
+      "first": 8.3,
+      "off_rating": 108.5,
+      "def_rating": 101.1,
+      "proj_wins": 80.7,
+      "rs_per_game": 5.49,
+      "ra_per_game": 4.81,
       "payroll_ok": 31
     },
     {
-      "en": "KIA Tigers",
-      "ko": "KIA",
+      "en": "Doosan Bears",
+      "ko": "두산",
       "rank": 3,
-      "championship": 15.35,
-      "pennant": 32.8,
-      "playoff": 82.4,
-      "first": 14.1,
-      "off_rating": 106.9,
-      "def_rating": 114.3,
-      "proj_wins": 82.6,
-      "rs_per_game": 5.28,
-      "ra_per_game": 4.49,
-      "payroll_ok": 24
-    },
-    {
-      "en": "LG Twins",
-      "ko": "LG",
-      "rank": 4,
-      "championship": 12.31,
-      "pennant": 27.1,
-      "playoff": 77.7,
-      "first": 10.8,
-      "off_rating": 106.9,
-      "def_rating": 109.9,
-      "proj_wins": 81.6,
-      "rs_per_game": 5.32,
-      "ra_per_game": 4.59,
-      "payroll_ok": 26
+      "championship": 9.09,
+      "pennant": 22.1,
+      "playoff": 70.0,
+      "first": 6.9,
+      "off_rating": 95.0,
+      "def_rating": 118.9,
+      "proj_wins": 80.1,
+      "rs_per_game": 4.87,
+      "ra_per_game": 4.3,
+      "payroll_ok": 27
     },
     {
       "en": "Hanwha Eagles",
       "ko": "한화",
+      "rank": 4,
+      "championship": 8.26,
+      "pennant": 20.6,
+      "playoff": 68.2,
+      "first": 6.4,
+      "off_rating": 112.6,
+      "def_rating": 99.5,
+      "proj_wins": 79.8,
+      "rs_per_game": 5.56,
+      "ra_per_game": 4.94,
+      "payroll_ok": 29
+    },
+    {
+      "en": "KIA Tigers",
+      "ko": "KIA",
       "rank": 5,
-      "championship": 6.02,
-      "pennant": 14.6,
-      "playoff": 60.8,
-      "first": 4.8,
-      "off_rating": 111.1,
-      "def_rating": 98.1,
-      "proj_wins": 78.8,
-      "rs_per_game": 5.48,
-      "ra_per_game": 4.95,
+      "championship": 7.65,
+      "pennant": 19.2,
+      "playoff": 66.1,
+      "first": 5.7,
+      "off_rating": 106.6,
+      "def_rating": 108.4,
+      "proj_wins": 79.5,
+      "rs_per_game": 5.27,
+      "ra_per_game": 4.7,
       "payroll_ok": 26
     },
     {
       "en": "NC Dinos",
       "ko": "NC",
       "rank": 6,
-      "championship": 4.92,
-      "pennant": 12.3,
-      "playoff": 56.1,
-      "first": 3.9,
-      "off_rating": 109.4,
-      "def_rating": 96.4,
-      "proj_wins": 78.2,
-      "rs_per_game": 5.44,
-      "ra_per_game": 4.97,
-      "payroll_ok": 21
+      "championship": 7.07,
+      "pennant": 18.0,
+      "playoff": 64.1,
+      "first": 5.3,
+      "off_rating": 111.2,
+      "def_rating": 95.5,
+      "proj_wins": 79.1,
+      "rs_per_game": 5.58,
+      "ra_per_game": 5.01,
+      "payroll_ok": 24
     },
     {
-      "en": "Doosan Bears",
-      "ko": "두산",
+      "en": "LG Twins",
+      "ko": "LG",
       "rank": 7,
-      "championship": 2.54,
-      "pennant": 6.8,
-      "playoff": 40.2,
-      "first": 1.8,
-      "off_rating": 93.6,
-      "def_rating": 114.9,
-      "proj_wins": 76.0,
-      "rs_per_game": 4.73,
-      "ra_per_game": 4.46,
-      "payroll_ok": 22
+      "championship": 5.68,
+      "pennant": 14.9,
+      "playoff": 58.9,
+      "first": 4.2,
+      "off_rating": 106.7,
+      "def_rating": 107.5,
+      "proj_wins": 78.4,
+      "rs_per_game": 5.24,
+      "ra_per_game": 4.76,
+      "payroll_ok": 28
     },
     {
       "en": "Lotte Giants",
       "ko": "롯데",
       "rank": 8,
-      "championship": 0.0,
+      "championship": 0.01,
       "pennant": 0.0,
-      "playoff": 0.2,
+      "playoff": 1.2,
       "first": 0.0,
-      "off_rating": 82.0,
-      "def_rating": 98.3,
-      "proj_wins": 59.1,
-      "rs_per_game": 4.13,
-      "ra_per_game": 5.08,
-      "payroll_ok": 12
+      "off_rating": 81.4,
+      "def_rating": 103.7,
+      "proj_wins": 63.2,
+      "rs_per_game": 4.23,
+      "ra_per_game": 4.87,
+      "payroll_ok": 15
     },
     {
       "en": "SSG Landers",
@@ -147,12 +147,12 @@
       "pennant": 0.0,
       "playoff": 0.0,
       "first": 0.0,
-      "off_rating": 102.2,
-      "def_rating": 62.2,
-      "proj_wins": 54.7,
-      "rs_per_game": 4.83,
-      "ra_per_game": 6.34,
-      "payroll_ok": 17
+      "off_rating": 100.0,
+      "def_rating": 61.0,
+      "proj_wins": 50.2,
+      "rs_per_game": 4.7,
+      "ra_per_game": 6.62,
+      "payroll_ok": 18
     },
     {
       "en": "Kiwoom Heroes",
@@ -162,12 +162,12 @@
       "pennant": 0.0,
       "playoff": 0.0,
       "first": 0.0,
-      "off_rating": 64.1,
-      "def_rating": 92.1,
-      "proj_wins": 37.6,
-      "rs_per_game": 3.15,
-      "ra_per_game": 5.66,
-      "payroll_ok": 6
+      "off_rating": 64.6,
+      "def_rating": 92.3,
+      "proj_wins": 39.4,
+      "rs_per_game": 3.28,
+      "ra_per_game": 5.67,
+      "payroll_ok": 7
     }
   ],
   "players": [
@@ -176,36 +176,40 @@
       "franchise_ko": "LG",
       "kind": "bat",
       "war": 5.0,
-      "metric": 199.0,
+      "metric": 198.0,
       "metric_label": "wRC+",
-      "salary_ok": 8.6
+      "salary_ok": 8.5,
+      "real_salary_ok": 15.4
     },
     {
       "name": "페라자",
       "franchise_ko": "한화",
       "kind": "bat",
-      "war": 4.0,
-      "metric": 173.0,
+      "war": 3.9,
+      "metric": 172.0,
       "metric_label": "wRC+",
-      "salary_ok": 6.5
+      "salary_ok": 6.4,
+      "real_salary_ok": null
     },
     {
       "name": "최원준",
       "franchise_ko": "KT",
       "kind": "bat",
       "war": 3.9,
-      "metric": 167.0,
+      "metric": 166.0,
       "metric_label": "wRC+",
-      "salary_ok": 6.4
+      "salary_ok": 6.3,
+      "real_salary_ok": null
     },
     {
       "name": "김도영",
       "franchise_ko": "KIA",
       "kind": "bat",
       "war": 3.5,
-      "metric": 163.0,
+      "metric": 162.0,
       "metric_label": "wRC+",
-      "salary_ok": 5.6
+      "salary_ok": 5.5,
+      "real_salary_ok": null
     },
     {
       "name": "강백호",
@@ -214,133 +218,148 @@
       "war": 3.1,
       "metric": 157.0,
       "metric_label": "wRC+",
-      "salary_ok": 4.9
+      "salary_ok": 4.8,
+      "real_salary_ok": null
     },
     {
       "name": "박성한",
       "franchise_ko": "SSG",
       "kind": "bat",
       "war": 3.0,
-      "metric": 150.0,
+      "metric": 149.0,
       "metric_label": "wRC+",
-      "salary_ok": 4.7
+      "salary_ok": 4.6,
+      "real_salary_ok": null
     },
     {
       "name": "힐리어드",
       "franchise_ko": "KT",
       "kind": "bat",
-      "war": 3.0,
-      "metric": 148.0,
+      "war": 2.9,
+      "metric": 147.0,
       "metric_label": "wRC+",
-      "salary_ok": 4.6
+      "salary_ok": 4.5,
+      "real_salary_ok": null
     },
     {
       "name": "최정",
       "franchise_ko": "SSG",
       "kind": "bat",
       "war": 2.8,
-      "metric": 164.0,
+      "metric": 163.0,
       "metric_label": "wRC+",
-      "salary_ok": 4.3
+      "salary_ok": 4.3,
+      "real_salary_ok": 22.0
     },
     {
       "name": "레이예스",
       "franchise_ko": "롯데",
       "kind": "bat",
       "war": 2.8,
-      "metric": 144.0,
+      "metric": 143.0,
       "metric_label": "wRC+",
-      "salary_ok": 4.3
+      "salary_ok": 4.2,
+      "real_salary_ok": null
     },
     {
       "name": "최형우",
       "franchise_ko": "삼성",
       "kind": "bat",
-      "war": 2.8,
-      "metric": 148.0,
+      "war": 2.7,
+      "metric": 147.0,
       "metric_label": "wRC+",
-      "salary_ok": 4.2
+      "salary_ok": 4.1,
+      "real_salary_ok": 4.0
     },
     {
       "name": "박민우",
       "franchise_ko": "NC",
       "kind": "bat",
-      "war": 2.7,
+      "war": 2.6,
       "metric": 148.0,
       "metric_label": "wRC+",
-      "salary_ok": 4.1
+      "salary_ok": 4.0,
+      "real_salary_ok": null
     },
     {
       "name": "김주원",
       "franchise_ko": "NC",
       "kind": "bat",
-      "war": 2.6,
-      "metric": 139.0,
+      "war": 2.5,
+      "metric": 138.0,
       "metric_label": "wRC+",
-      "salary_ok": 3.9
+      "salary_ok": 3.8,
+      "real_salary_ok": null
     },
     {
       "name": "나성범",
       "franchise_ko": "KIA",
       "kind": "bat",
-      "war": 2.4,
-      "metric": 140.0,
+      "war": 2.3,
+      "metric": 139.0,
       "metric_label": "wRC+",
-      "salary_ok": 3.5
+      "salary_ok": 3.5,
+      "real_salary_ok": null
     },
     {
       "name": "구자욱",
       "franchise_ko": "삼성",
       "kind": "bat",
       "war": 2.3,
-      "metric": 153.0,
+      "metric": 152.0,
       "metric_label": "wRC+",
-      "salary_ok": 3.4
+      "salary_ok": 3.4,
+      "real_salary_ok": null
     },
     {
       "name": "박승규",
       "franchise_ko": "삼성",
       "kind": "bat",
-      "war": 2.3,
-      "metric": 154.0,
+      "war": 2.2,
+      "metric": 153.0,
       "metric_label": "wRC+",
-      "salary_ok": 3.3
+      "salary_ok": 3.3,
+      "real_salary_ok": null
     },
     {
       "name": "디아즈",
       "franchise_ko": "삼성",
       "kind": "bat",
       "war": 2.2,
-      "metric": 129.0,
+      "metric": 128.0,
       "metric_label": "wRC+",
-      "salary_ok": 3.3
+      "salary_ok": 3.3,
+      "real_salary_ok": 18.2
     },
     {
       "name": "문현빈",
       "franchise_ko": "한화",
       "kind": "bat",
-      "war": 2.2,
-      "metric": 127.0,
+      "war": 2.1,
+      "metric": 126.0,
       "metric_label": "wRC+",
-      "salary_ok": 3.2
+      "salary_ok": 3.1,
+      "real_salary_ok": null
     },
     {
       "name": "이우성",
       "franchise_ko": "NC",
       "kind": "bat",
       "war": 2.0,
-      "metric": 135.0,
+      "metric": 134.0,
       "metric_label": "wRC+",
-      "salary_ok": 2.9
+      "salary_ok": 2.9,
+      "real_salary_ok": null
     },
     {
       "name": "카메론",
       "franchise_ko": "두산",
       "kind": "bat",
       "war": 1.9,
-      "metric": 125.0,
+      "metric": 124.0,
       "metric_label": "wRC+",
-      "salary_ok": 2.8
+      "salary_ok": 2.7,
+      "real_salary_ok": null
     },
     {
       "name": "박건우",
@@ -349,9 +368,24 @@
       "war": 1.9,
       "metric": 128.0,
       "metric_label": "wRC+",
-      "salary_ok": 2.8
+      "salary_ok": 2.7,
+      "real_salary_ok": null
     }
   ],
+  "salary_diagnostics": {
+    "n": 77,
+    "r2_level": -2.277,
+    "r2_log": -26.441,
+    "log_bias": 1.117,
+    "median_real_over_est": 2.74,
+    "corr_war_salary": 0.044,
+    "ceiling_p90_ok": 25.0
+  },
+  "payroll_validation": {
+    "n_teams": 10,
+    "spearman_rho": 0.353,
+    "note": "모델 추정연봉 합(payroll) 순위 vs KBO 공식 2026 팀 평균연봉 순위"
+  },
   "backtest": {
     "seasons": [
       2015,
@@ -360,19 +394,19 @@
       2018,
       2019
     ],
-    "mean_standings_rho": 0.803,
+    "mean_standings_rho": 0.839,
     "champion_hit_rate": 0.4,
     "mean_prob_of_actual_champ": 29.1,
     "rows": [
       {
         "season": 2015,
-        "standings_rho": 0.818,
+        "standings_rho": 0.855,
         "pick": "SS",
         "pick_ko": "삼성",
         "actual_champ": "OB",
         "actual_champ_ko": "두산",
         "pick_correct": false,
-        "champ_prob_of_actual": 0.7,
+        "champ_prob_of_actual": 0.9,
         "actual_champ_reg_rank": 3
       },
       {
@@ -383,29 +417,29 @@
         "actual_champ": "OB",
         "actual_champ_ko": "두산",
         "pick_correct": true,
-        "champ_prob_of_actual": 47.7,
+        "champ_prob_of_actual": 47.6,
         "actual_champ_reg_rank": 1
       },
       {
         "season": 2017,
-        "standings_rho": 0.906,
-        "pick": "HT",
-        "pick_ko": "KIA",
+        "standings_rho": 0.912,
+        "pick": "OB",
+        "pick_ko": "두산",
         "actual_champ": "HT",
         "actual_champ_ko": "KIA",
-        "pick_correct": true,
-        "champ_prob_of_actual": 41.5,
+        "pick_correct": false,
+        "champ_prob_of_actual": 37.7,
         "actual_champ_reg_rank": 1
       },
       {
         "season": 2018,
-        "standings_rho": 0.554,
-        "pick": "OB",
-        "pick_ko": "두산",
+        "standings_rho": 0.695,
+        "pick": "SK",
+        "pick_ko": "SSG",
         "actual_champ": "SK",
         "actual_champ_ko": "SSG",
-        "pick_correct": false,
-        "champ_prob_of_actual": 42.0,
+        "pick_correct": true,
+        "champ_prob_of_actual": 44.0,
         "actual_champ_reg_rank": 2
       },
       {
@@ -416,10 +450,10 @@
         "actual_champ": "OB",
         "actual_champ_ko": "두산",
         "pick_correct": false,
-        "champ_prob_of_actual": 13.6,
+        "champ_prob_of_actual": 15.1,
         "actual_champ_reg_rank": 3
       }
     ]
   },
-  "caveat": "선수 단위 bottom-up 예측. 엔진은 2015-2019 전체 로스터로 백테스트 검증됨. 2026은 규정 선수(실데이터)+팀 합계 앵커 벤치로 구성(뎁스 근사). 독립 경기 노이즈로 1순위 확률은 다소 과대. statiz 미사용."
+  "caveat": "선수 단위 bottom-up 예측. 엔진은 2015-2019 전체 로스터로 백테스트 검증됨. 2026은 규정 선수(실데이터)+팀 합계 앵커 벤치로 구성(뎁스 근사). 독립 경기 노이즈로 1순위 확률은 다소 과대. 연봉은 WAR→가치 추정(실연봉 회귀 아님)이며, 실연봉 레퍼런스는 검증에만 사용."
 }

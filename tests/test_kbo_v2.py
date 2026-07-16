@@ -10,7 +10,7 @@ import json
 import numpy as np
 import pandas as pd
 
-from kbo.src import boxscore_data as bd, salary_model as sal, roster, config
+from kbo.src import boxscore_data as bd, salary_model as sal, roster, config, data
 from kbo.src import player_value as pv, matchup_export as mx
 
 _LG = {"bb": 0.090, "b1": 0.150, "b2": 0.045, "b3": 0.005, "hr": 0.028, "out": 0.682}
@@ -45,6 +45,64 @@ def test_salary_floor_and_monotonic():
     vals = [sal.est_salary_won(w) for w in [0, 1, 3, 5, 8]]
     assert all(b > a for a, b in zip(vals, vals[1:]))             # strictly increasing
     assert sal.est_salary_won(8) <= sal.MAX_SALARY_WON
+    # Salary is display-only (the sim reads WAR); test_sim_uses_war_not_salary is the guard.
+
+
+def test_salary_reference_loads():
+    ref = data.load_salary_reference()
+    assert len(ref) == 99                                          # 95 statiz + 4 KBO-official
+    assert ref["source"].value_counts()["statiz"] == 95
+    assert ref["franchise"].notna().all()                         # every team name resolves
+    und = ref[ref["source"] == "kbo_official_undisclosed"]
+    assert len(und) == 2 and und["salary_won"].isna().all()       # 미공개 → NaN
+    assert (~und["is_disclosed"]).all()
+    # 2026+ WAR values are projections; the flag must exclude them from the diagnostic.
+    assert (~ref.loc[ref["season"] >= config.CURRENT_SEASON, "war_realized"]).all()
+    assert ref.loc[ref["season"] < config.CURRENT_SEASON, "war_realized"].all()
+
+
+def test_team_salary_2026_loads():
+    tm = data.load_team_salary_2026()
+    assert len(tm) == 10 and tm["franchise"].nunique() == 10       # all 10 franchises
+    ordered = tm.sort_values("avg_salary_won", ascending=False)
+    assert ordered.iloc[0]["team_ko"] == "SSG"                    # top payroll
+    assert ordered.iloc[-1]["team_ko"] == "키움"                   # bottom (rebuild)
+
+
+def test_salary_diagnostics_guard_against_refit():
+    d = sal.evaluate_against_reference()
+    assert set(d) >= {"n", "r2_level", "median_real_over_est", "corr_war_salary"}
+    assert d["n"] > 50
+    # The reference is a CENSORED top-earner sample: WAR carries no usable slope, and the
+    # value curve under-predicts these stars ~3×. These assertions fail if someone refits
+    # the curve to this data (flattening it) — that is exactly what they guard against.
+    assert abs(d["corr_war_salary"]) < 0.2                        # ≈ 0
+    assert d["median_real_over_est"] > 2                          # value ≠ actual top-earner salary
+    assert d["r2_level"] < 0                                      # the mean beats the curve here
+
+
+def test_sim_uses_war_not_salary():
+    # The winning-environment factor must depend on WAR (talent), not estimated salary.
+    # Multiplying every salary by 5 must leave team rs/ra untouched, while the env is
+    # actually active (not all 1.0) — proving the sim reads WAR, not the salary proxy.
+    from kbo.src import team_build as tb, live2026
+    c, raw = live2026.build_2026_raw()
+    params = dict(breadth=6.0, mode="actual", wexp_weight=0.04, tactics_weight=1.0, fip_blend=0.25)
+
+    def vals():
+        return {"batters": sal.add_salary(pv.batter_value(raw["batters"], c)),
+                "pitchers": sal.add_salary(pv.pitcher_value(raw["pitchers"], c))}
+
+    base = tb.build_team_ratings(2026, constants=c, values=vals(), **params)
+    bumped = vals()
+    bumped["batters"]["est_salary_won"] *= 5
+    bumped["pitchers"]["est_salary_won"] *= 5
+    hi = tb.build_team_ratings(2026, constants=c, values=bumped, **params)
+
+    assert (base["winning_env"] != 1.0).any()                     # env is active
+    assert np.allclose(base["rs_per_game"], hi["rs_per_game"])    # salary doesn't move offense
+    assert np.allclose(base["ra_per_game"], hi["ra_per_game"])    # …or run prevention
+    assert (base["payroll_ok"] != hi["payroll_ok"]).any()        # payroll (display) did change
 
 
 def test_playing_time_allocation():

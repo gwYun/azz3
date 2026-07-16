@@ -9,10 +9,13 @@ playing time (roster.py):
   * **Run prevention:** IP-weighted mean FIP → `ra_per_game = lg_R_per_G × (team_FIP/lg_FIP)`.
 
 Then the **winning-environment factor** (user step 4): a *small, disclosed, ablatable*
-modifier from team **payroll** (Σ estimated player value — an investment/depth prior) and
-**synergy** (roster balance: how many above-average players actually get playing time).
-Sized so it never overrides on-field performance (`wexp_weight` defaults low and is a
-sensitivity axis). Output feeds the unchanged v1 simulator via `rs_per_game`/`ra_per_game`.
+modifier from team **talent** (Σ WAR — an investment/depth prior) and **synergy** (roster
+balance: how many above-average players actually get playing time). Sized so it never
+overrides on-field performance (`wexp_weight` defaults low and is a sensitivity axis).
+Output feeds the unchanged v1 simulator via `rs_per_game`/`ra_per_game`.
+
+The simulation depends on **WAR, not salary**: estimated salary/payroll is a display-only
+valuation artifact and never enters the ratings (see `_team_metrics` / the env factor).
 """
 from __future__ import annotations
 
@@ -46,11 +49,15 @@ def _team_metrics(rb: pd.DataFrame, rp: pd.DataFrame, c: dict, aggression: float
     team_fip = float((wip * rp["FIP"]).sum() / wip.sum())
     def_rate = (1 - fip_blend) * team_ra9 + fip_blend * team_fip
 
+    # Σ WAR is the sim's talent/investment prior (used by winning_env). Payroll (Σ
+    # estimated salary) is computed alongside for DISPLAY ONLY — it never enters ratings.
+    team_war = float(rb["WAR"].sum() + rp["WAR"].sum())
     payroll = float(rb["est_salary_won"].sum() + rp["est_salary_won"].sum())
     depth_bat = int(((rb["alloc_pa"] > 100) & (rb["wRC_plus"] > 100)).sum())
     depth_pit = int(((rp["alloc_ip"] > 20) & (rp["FIP"] < c["lg_FIP"])).sum())
     return {"rs": rs, "off_index": off_index, "def_rate": def_rate,
-            "team_woba": team_woba, "team_fip": team_fip, "payroll": payroll,
+            "team_woba": team_woba, "team_fip": team_fip,
+            "team_war": team_war, "payroll": payroll,
             "synergy_raw": depth_bat + depth_pit}
 
 
@@ -92,9 +99,11 @@ def build_team_ratings(season: int, constants: dict | None = None, breadth: floa
     df["ra"] = df["def_rate"] * c["lg_R_per_G"] / df["def_rate"].mean()
     df["def_index"] = df["ra"] / c["lg_R_per_G"]
 
-    # winning-environment: small modifier from payroll + synergy (z-scored across teams)
+    # winning-environment: small modifier from team talent (Σ WAR) + synergy, z-scored
+    # across teams. Uses WAR directly — NOT estimated salary — so the sim reflects on-field
+    # talent, not a salary proxy. (payroll below is display-only.)
     if wexp_weight > 0:
-        env = 1.0 + wexp_weight * 0.5 * (_zscore(df["payroll"]) + _zscore(df["synergy_raw"]))
+        env = 1.0 + wexp_weight * 0.5 * (_zscore(df["team_war"]) + _zscore(df["synergy_raw"]))
         df["winning_env"] = env
         df["rs"] = df["rs"] * env
         df["ra"] = df["ra"] / env

@@ -13,6 +13,7 @@ type Team = {
 type Player = {
   name: string; franchise_ko: string; kind: string;
   war: number; metric: number; metric_label: string; salary_ok: number;
+  real_salary_ok?: number | null;
 };
 type BtRow = {
   season: number; standings_rho: number; pick_ko: string;
@@ -138,21 +139,25 @@ export default function KboPage() {
         <h2 className="font-display text-2xl font-semibold tracking-tight text-fg">{t("kbo.players.title")}</h2>
         <p className="mt-2 max-w-2xl text-sm leading-relaxed text-fg-muted">{t("kbo.players.note")}</p>
         <div className="mt-6 overflow-hidden rounded-xl border border-line">
-          <div className={HEAD + " grid-cols-[2rem_1fr_3.5rem_5rem_4.5rem]"}>
+          <div className={HEAD + " grid-cols-[2rem_1fr_3.5rem_5rem_4.5rem_4.5rem]"}>
             <span className="text-right">{t("kbo.col.rank")}</span>
             <span>{t("kbo.col.player")}</span>
             <span className="text-right">{t("kbo.col.war")}</span>
             <span className="text-right">{t("kbo.col.metric")}</span>
             <span className="text-right">{t("kbo.col.salary")}</span>
+            <span className="text-right">{t("kbo.col.real_salary")}</span>
           </div>
           <ul className="divide-y divide-line">
             {data.players.map((p, i) => (
-              <li key={p.name + i} className="grid grid-cols-[2rem_1fr_3.5rem_5rem_4.5rem] items-center gap-x-2 px-4 py-2.5 text-sm">
+              <li key={p.name + i} className="grid grid-cols-[2rem_1fr_3.5rem_5rem_4.5rem_4.5rem] items-center gap-x-2 px-4 py-2.5 text-sm">
                 <span className="text-right font-mono text-fg-dim">{i + 1}</span>
                 <span className="truncate text-fg">{p.name} · <span className="text-fg-dim">{p.franchise_ko}</span></span>
                 <span className="text-right font-mono font-semibold tabular-nums text-fg">{p.war.toFixed(1)}</span>
                 <span className="text-right font-mono tabular-nums text-fg-dim">{p.metric_label} {p.metric}</span>
                 <span className="text-right font-mono tabular-nums text-accent">{p.salary_ok}억</span>
+                <span className="text-right font-mono tabular-nums text-fg-dim">
+                  {p.real_salary_ok != null ? `${p.real_salary_ok}억` : "—"}
+                </span>
               </li>
             ))}
           </ul>

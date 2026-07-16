@@ -265,6 +265,30 @@ def _client() -> KBORecordClient:
     return KBORecordClient()
 
 
+def load_salary_reference(use_cache: bool = True) -> pd.DataFrame:
+    """Real-salary reference (one row per player-season) from salary_reference.csv.
+
+    Produced by scripts/convert_salary_xlsx.py (public Statiz historical top earners +
+    KBO official 2026). A CENSORED top-earner sample (salary >= ₩13.65억) of ACTUAL
+    salaries — used to validate the WAR→₩ curve only, never to refit it. `franchise`
+    follows continuity (넥센/키움→WO, SK/SSG→SK, KIA→HT), so a 넥센 row
+    surfaces under 키움's franchise. Sentinels (미공개 / -) are NaN; `war_realized` is
+    False for season >= CURRENT_SEASON (those WAR values are projections).
+    """
+    cache = _cache("salary_reference.parquet")
+    if use_cache and cache.exists():
+        return pd.read_parquet(cache)
+    df = pd.read_csv(config.SALARY_REF_PATH)
+    df.to_parquet(cache, index=False)
+    return df
+
+
+def load_team_salary_2026() -> pd.DataFrame:
+    """2026 per-club average salary (KBO official) from team_salary_2026.csv — real
+    team-level ground truth for validating the model's payroll signal."""
+    return pd.read_csv(config.TEAM_SALARY_PATH)
+
+
 def team_batting(season: int, use_cache: bool = True, client: KBORecordClient | None = None) -> pd.DataFrame:
     """One row per franchise: season batting totals (canonical columns)."""
     cache = _cache(f"team_batting_{season}.parquet")
