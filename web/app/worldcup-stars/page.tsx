@@ -13,7 +13,7 @@ type Star = {
   position: string; age: number; current_club: string;
   v0_eur: number; v1_eur: number; multiplier: number; jump_eur: number; v0_source: string;
   wc_goals: number; wc_assists: number; wc_rating: number; P: number; E: number;
-  mover_status: string | null;
+  mover_status: string | null; actual_move: boolean;
   headline_club: string; headline_club_ko: string; headline_prestige: number;
   fee_low_eur: number; fee_high_eur: number;
   destinations: Dest[];
@@ -166,7 +166,10 @@ function BoardRow({ s, t, ko, maxJump, isJames }: { s: Star; t: ReturnType<typeo
         <span className="font-display font-semibold text-fg">{eurM(s.v1_eur)}</span>
         <span className="ml-1 font-mono text-[11px] text-accent">×{s.multiplier.toFixed(2)}</span>
       </span>
-      <span className="relative z-10 truncate text-right text-fg-muted">{ko ? s.headline_club_ko : s.headline_club}</span>
+      <span className="relative z-10 truncate text-right text-fg-muted">
+        {ko ? s.headline_club_ko : s.headline_club}
+        {s.actual_move && <span className="ml-1 text-cyan" title={t("wcs.mover.confirmed")}>✔</span>}
+      </span>
     </li>
   );
 }
@@ -189,9 +192,18 @@ function DetailCard({ s, t, ko, isJames }: { s: Star; t: ReturnType<typeof useT>
       </div>
       {tag && <div className="mt-2"><span className="chip border-cyan/20 text-cyan">{tag}</span></div>}
 
+      {s.actual_move && (
+        <div className="mt-3 flex items-center justify-between rounded-lg border border-cyan/40 bg-cyan/[0.08] px-4 py-3">
+          <span className="text-sm text-fg-muted">
+            ✔ {t("wcs.actual.label")}: <span className="font-semibold text-fg">{ko ? s.headline_club_ko : s.headline_club}</span>
+          </span>
+          <span className="font-display text-lg font-bold text-cyan">{eurM(s.fee_low_eur)}</span>
+        </div>
+      )}
+
       <div className="mt-4 overflow-hidden rounded-lg border border-line">
         <div className="grid grid-cols-[1fr_9rem] gap-x-3 border-b border-line bg-ink-800/40 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-fg-dim">
-          <span>{t("wcs.dest.title")}</span>
+          <span>{s.actual_move ? t("wcs.modelfit") : t("wcs.dest.title")}</span>
           <span className="text-right">{t("wcs.col.fee")}</span>
         </div>
         <ul className="divide-y divide-line">

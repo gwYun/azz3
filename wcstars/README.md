@@ -71,6 +71,10 @@ Validate/inspect the calibration alone with `python -m wcstars.src.calibration`.
   World Cup stars are out of scope.
 - **P is coarse** — the robots-clean FotMob source is top-3-per-category, so P covers the
   named leaderboard standouts + curated breakouts; everyone else is P=0.
-- **Fees** — 2014-money model extrapolated to 2026 (~4.8× deflator); the destination is a
-  best-fit "if they move", not a literal prediction (e.g. Manzambi actually joined Aston
-  Villa, whereas the model's best fit is a super-club).
+- **Fees** — 2014-money model extrapolated to 2026 (~4.8× deflator).
+- **Confirmed vs predicted destination** — a player with a *confirmed* real 2026 move shows
+  the **actual club + real fee** (Manzambi → Aston Villa ✔, €70M), and is excluded from the
+  하메스 pick (that pick is a forward prediction of a young breakout's super-club move, so it
+  goes to an unsigned candidate like Bouaddi → Real Madrid). Unsigned players show the model
+  best-fit "if they move". Update `data/historical_breakouts.json → actual_2026_movers` as
+  real deals land.

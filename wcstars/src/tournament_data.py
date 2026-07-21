@@ -161,11 +161,16 @@ def load_curated_perf() -> pd.DataFrame:
     rows = []
     for m in doc.get("actual_2026_movers", []):
         p = 0.72 if m.get("status") == "confirmed" else 0.64
+        confirmed = m.get("status") == "confirmed"
         rows.append({
             "_k": _norm1(m["name"]), "name": m["name"], "p_curated": p,
             "reported_multiplier": float(m.get("implied_multiplier")
                                          or m.get("realized_multiplier") or 0.0),
             "mover_status": m.get("status", "rumored"),
+            # Actual destination is known only for CONFIRMED moves; the output must
+            # show reality for those, not the model's speculative best-fit club.
+            "actual_club": m.get("to_club") if confirmed else None,
+            "actual_fee_eur": float(m["transfer_fee_eur"]) if (confirmed and m.get("transfer_fee_eur")) else None,
         })
     return pd.DataFrame(rows)
 
@@ -192,13 +197,16 @@ def attach_signals(pool: pd.DataFrame, results: dict | None = None) -> pd.DataFr
 
     cur = load_curated_perf()
     if len(cur):
-        pool = pool.merge(cur[["_k", "p_curated", "reported_multiplier", "mover_status"]],
+        pool = pool.merge(cur[["_k", "p_curated", "reported_multiplier", "mover_status",
+                               "actual_club", "actual_fee_eur"]],
                           on="_k", how="left")
         pool["P"] = np.maximum(pool["p_raw"], pool["p_curated"].fillna(0.0))
     else:
         pool["P"] = pool["p_raw"]
         pool["reported_multiplier"] = np.nan
         pool["mover_status"] = np.nan
+        pool["actual_club"] = None
+        pool["actual_fee_eur"] = np.nan
 
     # WC goals/assists for the report (0 where unknown).
     pool["wc_goals"] = pool.get("goals", pd.Series(index=pool.index)).fillna(0.0)

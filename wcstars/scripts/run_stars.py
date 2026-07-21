@@ -47,6 +47,10 @@ _LEAGUE_MAP = {"Premier League": "Premier League", "La Liga": "LaLiga", "LaLiga"
                "Serie A": "Serie A", "Bundesliga": "Bundesliga", "Ligue 1": "Ligue 1"}
 _POS_MAP = {"FW": "forward", "MF": "midfielder", "DF": "defender", "GK": "goalkeeper"}
 _SUPERCLUB_PRESTIGE = 0.90  # a 하메스-style destination (Real Madrid, City, Bayern, PSG, Barça)
+_SUPERCLUBS = {"Real Madrid", "Manchester City", "Bayern Munich", "Paris Saint-Germain",
+               "FC Barcelona", "Liverpool FC"}
+# Korean names for real destinations that aren't in the suitor shortlist.
+_KO_CLUB_EXTRA = {"Aston Villa": "아스톤 빌라"}
 
 # Korean display names for the players likely to surface (fallback = Latin name).
 _KO_PLAYER = {
@@ -91,6 +95,7 @@ def build_results(top: int, top_k: int) -> dict:
     league_prior = rec.dest_league_prior(prof_df)
     shortlist, ko_clubs, prestige = rec.load_suitor_shortlist()
     ko_clubs.setdefault("Borussia Dortmund", "보루시아 도르트문트")  # suitor file ko key is abbreviated
+    ko_clubs.update(_KO_CLUB_EXTRA)  # real destinations outside the suitor shortlist
 
     pool = td.attach_signals(ssv2.load_player_pool_2526())
     board = bo.compute_board(pool, art)
@@ -118,6 +123,8 @@ def build_results(top: int, top_k: int) -> dict:
     # who barely move anyway, take what's left.
     taken, headline = set(), {}
     for _, r in head.iterrows():
+        if r.get("mover_status") == "confirmed" and isinstance(r.get("actual_club"), str):
+            continue  # confirmed movers use their REAL club, not a model best-fit
         tbl = tables[r["Player"]]
         pick = next((c for c in tbl["to_club"] if c not in taken), tbl.iloc[0]["to_club"])
         headline[r["Player"]] = pick
@@ -127,8 +134,17 @@ def build_results(top: int, top_k: int) -> dict:
     recs = []
     for rank, (_, r) in enumerate(head.iterrows(), 1):
         full = tables[r["Player"]]
-        hl = headline[r["Player"]]
-        hrow = full[full["to_club"] == hl].iloc[0]
+        actual_move = r.get("mover_status") == "confirmed" and isinstance(r.get("actual_club"), str)
+        if actual_move:
+            # Confirmed: headline is the REAL club + REAL fee (a point, not a band).
+            hl = r["actual_club"]
+            fee_pt = float(r["actual_fee_eur"]) if pd.notna(r.get("actual_fee_eur")) else float(r["V1"])
+            fee_lo = fee_hi = fee_pt
+        else:
+            hl = headline[r["Player"]]
+            hrow = full[full["to_club"] == hl].iloc[0]
+            fee_pt = float(hrow["predicted_fee_eur"])
+            fee_lo, fee_hi = float(hrow["fee_low_eur"]), float(hrow["fee_high_eur"])
         dests = []
         for _, d in full.head(top_k).iterrows():
             dests.append({
@@ -150,11 +166,10 @@ def build_results(top: int, top_k: int) -> dict:
             "E": round(float(r["E"]), 2), "nation_stage_weight": round(float(r["E"]), 2),
             "mover_status": (None if pd.isna(r.get("mover_status")) else r.get("mover_status")),
             "headline_club": hl, "headline_club_ko": ko_clubs.get(hl, hl),
-            "headline_prestige": float(prestige.get(hl, 0.6)),
-            "fee_eur": float(hrow["predicted_fee_eur"]),
-            "fee_low_eur": float(hrow["fee_low_eur"]), "fee_high_eur": float(hrow["fee_high_eur"]),
-            "fee_usd_range": fx.format_usd_man_range(fx.eur_to_usd(hrow["fee_low_eur"]),
-                                                     fx.eur_to_usd(hrow["fee_high_eur"])),
+            "headline_prestige": float(prestige.get(hl, 0.62)),
+            "actual_move": bool(actual_move),
+            "fee_eur": fee_pt, "fee_low_eur": fee_lo, "fee_high_eur": fee_hi,
+            "fee_usd_range": fx.format_usd_man_range(fx.eur_to_usd(fee_lo), fx.eur_to_usd(fee_hi)),
             "neutral_fee_pre_eur": neutral_pre[r["Player"]],
             "destinations": dests,
         })
@@ -164,7 +179,11 @@ def build_results(top: int, top_k: int) -> dict:
     def _james_weight(rec_):
         base = bo.james_score(head[head["Player"] == rec_["name"]].iloc[0])
         prestige_boost = 0.7 + 0.3 * min(rec_["headline_prestige"] / _SUPERCLUB_PRESTIGE, 1.0)
-        return base * prestige_boost
+        # The 하메스 case is a PREDICTION of a young breakout's super-club move. A
+        # confirmed move to a non-super-club (Manzambi -> Aston Villa) is a resolved,
+        # non-James outcome, so it should not be crowned the pick.
+        resolved = 0.35 if (rec_["actual_move"] and rec_["headline_club"] not in _SUPERCLUBS) else 1.0
+        return base * prestige_boost * resolved
     james = max(recs, key=_james_weight)
 
     results = td.load_results()
@@ -194,24 +213,30 @@ def write_report(data: dict) -> str:
 
     jp = data["james_pick"]
     top = data["board"][0]
+    top_dest = (f"**{top['headline_club_ko']} 이적 확정**" if top["actual_move"]
+                else f"예상 행선지 {top['headline_club_ko']}")
     L.append("\n## 핵심 결론\n")
     L.append(f"- **가장 유력한 하메스 케이스: {jp['name_ko']} ({jp['name']})** — "
-             f"보드 {jp['rank']}위, 젊은 브레이크아웃이 빅클럽행 프로필에 가장 근접.\n")
+             f"보드 {jp['rank']}위, 젊은 브레이크아웃이 *아직 성사 전인* 빅클럽행 프로필에 가장 근접.\n")
     L.append(f"- **가치 점프 1위: {top['name_ko']} ({top['name']})** — "
-             f"€{top['v0_eur']/1e6:.0f}M → €{top['v1_eur']/1e6:.0f}M (×{top['multiplier']}), "
-             f"예상 행선지 {top['headline_club_ko']}.\n")
+             f"€{top['v0_eur']/1e6:.0f}M → €{top['v1_eur']/1e6:.0f}M (×{top['multiplier']}), {top_dest}.\n")
     L.append("- 이미 정점에 있는 슈퍼스타(음바페 등)는 주목도는 최고지만 *가치 점프*는 작다(가치 천장). "
              "브레이크아웃은 **젊고 저평가된 개인 활약**에서 나온다.\n")
+    L.append("- **확정 이적은 실제 행선지로 표기**한다(예: 만잠비 → 아스톤 빌라). '예상 행선지'는 아직 이적하지 "
+             "않은 선수에 대한 *모델 최적합* 추정이다.\n")
 
     L.append("\n## 브레이크아웃 보드 (가치 급등 순)\n")
-    L.append("| 순위 | 선수 | 국가 | Pos | 나이 | 이적 전 | 이적 후 | 배수 | 예상 행선지 | 예상 이적료 |\n")
+    L.append("| 순위 | 선수 | 국가 | Pos | 나이 | 이적 전 | 이적 후 | 배수 | 행선지 | 이적료 |\n")
     L.append("|---:|---|---|:--:|---:|---:|---:|---:|---|---|\n")
     for r in data["board"]:
         star = " ★" if r["name"] == jp["name"] else ""
+        dest = r["headline_club_ko"] + (" ✔" if r["actual_move"] else "")
+        fee = (f"€{r['fee_low_eur']/1e6:.0f}M ✔" if r["actual_move"]
+               else f"€{r['fee_low_eur']/1e6:.0f}~{r['fee_high_eur']/1e6:.0f}M")
         L.append(f"| {r['rank']} | {r['name_ko']}{star} | {r['nation_ko']} | {r['position']} | {r['age']} | "
-                 f"€{r['v0_eur']/1e6:.0f}M | €{r['v1_eur']/1e6:.0f}M | ×{r['multiplier']} | "
-                 f"{r['headline_club_ko']} | €{r['fee_low_eur']/1e6:.0f}~{r['fee_high_eur']/1e6:.0f}M |\n")
-    L.append("\n*★ = 하메스 픽. '이적 전/후'는 시장가치, '예상 이적료'는 행선지 구단의 영입 프리미엄이 반영된 값이다.*\n")
+                 f"€{r['v0_eur']/1e6:.0f}M | €{r['v1_eur']/1e6:.0f}M | ×{r['multiplier']} | {dest} | {fee} |\n")
+    L.append("\n*★ = 하메스 픽 · ✔ = 실제 이적 확정(행선지·이적료 실제값). 나머지 '행선지/이적료'는 아직 이적하지 "
+             "않은 선수의 모델 추정이다. '이적 전/후'는 시장가치.*\n")
 
     # 상위 5명 상세 + 행선지 Top
     L.append("\n## 상위 브레이크아웃 상세\n")
@@ -225,11 +250,17 @@ def write_report(data: dict) -> str:
             wc = "FotMob 리더보드·이적 뉴스로 확인된 브레이크아웃"
         L.append(f"- 대회 활약: {wc} (개인활약 P={r['P']}, 국가 노출도 E={r['E']})\n")
         L.append(f"- 가치: €{r['v0_eur']/1e6:.0f}M → **€{r['v1_eur']/1e6:.0f}M** (×{r['multiplier']})\n")
-        L.append(f"- 예상 이적료(행선지 {r['headline_club_ko']}): **€{r['fee_low_eur']/1e6:.0f}~{r['fee_high_eur']/1e6:.0f}M** "
-                 f"({r['fee_usd_range']})\n")
-        L.append("\n  가장 적합한 행선지: " +
-                 ", ".join(f"{d['club_ko']}(€{d['fee_low_eur']/1e6:.0f}~{d['fee_high_eur']/1e6:.0f}M)"
-                           for d in r["destinations"][:3]) + "\n")
+        if r["actual_move"]:
+            L.append(f"- **실제 이적 확정: {r['headline_club_ko']} · €{r['fee_low_eur']/1e6:.0f}M** ({r['fee_usd_range']})\n")
+            L.append("\n  (참고) 모델이 본 적합 구단: " +
+                     ", ".join(f"{d['club_ko']}(€{d['fee_low_eur']/1e6:.0f}~{d['fee_high_eur']/1e6:.0f}M)"
+                               for d in r["destinations"][:3]) + "\n")
+        else:
+            L.append(f"- 예상 이적료(행선지 {r['headline_club_ko']}): **€{r['fee_low_eur']/1e6:.0f}~{r['fee_high_eur']/1e6:.0f}M** "
+                     f"({r['fee_usd_range']})\n")
+            L.append("\n  가장 적합한 행선지: " +
+                     ", ".join(f"{d['club_ko']}(€{d['fee_low_eur']/1e6:.0f}~{d['fee_high_eur']/1e6:.0f}M)"
+                               for d in r["destinations"][:3]) + "\n")
 
     # 검증
     v = data["validation"]
