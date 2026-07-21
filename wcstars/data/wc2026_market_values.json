@@ -1,0 +1,27 @@
+{
+  "_source": "Hand-curated pre-World-Cup (June 2026) Transfermarkt market values, EUR. Approximate ballparks for the board-relevant players, same curation approach as destination/data/target_players_2026.json and worldcup/data/tm_squad_values.json.",
+  "_why": "The pooled model value V0 leans on a 2022 MV snapshot (median-filled for young players not in the 2022 Big-5), so it understates the pre-WC value of exactly the young risers this feature is about. Where a curated 2026 MV exists it overrides the model value as the jump baseline V0, making the euro amounts realistic; players without an entry fall back to the model value (disclosed).",
+  "_currency": "EUR",
+  "values": {
+    "Kylian Mbappé": 180000000,
+    "Lamine Yamal": 200000000,
+    "Jude Bellingham": 180000000,
+    "Erling Haaland": 180000000,
+    "Pedri": 140000000,
+    "Jamal Musiala": 140000000,
+    "Rodri": 100000000,
+    "Eduardo Camavinga": 90000000,
+    "Michael Olise": 90000000,
+    "Rafael Leão": 70000000,
+    "Nico Williams": 70000000,
+    "Ousmane Dembélé": 60000000,
+    "Gavi": 60000000,
+    "Pau Cubarsí": 60000000,
+    "Ayyoub Bouaddi": 50000000,
+    "Manu Koné": 45000000,
+    "Nicolás Paz": 35000000,
+    "Johan Manzambi": 28000000,
+    "Ansu Fati": 25000000,
+    "Lionel Messi": 15000000
+  }
+}

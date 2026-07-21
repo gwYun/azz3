@@ -1,0 +1,35 @@
+{
+  "_source": "2026 FIFA World Cup results/awards — en.wikipedia.org/wiki/2026_FIFA_World_Cup (+ knockout_stage) and web news (NBC/FIFA/Al Jazeera/Fox), captured 2026-07-21.",
+  "_note": "Champion Spain beat Argentina 1-0 (aet, Ferran Torres 106') at MetLife Stadium 2026-07-19. England beat France in the third-place playoff. Used for per-nation 'exposure' (how deep a player's nation went = spotlight for a breakout).",
+  "final": {"winner": "Spain", "runner_up": "Argentina", "score": "1-0 (aet)", "date": "2026-07-19"},
+  "third_place": {"winner": "England", "loser": "France"},
+  "awards": {
+    "golden_ball": {"player": "Rodri", "team": "Spain"},
+    "golden_boot": {"player": "Kylian Mbappé", "team": "France", "goals": 10},
+    "silver_boot": {"player": "Lionel Messi", "team": "Argentina", "goals": 8},
+    "bronze_boot": {"player": "Jude Bellingham", "team": "England", "goals": 7},
+    "young_player": {"player": "Pau Cubarsí", "team": "Spain", "age": 19},
+    "golden_glove": {"player": "Unai Simón", "team": "Spain"}
+  },
+  "_stage_weight_note": "stage_reached maps a nation to how far it went. The breakout model turns this into an exposure multiplier (deeper = bigger spotlight). Nations not listed here exited in the group stage or Round of 32/16 and get the default group/early weight.",
+  "stage_reached": {
+    "Spain": "champion",
+    "Argentina": "runner_up",
+    "England": "semifinal",
+    "France": "semifinal",
+    "Paraguay": "quarterfinal",
+    "Belgium": "quarterfinal",
+    "Norway": "quarterfinal",
+    "Switzerland": "quarterfinal"
+  },
+  "stage_weights": {
+    "champion": 1.0,
+    "runner_up": 0.92,
+    "semifinal": 0.82,
+    "quarterfinal": 0.65,
+    "round_of_16": 0.45,
+    "round_of_32": 0.28,
+    "group": 0.12
+  },
+  "default_stage": "round_of_32"
+}

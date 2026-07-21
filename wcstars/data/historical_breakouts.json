@@ -1,0 +1,52 @@
+{
+  "_note": "Anchors for the breakout multiplier. The PRIMARY anchor (James Rodriguez 2014) LEVEL-calibrates the multiplier's scale: a James-like profile (young attacker, deep run, top output) should reproduce his real ~1.6x market-value jump. The actual_2026_movers are held OUT of calibration and used only to VALIDATE the fitted multiplier's magnitude out-of-sample (same discipline as kbo/src/salary_model.py's evaluate_against_reference — calibrate level, never overfit slope). All market values are reported/approximate, web-sourced (Transfermarkt + news), not exact.",
+  "primary_anchor": {
+    "name": "James Rodriguez",
+    "year": 2014,
+    "age": 22,
+    "position_group": "midfielder",
+    "nation": "Colombia",
+    "nation_stage": "quarterfinal",
+    "from_club": "AS Monaco",
+    "from_league": "Ligue 1",
+    "to_club": "Real Madrid",
+    "tournament": {"goals": 6, "golden_boot": true, "note": "led the tournament in scoring"},
+    "market_value_pre_eur": 45000000,
+    "transfer_fee_eur": 75000000,
+    "realized_multiplier": 1.67,
+    "_use": "Calibrate K/M so this profile -> ~1.6-1.7x."
+  },
+  "historical_reference": [
+    {"name": "Enzo Fernandez", "year": 2022, "age": 21, "position_group": "midfielder", "nation": "Argentina", "nation_stage": "champion", "from_club": "Benfica", "to_club": "Chelsea", "market_value_pre_eur": 30000000, "transfer_fee_eur": 121000000, "realized_multiplier": 4.0, "_note": "High-end outlier: fee inflated by Chelsea's buyer premium, not pure value. Shows the destination buyer-premium term matters; do NOT anchor scale to this."},
+    {"name": "Cody Gakpo", "year": 2022, "age": 23, "position_group": "forward", "nation": "Netherlands", "nation_stage": "round_of_16", "from_club": "PSV", "to_club": "Liverpool", "market_value_pre_eur": 32000000, "transfer_fee_eur": 42000000, "realized_multiplier": 1.31}
+  ],
+  "actual_2026_movers": [
+    {
+      "name": "Ayyoub Bouaddi", "name_ko": "아이유브 부아디", "age": 18, "position_group": "midfielder",
+      "nation": "Morocco", "nation_stage": "round_of_32",
+      "from_club": "Lille", "from_league": "Ligue 1",
+      "market_value_pre_eur": 50000000, "reported_price_post_eur": 100000000,
+      "status": "rumored", "to_club": null,
+      "implied_multiplier": 2.0,
+      "_source": "Transfermarkt MV €50m; Lille asking €80-100m post-WC (Man Utd + others). 2026-07."
+    },
+    {
+      "name": "Johan Manzambi", "name_ko": "요한 만잠비", "age": 20, "position_group": "midfielder",
+      "nation": "Switzerland", "nation_stage": "quarterfinal",
+      "from_club": "SC Freiburg", "from_league": "Bundesliga",
+      "market_value_pre_eur": 28000000, "transfer_fee_eur": 70000000,
+      "status": "confirmed", "to_club": "Aston Villa",
+      "implied_multiplier": 2.5,
+      "_source": "Confirmed £59.5m (~€70m) club-record to Aston Villa, 2026-07-17 (Sky/ESPN). Pre-WC MV approximate."
+    },
+    {
+      "name": "Manu Kone", "name_ko": "마누 코네", "age": 25, "position_group": "midfielder",
+      "nation": "France", "nation_stage": "semifinal",
+      "from_club": "AS Roma", "from_league": "Serie A",
+      "market_value_pre_eur": 45000000, "reported_price_post_eur": 70000000,
+      "status": "rumored", "to_club": null,
+      "implied_multiplier": 1.55,
+      "_source": "Emerged after Tchouameni injury; PL clubs monitoring. 2026-07."
+    }
+  ]
+}

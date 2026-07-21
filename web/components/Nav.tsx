@@ -14,7 +14,7 @@ type NavItem = { href: string; label: string; activePaths?: string[] };
 //   승부 예측     (Match Forecast)  → 월드컵 · KBO
 // /saved lives under 가상 선수빌드 (/build) — it shows the market sub-tabs with
 // 가상 선수빌드 active, and is reached via the in-page toggle, not a top-level tab.
-const MARKET_PATHS = ["/transfers", "/salary", "/build", "/saved"];
+const MARKET_PATHS = ["/transfers", "/salary", "/build", "/saved", "/worldcup-stars"];
 const MATCH_PATHS = ["/worldcup", "/kbo", "/matchup"];
 
 export function Nav() {
@@ -36,6 +36,7 @@ export function Nav() {
     { href: "/transfers", label: t("nav.sub.soccer") },
     { href: "/salary", label: t("nav.sub.baseball") },
     { href: "/build", label: t("nav.sub.build"), activePaths: ["/build", "/saved"] },
+    { href: "/worldcup-stars", label: t("nav.sub.wcstars") },
   ];
 
   const matchSubItems: NavItem[] = [

@@ -1,0 +1,38 @@
+{
+  "_source": "FotMob — FIFA World Cup 2026 (leagues/77) 'Player stats → Top stats' overview page. Captured 2026-07-21 via the gstack browse daemon (rendered DOM, not /api).",
+  "_robots": "fotmob.com/robots.txt: 'User-agent: * Allow: /' with 'Disallow: /api/*'. This overview page is under Allow:/ and was read as rendered HTML. The full per-stat leaderboards are served via /api/* (disallowed for generic agents) and were NOT fetched. Only these top-3-per-category values are used.",
+  "_shape": "categories[<stat>] = up to 3 leaders, each {name, team (nation), value}. Values are tournament totals unless the stat name says 'per 90' or '%'.",
+  "categories": {
+    "top_scorer":                 [{"name":"Kylian Mbappé","team":"France","value":10},{"name":"Lionel Messi","team":"Argentina","value":8},{"name":"Jude Bellingham","team":"England","value":7}],
+    "assists":                    [{"name":"Michael Olise","team":"France","value":7},{"name":"Lionel Messi","team":"Argentina","value":4},{"name":"Kylian Mbappé","team":"France","value":4}],
+    "goals_plus_assists":         [{"name":"Kylian Mbappé","team":"France","value":14},{"name":"Lionel Messi","team":"Argentina","value":12},{"name":"Ousmane Dembélé","team":"France","value":8}],
+    "fotmob_rating":              [{"name":"Kylian Mbappé","team":"France","value":8.49},{"name":"Lionel Messi","team":"Argentina","value":8.48},{"name":"Erling Haaland","team":"Norway","value":8.24}],
+    "minutes_played":             [{"name":"Emiliano Martínez","team":"Argentina","value":810},{"name":"Marc Cucurella","team":"Spain","value":750},{"name":"Pau Cubarsí","team":"Spain","value":750}],
+    "goals_per_90":               [{"name":"Deniz Undav","team":"Germany","value":1.81},{"name":"Erling Haaland","team":"Norway","value":1.35},{"name":"Johan Manzambi","team":"Switzerland","value":1.35}],
+    "expected_goals_xg":          [{"name":"Kylian Mbappé","team":"France","value":6.9},{"name":"Lionel Messi","team":"Argentina","value":5.3},{"name":"Erling Haaland","team":"Norway","value":4.4}],
+    "xg_per_90":                  [{"name":"Marko Arnautovic","team":"Austria","value":1.19},{"name":"Deniz Undav","team":"Germany","value":0.94},{"name":"Ismaïla Sarr","team":"Senegal","value":0.91}],
+    "xgot":                       [{"name":"Kylian Mbappé","team":"France","value":9.0},{"name":"Jude Bellingham","team":"England","value":7.0},{"name":"Lionel Messi","team":"Argentina","value":5.8}],
+    "shots_on_target_per_90":     [{"name":"Kylian Mbappé","team":"France","value":3.0},{"name":"Erling Haaland","team":"Norway","value":2.5},{"name":"Deniz Undav","team":"Germany","value":2.4}],
+    "shots_per_90":               [{"name":"Kylian Mbappé","team":"France","value":5.3},{"name":"Raul Jiménez","team":"Mexico","value":5.1},{"name":"Marcus Rashford","team":"England","value":4.9}],
+    "accurate_passes_per_90":     [{"name":"Leandro Paredes","team":"Argentina","value":101.0},{"name":"Rodri","team":"Spain","value":93.7},{"name":"Aïssa Mandi","team":"Algeria","value":90.8}],
+    "big_chances_created":        [{"name":"Lionel Messi","team":"Argentina","value":8},{"name":"Michael Olise","team":"France","value":7},{"name":"Ousmane Dembélé","team":"France","value":5}],
+    "chances_created":            [{"name":"Lionel Messi","team":"Argentina","value":25},{"name":"Ousmane Dembélé","team":"France","value":18},{"name":"Michael Olise","team":"France","value":18}],
+    "accurate_long_balls_per_90": [{"name":"Juan Quintero","team":"Colombia","value":14.6},{"name":"Pathé Ciss","team":"Senegal","value":6.5},{"name":"Vitinha","team":"Portugal","value":5.9}],
+    "expected_assists_xa":        [{"name":"Lionel Messi","team":"Argentina","value":4.2},{"name":"Michael Olise","team":"France","value":3.3},{"name":"Ousmane Dembélé","team":"France","value":2.3}],
+    "xa_per_90":                  [{"name":"Juan Quintero","team":"Colombia","value":0.66},{"name":"Rayan Cherki","team":"France","value":0.64},{"name":"Francisco Conceição","team":"Portugal","value":0.59}],
+    "xg_plus_xa_per_90":          [{"name":"Marko Arnautovic","team":"Austria","value":1.24},{"name":"Kevin Rodríguez","team":"Ecuador","value":1.24},{"name":"Deniz Undav","team":"Germany","value":1.22}],
+    "successful_dribbles_per_90": [{"name":"Rafael Leão","team":"Portugal","value":6.4},{"name":"Jamal Musiala","team":"Germany","value":5.0},{"name":"Nilson Angulo","team":"Ecuador","value":4.1}],
+    "big_chances_missed":         [{"name":"Kylian Mbappé","team":"France","value":8},{"name":"Erling Haaland","team":"Norway","value":5},{"name":"Jude Bellingham","team":"England","value":4}],
+    "possession_won_final_3rd_per_90": [{"name":"Pedri","team":"Spain","value":2.2},{"name":"Bernardo Silva","team":"Portugal","value":1.9},{"name":"Endrick","team":"Brazil","value":1.6}],
+    "clean_sheets":               [{"name":"Unai Simón","team":"Spain","value":7},{"name":"Camilo Vargas","team":"Colombia","value":4},{"name":"Mike Maignan","team":"France","value":4}],
+    "save_percentage":            [{"name":"Unai Simón","team":"Spain","value":90.9},{"name":"Diogo Costa","team":"Portugal","value":86.4},{"name":"Camilo Vargas","team":"Colombia","value":85.7}],
+    "goals_prevented":            [{"name":"Gregor Kobel","team":"Switzerland","value":2.3},{"name":"Orlando Gill","team":"Paraguay","value":1.6},{"name":"Diogo Costa","team":"Portugal","value":1.6}]
+  },
+  "_awards": {
+    "golden_boot": "Kylian Mbappé (France, 10)",
+    "golden_ball": "Rodri (Spain)",
+    "young_player": "Pau Cubarsí (Spain, 19)",
+    "golden_glove": "Unai Simón (Spain)",
+    "_awards_source": "web news (NBC/FIFA/Al Jazeera), 2026-07-20"
+  }
+}
