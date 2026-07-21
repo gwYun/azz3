@@ -1,19 +1,20 @@
 /**
- * Client-side port of kbo/src/salary_model.py — the WAR→₩ value curve.
+ * Client-side port of kbo/src/salary_model.py — the WAR→₩ salary curve.
  *
- * This is a transparent VALUE estimate: a league-minimum floor plus a convex
- * WAR premium, with an optional age tilt toward the FA/prime band. A static
- * real-salary reference exists (public Statiz history + KBO official 2026) but
- * is used only to validate the curve — NOT to refit it, since it's a censored
- * top-earner sample (salary ≥ ₩13.65억) in which WAR and salary are uncorrelated.
- * Kept numerically identical to the Python model so the /kbo leaderboard and this
- * estimator always agree (change both together).
+ * A league-minimum floor plus a convex WAR premium, with an optional age tilt
+ * toward the FA/prime band. The overall ₩/WAR SCALE is calibrated so the curve's
+ * median matches real KBO top-earner salaries (median ≈ ₩17억, from a static
+ * Statiz + KBO-official reference). Only the LEVEL is calibrated, not the slope:
+ * that reference is a censored top-earner sample (salary ≥ ₩13.65억) where WAR and
+ * salary are uncorrelated, so the magnitude is realistic but individual salaries
+ * are not predictable from WAR (real salary is shown alongside). Kept numerically
+ * identical to the Python model (change both together).
  */
 
-export const MIN_SALARY_WON = 30_000_000; // KBO league minimum (~₩30M)
-export const WAR_SCALE_WON = 110_000_000; // ₩ per WAR^exp above replacement
-export const WAR_EXP = 1.25; // mild convexity — stars paid super-linearly
-export const MAX_SALARY_WON = 2_500_000_000; // cap — left as-is to keep the Python sim reproducible (real top salaries run higher; that gap is reported, not baked into the curve)
+export const MIN_SALARY_WON = 30_000_000; // KBO league minimum (~₩30M) — floor
+export const WAR_SCALE_WON = 310_000_000; // ₩ per WAR^exp; scaled to the real-salary median
+export const WAR_EXP = 1.25; // convexity — fixed shape, not fit to the reference
+export const MAX_SALARY_WON = 8_000_000_000; // ceiling ≈ largest real KBO salary (₩81억)
 
 /** Mild multiplier peaking around the FA/prime band (~30); 1.0 if age unknown. */
 export function ageFactor(age: number | null): number {

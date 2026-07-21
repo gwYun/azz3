@@ -69,16 +69,16 @@ def test_team_salary_2026_loads():
     assert ordered.iloc[-1]["team_ko"] == "키움"                   # bottom (rebuild)
 
 
-def test_salary_diagnostics_guard_against_refit():
+def test_salary_diagnostics_level_calibrated():
     d = sal.evaluate_against_reference()
     assert set(d) >= {"n", "r2_level", "median_real_over_est", "corr_war_salary"}
     assert d["n"] > 50
-    # The reference is a CENSORED top-earner sample: WAR carries no usable slope, and the
-    # value curve under-predicts these stars ~3×. These assertions fail if someone refits
-    # the curve to this data (flattening it) — that is exactly what they guard against.
-    assert abs(d["corr_war_salary"]) < 0.2                        # ≈ 0
-    assert d["median_real_over_est"] > 2                          # value ≠ actual top-earner salary
-    assert d["r2_level"] < 0                                      # the mean beats the curve here
+    # The curve is LEVEL-calibrated: its median matches real top-earner salaries.
+    assert 0.7 < d["median_real_over_est"] < 1.4                  # magnitude is right
+    # But the SLOPE is not fit — the censored sample has corr≈0 and no per-player power.
+    # These guard against a future slope-refit that would collapse the curve to a constant.
+    assert abs(d["corr_war_salary"]) < 0.2                       # WAR doesn't predict salary
+    assert d["r2_level"] < 0                                      # per-player error stays large
 
 
 def test_sim_uses_war_not_salary():

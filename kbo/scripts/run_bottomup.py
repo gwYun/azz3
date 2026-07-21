@@ -136,8 +136,8 @@ def assemble(ratings, values, out, bt: pd.DataFrame, sims, seed) -> dict:
         },
         "caveat": ("선수 단위 bottom-up 예측. 엔진은 2015-2019 전체 로스터로 백테스트 검증됨. "
                    "2026은 규정 선수(실데이터)+팀 합계 앵커 벤치로 구성(뎁스 근사). 독립 경기 "
-                   "노이즈로 1순위 확률은 다소 과대. 연봉은 WAR→가치 추정(실연봉 회귀 아님)이며, "
-                   "실연봉 레퍼런스는 검증에만 사용."),
+                   "노이즈로 1순위 확률은 다소 과대. 연봉은 실연봉 중앙값에 레벨 보정한 WAR→₩ 추정"
+                   "(기울기 미적합, 개별 예측 아님)이며 표시 전용."),
     }
 
 
@@ -167,11 +167,11 @@ def write_report(payload: dict) -> str:
     pv_ = payload.get("payroll_validation", {})
     if d.get("n"):
         L.append("\n## 연봉 모델 검증 (실연봉 레퍼런스 대비)\n\n")
-        L.append(f"WAR→₩ 가치 곡선을 실제 상위 연봉자 {d['n']}명(공개 스탯티즈, 실현 WAR>0)과 비교. "
-                 f"레퍼런스는 상위 연봉자만 담긴 **절단 표본**(≥₩13.65억)이라 WAR↔연봉 상관이 "
-                 f"**{d['corr_war_salary']}**(≈0)이고, 값 곡선은 이들을 약 **{d['median_real_over_est']}×** "
-                 f"과소추정합니다(R²(level)={d['r2_level']}). 즉 이 데이터로 곡선을 재적합하면 안 되며, "
-                 f"곡선은 실연봉이 아니라 **가치**를 나타냅니다. "
+        L.append(f"WAR→₩ 곡선을 실제 상위 연봉자 {d['n']}명(공개 스탯티즈, 실현 WAR>0)과 비교. "
+                 f"SCALE을 실연봉 중앙값에 맞춰 **레벨 보정**했으므로 median(실/추정)="
+                 f"**{d['median_real_over_est']}**(≈1)로 크기는 일치합니다. 다만 레퍼런스는 상위 연봉자만 담긴 "
+                 f"**절단 표본**(≥₩13.65억)이라 WAR↔연봉 상관이 **{d['corr_war_salary']}**(≈0)이고 "
+                 f"R²(level)={d['r2_level']} — **개별** 연봉은 WAR로 예측 불가(레벨만 보정, 기울기 미적합). "
                  f"팀 payroll 순위 vs KBO 공식 2026 팀 평균연봉 순위 Spearman ρ="
                  f"**{pv_.get('spearman_rho')}**(팀 {pv_.get('n_teams')}개).\n")
     L.append(f"\n## 방법론\n\n- **데이터**: 백테스트=공개 전체 로스터(LOPES, 2010-2020, 박스스코어 디코딩), "

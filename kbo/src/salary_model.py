@@ -1,40 +1,37 @@
-"""Salary / value estimator (v2) — a VALUE curve, deliberately NOT a salary regression.
+"""Salary estimator (v2) — a WAR→₩ curve, LEVEL-calibrated to real KBO salaries.
 
-This maps a player's WAR to a won figure via a convex WAR→₩ curve, anchored to public
-KBO reference points (league minimum ≈ ₩30M; ceiling from observed top salaries). An
-optional age tilt nudges toward the FA-age premium when age is available (it isn't in the
-open backtest dump). It is an *estimate of value*, not a claim of actual salary.
+Maps a player's WAR to a won figure via a convex WAR→₩ curve. We do NOT scrape statiz
+(robots-blocked), but a static reference of real salaries (public Statiz historical top
+earners + KBO official 2026 — see data.load_salary_reference) IS available, and the curve's
+overall ₩/WAR SCALE is calibrated so its median matches those real top-earner salaries
+(median ≈ ₩17억). The league-minimum floor and an optional FA-age tilt are unchanged.
 
-We do NOT scrape statiz (robots-blocked). A static, user-provided reference of real
-salaries (public Statiz historical top earners + KBO official 2026 — see data.py
-`load_salary_reference`) IS available, but it is used to **validate** the curve only —
-never to refit it. Reason: that reference is a censored top-earner sample (salary ≥
-₩13.65억), so within it WAR and salary are essentially uncorrelated (corr ≈ 0); regressing
-salary on WAR from it would flatten the curve to a ~₩18억 constant and destroy the value
-signal. `evaluate_against_reference` quantifies the gap (the curve under-predicts these
-stars ~3×) so the honesty is measured, not asserted.
+IMPORTANT — only the LEVEL (overall scale) is calibrated, NOT the slope. That reference is a
+censored top-earner sample (salary ≥ ₩13.65억) in which WAR and salary are ~uncorrelated
+(corr ≈ 0), so it fixes the magnitude but carries no usable per-player WAR→salary slope.
+Fitting the slope/convexity to it would flatten the curve to a ~₩17억 constant. The estimate
+is therefore realistic in SCALE but NOT a per-player salary prediction — real salary is
+shown alongside it and the per-player scatter is large (`evaluate_against_reference`).
 
-This is a DISPLAY/valuation artifact only: the simulation's winning-environment factor
-reads team WAR, not salary (see team_build.py). Team payroll (Σ of these estimates) is
-still computed and shown as an investment indicator, but it does not feed the ratings.
+Display-only: the simulation's winning-environment factor reads team WAR, not salary
+(team_build.py). Team payroll (Σ of these estimates) is shown as an investment indicator
+only and does not feed the ratings.
 """
 from __future__ import annotations
 
 import numpy as np
 import pandas as pd
 
-# NOTE: These are hand-mirrored in web/lib/kbo-salary.ts — change both in the same commit.
-# Do NOT refit _WAR_SCALE_WON / _WAR_EXP to the real-salary reference: it's a censored
-# top-earner sample and the fit is not identified (see module docstring + tests).
-MIN_SALARY_WON = 30_000_000        # KBO league minimum (~₩30M)
-_WAR_SCALE_WON = 110_000_000       # ₩ per WAR^exponent above replacement
-_WAR_EXP = 1.25                    # mild convexity: stars paid super-linearly
-MAX_SALARY_WON = 2_500_000_000     # cap. Salary is display-only (the sim uses WAR), so
-                                   # this affects only the shown est-salary/payroll — not
-                                   # the ratings. Real top salaries reach ~₩25-42억; that
-                                   # gap is reported via evaluate_against_reference rather
-                                   # than baked in, and the cap is kept here to keep the
-                                   # displayed payroll numbers stable.
+# NOTE: hand-mirrored in web/lib/kbo-salary.ts — change both in the same commit.
+# Only the LEVEL (_WAR_SCALE_WON) is calibrated to the real-salary median. Do NOT fit the
+# SLOPE (_WAR_EXP / the WAR-dependence) to the reference: it's a censored top-earner sample
+# where WAR↔salary corr≈0, so the slope is not identified (see docstring + tests).
+MIN_SALARY_WON = 30_000_000        # KBO league minimum (~₩30M) — floor, unscaled
+_WAR_SCALE_WON = 310_000_000       # ₩ per WAR^exp; scaled so the curve's median matches
+                                   # real top-earner salaries (₩17억 median over the ref)
+_WAR_EXP = 1.25                    # convexity — fixed shape, NOT fit to the reference
+MAX_SALARY_WON = 8_000_000_000     # ceiling ≈ largest real KBO salary (₩81억, 김광현 2022);
+                                   # display-only (sim uses WAR), effectively never binds
 
 
 def _age_factor(age):
@@ -62,14 +59,16 @@ def add_salary(values: pd.DataFrame, war_col: str = "WAR", age_col: str = "age")
 
 
 def evaluate_against_reference(ref: pd.DataFrame | None = None) -> dict:
-    """Diagnostics of the value curve vs. real top-earner salaries — NOT a fit target.
+    """Diagnostics of the level-calibrated curve vs. real top-earner salaries.
 
     Filters the reference to realized, disclosed Statiz rows with WAR > 0, then compares
-    `est_salary_won(war)` to the actual salary. Expected (and healthy) results:
-    `corr_war_salary ≈ 0` and `median_real_over_est ≈ 3` — the reference is censored
-    (salary ≥ ₩13.65억), so it carries no usable WAR slope and the value curve necessarily
-    under-predicts these stars. These numbers are surfaced in the report and asserted in
-    tests to guard against a future accidental refit that would flatten the curve.
+    `est_salary_won(war)` to the actual salary. Expected results after level-calibration:
+    `median_real_over_est ≈ 1` (the SCALE is matched to the real median) but
+    `corr_war_salary ≈ 0` and `r2_level < 0` — the reference is censored (salary ≥
+    ₩13.65억), so WAR carries no usable per-player slope. In other words the magnitude is
+    right while individual salaries are not predictable from WAR; this is surfaced in the
+    report and asserted in tests so a future slope-refit (which would collapse the curve)
+    is caught.
     """
     if ref is None:
         from . import data
