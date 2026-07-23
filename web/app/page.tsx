@@ -23,11 +23,11 @@ const STATS = [
   { key: "landing.stat.accuracy", value: "ρ 0.85" },
 ] as const;
 
-// Hero tagline with "VALUE" emphasized in the brand accent. Splits on the word; if a
-// locale doesn't contain it, the text renders plain.
-const TAGLINE_EMPHASIS = new Set(["VALUE"]);
+// Hero tagline with "VALUE", "DATA" and "PREDICTION" emphasized in the brand accent.
+// Splits on those words; if a locale doesn't contain them, the text renders plain.
+const TAGLINE_EMPHASIS = new Set(["VALUE", "DATA", "PREDICTION"]);
 function Tagline({ text }: { text: string }) {
-  const parts = text.split(/(\bVALUE\b)/);
+  const parts = text.split(/(\bVALUE\b|\bDATA\b|\bPREDICTION\b)/);
   return (
     <>
       {parts.map((p, i) =>
