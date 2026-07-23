@@ -51,7 +51,7 @@ const en = {
   "landing.badge.baseball": "KBO Baseball",
   "landing.badge.esports": "Esports",
   "landing.badge.poker": "Pro Poker",
-  "landing.title": "True value is born from data, and proven by prediction.",
+  "landing.title": "TRUE VALUE IS BORN FROM DATA, AND PROVEN BY PREDICTION",
   "landing.subtitle":
     "Achieving disruptive innovation in cross-industry sports intelligence, from AI-driven transfer value forecasting to match prediction.",
   "landing.cta.primary": "Forecast a transfer fee",
@@ -503,7 +503,7 @@ const ko: Record<keyof typeof en, string> = {
   "landing.badge.esports": "e스포츠",
   "landing.badge.poker": "프로 포커",
   // Brand tagline: kept in English across locales (shown as-is on the KO page too).
-  "landing.title": "True value is born from data, and proven by prediction.",
+  "landing.title": "TRUE VALUE IS BORN FROM DATA, AND PROVEN BY PREDICTION",
   "landing.subtitle":
     "AI 기반 이적시장의 선수 가치 예측부터 경기 결과까지, 크로스 인더스트리 스포츠 인텔리전스 고도화의 와해적 혁신을 이룩합니다.",
   "landing.cta.primary": "이적료 예측하기",
