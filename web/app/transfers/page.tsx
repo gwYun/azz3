@@ -26,6 +26,7 @@ type Player = {
   contract_scenarios?: Contract[];
   free_fee_eur?: number;
   stats: Stats;
+  
 };
 type TfData = { players: Player[] };
 
@@ -71,49 +72,49 @@ function PlayerCard({ p, index, t, locale }: { p: Player; index: number; t: Retu
   const secondary = ko ? p.name : p.name_ko;
   const img = p.img ?? `/players/${p.id}.jpg`;
   return (
-    <section className="panel p-6 sm:p-7">
-      {/* header: photo + identity */}
-      <div className="flex items-start gap-4 sm:gap-5">
-        <div className="relative h-20 w-16 shrink-0 overflow-hidden rounded-lg bg-ink-800 ring-1 ring-line sm:h-24 sm:w-20">
-          <Image
-            src={img}
-            alt={primary}
-            fill
-            sizes="80px"
-            className="object-cover object-top"
-          />
-        </div>
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-            <h2 className="font-display text-2xl font-semibold text-fg">
-              <span className="mr-2 font-mono text-base text-fg-dim">0{index + 1}</span>
-              {primary}
-              <span className="ml-2 text-base font-normal text-fg-dim">{secondary}</span>
-            </h2>
-          </div>
-          <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-sm text-fg-muted">
-            <span>
-              <span className="text-fg-dim">{t("tf.from")}:</span> {ko ? p.from_ko : p.from_en}
-            </span>
-            <span>
-              <span className="text-fg-dim">{t("tf.age")}:</span> {p.age} · {ko ? p.nat_ko : p.nat_en} · {p.pos}
-            </span>
-            <span>
-              <span className="text-fg-dim">{t("tf.value")}:</span> {eurM(p.mv_eur)}
-            </span>
-          </div>
-        </div>
+    <section className="flex flex-col gap-4 sm:flex-row sm:items-stretch sm:gap-5">
+      {/* photo — outside the info box; stretches to its height on desktop, stacks on mobile */}
+      <div className="relative aspect-[4/5] w-full shrink-0 overflow-hidden rounded-xl border border-line bg-ink-800 sm:aspect-auto sm:w-52">
+        <Image
+          src={img}
+          alt={primary}
+          fill
+          sizes="(max-width: 640px) 100vw, 208px"
+          className={"object-cover " + (p.id === "mbappe" ? "object-[30%_top]" : "object-top")}
+        />
       </div>
 
-      {/* key stats (2025/26) */}
-      <StatChips stats={p.stats} t={t} />
+      {/* info box */}
+      <div className="panel min-w-0 flex-1 p-6 sm:p-7">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+          <h2 className="font-display text-2xl font-semibold text-fg">
+            <span className="mr-2 font-mono text-base text-fg-dim">0{index + 1}</span>
+            {primary}
+            <span className="ml-2 text-base font-normal text-fg-dim">{secondary}</span>
+          </h2>
+        </div>
+        <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-sm text-fg-muted">
+          <span>
+            <span className="text-fg-dim">{t("tf.from")}:</span> {ko ? p.from_ko : p.from_en}
+          </span>
+          <span>
+            <span className="text-fg-dim">{t("tf.age")}:</span> {p.age} · {ko ? p.nat_ko : p.nat_en} · {p.pos}
+          </span>
+          <span>
+            <span className="text-fg-dim">{t("tf.value")}:</span> {eurM(p.mv_eur)}
+          </span>
+        </div>
 
-      {/* body by type */}
-      {p.type === "free_agent" ? (
-        <FreeAgent p={p} t={t} />
-      ) : (
-        <Destinations p={p} t={t} locale={locale} />
-      )}
+        {/* key stats (2025/26) */}
+        <StatChips stats={p.stats} t={t} />
+
+        {/* body by type */}
+        {p.type === "free_agent" ? (
+          <FreeAgent p={p} t={t} />
+        ) : (
+          <Destinations p={p} t={t} locale={locale} />
+        )}
+      </div>
     </section>
   );
 }
