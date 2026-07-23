@@ -23,6 +23,26 @@ const STATS = [
   { key: "landing.stat.accuracy", value: "ρ 0.85" },
 ] as const;
 
+// Hero tagline with "TRUE VALUE", "BORN" and "PROVEN" emphasized in the brand accent.
+// Splits on those phrases; if a locale doesn't contain them, the text renders plain.
+const TAGLINE_EMPHASIS = new Set(["TRUE VALUE", "BORN", "PROVEN"]);
+function Tagline({ text }: { text: string }) {
+  const parts = text.split(/(\bTRUE VALUE\b|\bBORN\b|\bPROVEN\b)/);
+  return (
+    <>
+      {parts.map((p, i) =>
+        TAGLINE_EMPHASIS.has(p) ? (
+          <span key={i} className="text-accent">
+            {p}
+          </span>
+        ) : (
+          p
+        ),
+      )}
+    </>
+  );
+}
+
 export default function LandingPage() {
   const t = useT();
   return (
@@ -46,7 +66,7 @@ export default function LandingPage() {
             {t("landing.eyebrow")}
           </p>
           <h1 className="mt-3 font-display text-4xl font-bold leading-[1.1] tracking-tight text-fg sm:text-5xl">
-            {t("landing.title")}
+            <Tagline text={t("landing.title")} />
           </h1>
           <p className="mt-5 max-w-xl text-base leading-relaxed text-fg-muted">
             {t("landing.subtitle")}

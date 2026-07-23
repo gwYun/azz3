@@ -489,7 +489,7 @@ const ko: Record<keyof typeof en, string> = {
   "nav.sub.soccer": "축구",
   "nav.sub.baseball": "야구",
   "nav.sub.build": "가상 선수빌드",
-  "nav.sub.worldcup": "26월드컵(WWW)",
+  "nav.sub.worldcup": "26월드컵",
   "nav.sub.kbo": "KBO",
   "nav.sub.matchup": "KBO 승부예측",
   "nav.lang.label": "언어",
