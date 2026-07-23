@@ -1,0 +1,26 @@
+{
+  "_source": "Per-player 2026 World Cup stat lines + modeling inputs for the recognizable-star board.",
+  "_provenance": "goals / assists / rating: FotMob WC 'Top stats' overview (repo wc2026_fotmob_topstats.json) where the player appears on a leaderboard (Mbappé 10G/4A/8.49, Bellingham 7G, Olise 7A, Unai Simón 7 clean sheets, etc.); for players below FotMob's top-3 cutoff the line is a CURATED estimate consistent with the tournament result (Spain champion, Argentina runner-up, England/France semis) — flagged per player via stat_source.",
+  "_modeling": "notability = curated recognizability weight [0,1] (star power / name value, June 2026). P = curated individual-performance signal [0,1] fed to the breakout multiplier (max of this and the FotMob-derived P is used). These two are model inputs, NOT claimed facts.",
+  "_currency_note": "apps = matches played at the tournament.",
+  "players": {
+    "Kylian Mbappé":     {"goals": 10, "assists": 4, "apps": 7, "rating": 8.49, "notability": 1.00, "P": 1.00, "stat_source": "fotmob"},
+    "Lamine Yamal":      {"goals": 4,  "assists": 3, "apps": 7, "rating": 7.90, "notability": 0.96, "P": 0.66, "stat_source": "curated"},
+    "Jude Bellingham":   {"goals": 7,  "assists": 1, "apps": 6, "rating": 7.70, "notability": 0.93, "P": 0.55, "stat_source": "fotmob"},
+    "Erling Haaland":    {"goals": 5,  "assists": 1, "apps": 5, "rating": 8.24, "notability": 0.93, "P": 0.62, "stat_source": "fotmob"},
+    "Jamal Musiala":     {"goals": 2,  "assists": 2, "apps": 4, "rating": 7.40, "notability": 0.86, "P": 0.42, "stat_source": "curated"},
+    "Pedri":             {"goals": 1,  "assists": 3, "apps": 7, "rating": 7.70, "notability": 0.82, "P": 0.40, "stat_source": "curated"},
+    "Rodri":             {"goals": 1,  "assists": 2, "apps": 7, "rating": 7.80, "notability": 0.82, "P": 0.52, "stat_source": "fotmob"},
+    "Ousmane Dembélé":   {"goals": 3,  "assists": 5, "apps": 6, "rating": 7.60, "notability": 0.80, "P": 0.48, "stat_source": "fotmob"},
+    "Michael Olise":     {"goals": 1,  "assists": 7, "apps": 6, "rating": 7.70, "notability": 0.74, "P": 0.50, "stat_source": "fotmob"},
+    "Rafael Leão":       {"goals": 2,  "assists": 3, "apps": 5, "rating": 7.50, "notability": 0.74, "P": 0.44, "stat_source": "curated"},
+    "Nico Williams":     {"goals": 2,  "assists": 3, "apps": 7, "rating": 7.30, "notability": 0.72, "P": 0.42, "stat_source": "curated"},
+    "Eduardo Camavinga": {"goals": 0,  "assists": 1, "apps": 6, "rating": 7.20, "notability": 0.68, "P": 0.34, "stat_source": "curated"},
+    "Pau Cubarsí":       {"goals": 0,  "assists": 1, "apps": 7, "rating": 7.60, "notability": 0.62, "P": 0.34, "stat_source": "fotmob"},
+    "Ayyoub Bouaddi":    {"goals": 1,  "assists": 1, "apps": 3, "rating": 7.30, "notability": 0.52, "P": 0.64, "stat_source": "curated"},
+    "Manu Koné":         {"goals": 0,  "assists": 1, "apps": 6, "rating": 7.30, "notability": 0.50, "P": 0.55, "stat_source": "curated"},
+    "Johan Manzambi":    {"goals": 3,  "assists": 1, "apps": 5, "rating": 7.40, "notability": 0.44, "P": 0.72, "stat_source": "fotmob"},
+    "Unai Simón":        {"goals": 0,  "assists": 0, "apps": 7, "rating": 7.50, "notability": 0.60, "P": 0.30, "stat_source": "fotmob"},
+    "Nicolás Paz":       {"goals": 1,  "assists": 2, "apps": 4, "rating": 7.20, "notability": 0.46, "P": 0.40, "stat_source": "curated"}
+  }
+}

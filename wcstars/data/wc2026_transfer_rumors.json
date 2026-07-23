@@ -1,0 +1,13 @@
+{
+  "_source": "Curated summer-2026 transfer rumors / reports for World Cup standouts (Transfermarkt + Fabrizio Romano / Sky / ESPN style reporting). Approximate, web-sourced, scenario-consistent (June-July 2026).",
+  "_note": "status: 'confirmed' = official/agreed (shows the real club + real fee); 'rumored' = press link, not agreed. 'to_club' is the REAL-WORLD linked destination and is shown alongside the model's best-fit prediction — the two can differ. Only actual_2026_movers in historical_breakouts.json feed calibration/validation; this file is display-only.",
+  "rumors": {
+    "Johan Manzambi":  {"status": "confirmed", "from_club": "SC Freiburg",  "to_club": "Aston Villa",         "to_club_ko": "아스톤 빌라",       "reported_fee_eur": 70000000,  "source": "클럽 레코드 £59.5m(~€70m) 확정 (Sky/ESPN, 2026-07-17)"},
+    "Ayyoub Bouaddi":  {"status": "rumored",   "from_club": "Lille",        "to_club": "Manchester United",   "to_club_ko": "맨체스터 유나이티드", "reported_fee_eur": 100000000, "source": "릴 호가 €80~100m · 맨유·레알 관심 (2026-07)"},
+    "Manu Koné":       {"status": "rumored",   "from_club": "AS Roma",      "to_club": "Bayern Munich",       "to_club_ko": "바이에른 뮌헨",     "reported_fee_eur": 70000000,  "source": "추아메니 부상 공백 이후 PL·뮌헨 모니터링 (2026-07)"},
+    "Michael Olise":   {"status": "rumored",   "from_club": "Bayern Munich","to_club": "Real Madrid",         "to_club_ko": "레알 마드리드",     "reported_fee_eur": 120000000, "source": "7도움 폭발 후 레알·PSG 링크 (2026-07)"},
+    "Rafael Leão":     {"status": "rumored",   "from_club": "AC Milan",     "to_club": "Paris Saint-Germain", "to_club_ko": "파리 생제르맹",     "reported_fee_eur": 80000000,  "source": "밀란 정리 대상 · PL·PSG 관심 (2026-07)"},
+    "Nico Williams":   {"status": "rumored",   "from_club": "Athletic Club","to_club": "FC Barcelona",        "to_club_ko": "FC 바르셀로나",     "reported_fee_eur": 60000000,  "source": "바이아웃 링크 지속 (2026-07)"},
+    "Pau Cubarsí":     {"status": "rumored",   "from_club": "FC Barcelona", "to_club": "Manchester City",     "to_club_ko": "맨체스터 시티",     "reported_fee_eur": 90000000,  "source": "영플레이어상 이후 빅클럽 문의 (2026-07)"}
+  }
+}

@@ -1,25 +1,35 @@
-# 밸류트랙 — 월드컵 스타 예측 (2026 World Cup Breakout-Star Predictor)
+# 밸류트랙 — 월드컵 스타 예측 (2026 World Cup Star Predictor)
 
-After the 2026 World Cup, this module picks the players whose **market value jumped
-most**, predicts their **transfer fee + best-fit destination**, and names the single
-**"가장 유력한 하메스 케이스"** — a young breakout headed for a super-club, the way James
-Rodríguez went Monaco → Real Madrid after 2014.
+After the 2026 World Cup, this module builds a board of the tournament's **recognizable
+stars**, shows **each player's WC stat line**, notes **real transfer rumors**, predicts
+their **fee + destination clubs ranked by club value (구단가치)**, and still names the
+single **"가장 유력한 하메스 케이스"** — a young, undervalued breakout headed for a
+super-club, the way James Rodríguez went Monaco → Real Madrid after 2014.
 
-It is mostly an assembly of existing `azz3` pieces plus one new calibrated layer.
+The board is ranked by a **hybrid star score**, not pure value-jump: a famous player who
+performed (Mbappé, Yamal, Bellingham) leads even though his value barely moves, while a
+young riser with a real value jump surfaces in the upper-middle (see `breakout.py`
+`STAR_*` constants). The 하메스 pick is a separate archetype pass that requires genuine
+headroom, so a maxed-out €200M name can't be crowned the breakout.
+
+It is mostly an assembly of existing `azz3` pieces plus one calibrated layer.
 
 ## Pipeline (all reuse except `wcstars/src`)
 
 1. **`worldcup.src.squad_strength_v2.load_player_pool_2526`** — every Big-5-league World
    Cup player with 2025/26 club form + market value, valued by the shared XGBoost
    transfer-fee model (`data/models/xgb_transfer_fee.pkl`).
-2. **`wcstars.src.tournament_data`** — attaches two real-tournament signals per player:
+2. **`wcstars.src.tournament_data`** — attaches per-player signals:
    - `E` nation exposure (how deep the nation went: champion > final > … > group),
-   - `P` individual performance in [0,1] (FotMob "Top stats" overview + awards + curated
-     movers).
+   - `P` individual performance in [0,1] (FotMob "Top stats" overview + awards + curated),
+   - a **WC stat line** (goals/assists/apps/rating) and **notability** from
+     `wc2026_player_stats.json`, and a **transfer rumor** from `wc2026_transfer_rumors.json`.
 3. **`wcstars.src.breakout`** — the breakout multiplier `M`, the value jump `V0→V1`, the
-   ranked board, and the 하메스 archetype pick.
+   **star score** that ranks the board (recognizability × output), and the 하메스 pick.
 4. **`destination.src.recommender`** — feeds each top player's *boosted* profile (V1) to
-   the buyer-aware fee + best-fit-destination engine.
+   the buyer-aware fee + destination engine; `run_stars` then **orders each player's
+   destination list by 구단가치** (`destination/data/club_brand_values_2026.json`,
+   enterprise value, largest first) rather than by fit.
 5. **`wcstars.src.calibration`** — calibrates the multiplier level to James-2014 and
    validates out-of-sample against the real 2026 movers.
 
@@ -53,7 +63,13 @@ destination buyer-premium, applied in the recommender step).
   rendered overview page was read, never `/api/*`.
 - `wc2026_results.json` — champion/finalists, per-nation stage reached, stage weights, awards.
 - `wc2026_market_values.json` — curated pre-WC 2026 market values (jump baseline override).
-- `historical_breakouts.json` — James-2014 calibration anchor + held-out 2026 movers.
+- `wc2026_player_stats.json` — per-player WC stat line (G/A/apps/rating) + `notability` +
+  curated `P` for the recognizable-star board. FotMob-sourced where the player is on a
+  leaderboard, else a curated estimate flagged via `stat_source` (shown as `*` on the page).
+- `wc2026_transfer_rumors.json` — curated summer-2026 transfer rumors/confirmed moves
+  (display only; the real-world linked club is shown next to the model prediction).
+- `historical_breakouts.json` — James-2014 calibration anchor + held-out 2026 movers
+  (the ONLY rumor source that feeds calibration/validation).
 
 ## Run
 

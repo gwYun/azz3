@@ -1,0 +1,26 @@
+{
+  "_source": "Curated club ENTERPRISE / brand valuations, 2025-2026 ballpark, in the Forbes 'World's Most Valuable Soccer Teams' + Deloitte Money League tradition (USD, converted to EUR at ~0.92). Approximate, web-sourced, hand-curated (same style as suitor_clubs_2026.json). Used ONLY to order a player's destination list by 구단가치 (club value), largest first — it does not change fee or fit.",
+  "_currency": "EUR",
+  "_note": "Enterprise value (not squad market value): Manchester United ranks above FC Barcelona here, unlike a Transfermarkt squad-value ordering.",
+  "values": {
+    "Real Madrid": 6200000000,
+    "Manchester United": 6000000000,
+    "FC Barcelona": 5150000000,
+    "Liverpool FC": 5000000000,
+    "Manchester City": 4900000000,
+    "Bayern Munich": 4600000000,
+    "Paris Saint-Germain": 4050000000,
+    "Tottenham Hotspur": 3400000000,
+    "Chelsea FC": 3300000000,
+    "Arsenal FC": 3200000000,
+    "Juventus FC": 2300000000,
+    "Borussia Dortmund": 1900000000,
+    "Atlético de Madrid": 1600000000,
+    "AC Milan": 1450000000,
+    "Inter Milan": 1300000000,
+    "SSC Napoli": 1250000000,
+    "Newcastle United": 900000000,
+    "Atalanta BC": 550000000,
+    "Aston Villa": 850000000
+  }
+}

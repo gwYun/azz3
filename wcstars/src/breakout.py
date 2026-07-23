@@ -46,6 +46,31 @@ CEIL_FLOOR = 0.15            # minimum ceiling_factor (even a maxed player can n
 # Board hygiene: ignore fringe players whose model value is negligible.
 MIN_V0_EUR = 3_000_000.0
 
+# --- star board (recognizable-player-first ordering) ------------------------ #
+# The board is ranked by a HYBRID star score, not pure value-jump: a famous player
+# who performed (Mbappé, Yamal, Bellingham) leads even though he barely "jumps",
+# while a young riser with a real value jump still surfaces in the upper-middle.
+#   star = (N_BASE + (1-N_BASE)*notability) * (W_PERF*P + W_JUMP*jump_norm + W_MV*mv_norm)
+STAR_N_BASE = 0.40             # notability floor (0 = ignore fame, 1 = fame is a hard gate)
+STAR_W_PERF = 0.60             # WC individual performance P dominates
+STAR_W_JUMP = 0.28             # normalized value jump (rewards breakouts)
+STAR_W_MV = 0.12               # normalized market value (a soft floor for elite names)
+STAR_MV_CEIL = 200_000_000.0   # market value at which mv_norm saturates
+# A player needs SOME spotlight to make the board: real performance, or enough name
+# value that people expect to see him (a champion's recognizable starter).
+STAR_MIN_P = 0.08
+STAR_MIN_NOTABILITY = 0.55
+
+# --- transfer likelihood (drop settled stars who won't move) ----------------- #
+# A star already anchored at a super-club with no transfer link is a low-probability
+# mover — this feature is "who moves and where", so those are excluded. A rumor is
+# hard evidence of a move; absent one, likelihood comes from movability (headroom +
+# value jump + youth) with a heavy penalty for already being at the top of the market.
+SUPERCLUBS_CURRENT = {"Real Madrid", "Barcelona", "FC Barcelona", "Manchester City",
+                      "Bayern Munich", "Paris Saint-Germain", "Liverpool", "Liverpool FC"}
+TRANSFER_MIN = 0.55           # keep a player only if transfer_likelihood >= this
+SUPERCLUB_STAY_PENALTY = 0.35  # a settled super-club star's movability is heavily discounted
+
 
 def youth_factor(age: float) -> float:
     if not np.isfinite(age) or age <= 0:
@@ -105,8 +130,31 @@ def compute_board(pool: pd.DataFrame, art, k: float = K) -> pd.DataFrame:
     # (tiny base). sqrt(V0) keeps a €25M->€46M breakout above a €3M->€6M unknown.
     pool["breakout_score"] = (pool["M"] - 1.0) * np.sqrt(pool["V0"].clip(lower=0.0))
 
+    # Star score: recognizable performers first, breakouts rewarded (see constants).
+    if "notability" not in pool.columns:
+        pool["notability"] = 0.35
+    pool["notability"] = pool["notability"].fillna(0.35)
+    jump_norm = ((pool["M"] - 1.0) / (M_MAX - 1.0)).clip(0.0, 1.0)
+    mv_norm = (pool["V0"] / STAR_MV_CEIL).clip(0.0, 1.0)
+    fame = STAR_N_BASE + (1.0 - STAR_N_BASE) * pool["notability"]
+    pool["star_score"] = fame * (STAR_W_PERF * pool["P"]
+                                 + STAR_W_JUMP * jump_norm
+                                 + STAR_W_MV * mv_norm)
+
+    # Transfer likelihood: rumor => high; else movability, penalized hard for a
+    # settled super-club star (see constants). Used to drop low-probability movers.
+    age = pool["age_years"].fillna(27.0)
+    youth_move = ((28.0 - age) / 12.0).clip(0.0, 1.0)
+    base_move = 0.55 * pool["ceiling_f"] + 0.25 * jump_norm + 0.20 * youth_move
+    at_super = pool["club"].astype(str).isin(SUPERCLUBS_CURRENT)
+    lk = base_move.where(~at_super, base_move * SUPERCLUB_STAY_PENALTY).clip(0.0, 1.0)
+    status = pool.get("mover_status")
+    if status is not None:
+        lk = lk.mask(status == "rumored", 0.85).mask(status == "confirmed", 1.0)
+    pool["transfer_likelihood"] = lk
+
     board = pool[pool["V0"] >= MIN_V0_EUR].copy()
-    return board.sort_values("breakout_score", ascending=False).reset_index(drop=True)
+    return board.sort_values("star_score", ascending=False).reset_index(drop=True)
 
 
 # --- 하메스 (James Rodriguez) archetype pick -------------------------------- #

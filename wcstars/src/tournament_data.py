@@ -208,10 +208,30 @@ def attach_signals(pool: pd.DataFrame, results: dict | None = None) -> pd.DataFr
         pool["actual_club"] = None
         pool["actual_fee_eur"] = np.nan
 
-    # WC goals/assists for the report (0 where unknown).
-    pool["wc_goals"] = pool.get("goals", pd.Series(index=pool.index)).fillna(0.0)
-    pool["wc_assists"] = pool.get("assists", pd.Series(index=pool.index)).fillna(0.0)
-    pool["wc_rating"] = pool.get("rating", pd.Series(index=pool.index)).fillna(0.0)
+    # Curated stat line + modeling inputs (notability, curated P) for the star board.
+    ps = load_player_stats()
+    pool = pool.merge(ps, on="_k", how="left")
+    pool["notability"] = pool["notability"].fillna(DEFAULT_NOTABILITY)
+    pool["P"] = np.maximum(pool["P"], pool["ps_P"].fillna(0.0))
+
+    # WC stat line for display: prefer the curated line (which equals FotMob for
+    # leaderboard players and is a flagged estimate otherwise), else the FotMob-derived
+    # goals/assists, else 0.
+    fm_goals = pool.get("goals", pd.Series(index=pool.index, dtype=float))
+    fm_assists = pool.get("assists", pd.Series(index=pool.index, dtype=float))
+    fm_rating = pool.get("rating", pd.Series(index=pool.index, dtype=float))
+    pool["wc_goals"] = pool["ps_goals"].where(pool["ps_goals"].notna(), fm_goals).fillna(0.0)
+    pool["wc_assists"] = pool["ps_assists"].where(pool["ps_assists"].notna(), fm_assists).fillna(0.0)
+    pool["wc_rating"] = pool["ps_rating"].where(pool["ps_rating"].notna(), fm_rating).fillna(0.0)
+    pool["wc_apps"] = pool["ps_apps"].fillna(0.0)
+    pool["stat_source"] = pool["stat_source"].fillna("")
+
+    # Display-only transfer rumors: a mover tag + the real-world linked destination.
+    ru = load_rumors()
+    pool = pool.merge(ru, on="_k", how="left")
+    # Curated (calibration) status wins; otherwise fall back to a rumor-file status.
+    pool["mover_status"] = pool["mover_status"].where(pool["mover_status"].notna(),
+                                                      pool.get("rumor_status"))
 
     # Curated 2026 market value (jump baseline override), keyed by normalized name.
     mv = load_market_values_2026()
@@ -227,3 +247,60 @@ def load_market_values_2026() -> dict:
     with open(path) as f:
         vals = json.load(f).get("values", {})
     return {_norm1(k): float(v) for k, v in vals.items()}
+
+
+# --------------------------------------------------------------------------- #
+# Curated per-player WC stat line + modeling inputs (notability, P)
+# --------------------------------------------------------------------------- #
+DEFAULT_NOTABILITY = 0.35  # a WC player nobody's talking about (fringe recognizability)
+
+
+def load_player_stats() -> pd.DataFrame:
+    """One row per curated WC player: display stat line + notability + curated P.
+
+    goals/assists/rating are the DISPLAYED tournament stats (FotMob-sourced where the
+    player is on a leaderboard, else a curated estimate — see the data file's
+    _provenance). notability and P are modeling inputs; P is later max-combined with
+    the FotMob-derived P so a curated floor never lowers a leaderboard player.
+    """
+    path = _DATA / "wc2026_player_stats.json"
+    if not path.exists():
+        return pd.DataFrame(columns=["_k", "ps_goals", "ps_assists", "ps_apps",
+                                     "ps_rating", "notability", "ps_P", "stat_source"])
+    with open(path) as f:
+        players = json.load(f).get("players", {})
+    rows = []
+    for name, d in players.items():
+        rows.append({
+            "_k": _norm1(name), "ps_goals": float(d.get("goals", 0)),
+            "ps_assists": float(d.get("assists", 0)), "ps_apps": float(d.get("apps", 0)),
+            "ps_rating": float(d.get("rating", 0.0)),
+            "notability": float(d.get("notability", DEFAULT_NOTABILITY)),
+            "ps_P": float(d.get("P", 0.0)), "stat_source": d.get("stat_source", "curated"),
+        })
+    return pd.DataFrame(rows)
+
+
+def load_rumors() -> pd.DataFrame:
+    """Display-only summer-2026 transfer rumors keyed by normalized name.
+
+    Sets a mover_status tag and carries the real-world linked destination + reported
+    fee, shown ALONGSIDE the model's best-fit prediction. Does not feed calibration
+    (only historical_breakouts.actual_2026_movers does).
+    """
+    path = _DATA / "wc2026_transfer_rumors.json"
+    if not path.exists():
+        return pd.DataFrame(columns=["_k", "rumor_status", "rumor_from", "rumor_to",
+                                     "rumor_to_ko", "rumor_fee_eur", "rumor_source"])
+    with open(path) as f:
+        rumors = json.load(f).get("rumors", {})
+    rows = []
+    for name, d in rumors.items():
+        rows.append({
+            "_k": _norm1(name), "rumor_status": d.get("status"),
+            "rumor_from": d.get("from_club"), "rumor_to": d.get("to_club"),
+            "rumor_to_ko": d.get("to_club_ko"),
+            "rumor_fee_eur": float(d["reported_fee_eur"]) if d.get("reported_fee_eur") else None,
+            "rumor_source": d.get("source"),
+        })
+    return pd.DataFrame(rows)

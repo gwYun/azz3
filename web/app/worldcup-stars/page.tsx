@@ -2,18 +2,23 @@
 
 import { useEffect, useState } from "react";
 import { useI18n, useT } from "@/lib/i18n-context";
-import type { Locale } from "@/lib/i18n";
 
 type Dest = {
   rank: number; club: string; club_ko: string; league: string;
-  fee_low_eur: number; fee_high_eur: number;
+  club_value_eur: number; fee_low_eur: number; fee_high_eur: number; fit: number;
+};
+type Rumor = {
+  status: string; from_club: string; to_club: string; to_club_ko: string;
+  reported_fee_eur: number | null; source: string | null;
 };
 type Star = {
   rank: number; name: string; name_ko: string; nation: string; nation_ko: string;
   position: string; age: number; current_club: string;
   v0_eur: number; v1_eur: number; multiplier: number; jump_eur: number; v0_source: string;
-  wc_goals: number; wc_assists: number; wc_rating: number; P: number; E: number;
-  mover_status: string | null; actual_move: boolean;
+  wc_goals: number; wc_assists: number; wc_apps: number; wc_rating: number;
+  stat_source: string; P: number; notability: number; star_score: number;
+  transfer_likelihood: number; E: number;
+  mover_status: string | null; actual_move: boolean; rumor: Rumor | null;
   headline_club: string; headline_club_ko: string; headline_prestige: number;
   fee_low_eur: number; fee_high_eur: number;
   destinations: Dest[];
@@ -38,6 +43,7 @@ type Data = {
 
 const eurM = (v: number) => `€${Math.round(v / 1e6)}M`;
 const feeRange = (lo: number, hi: number) => `€${Math.round(lo / 1e6)}~${Math.round(hi / 1e6)}M`;
+const clubVal = (v: number) => (v >= 1e9 ? `€${(v / 1e9).toFixed(1)}B` : `€${Math.round(v / 1e6)}M`);
 
 export default function WorldCupStarsPage() {
   const t = useT();
@@ -73,7 +79,7 @@ export default function WorldCupStarsPage() {
       {/* 하메스 픽 featured card */}
       <JamesCard s={james} t={t} ko={ko} />
 
-      {/* Breakout board */}
+      {/* Star board */}
       <h2 className="mt-10 font-display text-2xl font-semibold text-fg">{t("wcs.board.title")}</h2>
       <p className="mt-1 text-sm text-fg-dim">{t("wcs.board.sub")}</p>
       <div className="mt-4 overflow-hidden rounded-lg border border-line">
@@ -90,7 +96,7 @@ export default function WorldCupStarsPage() {
         </ul>
       </div>
 
-      {/* Top detail cards (destinations per player) */}
+      {/* Top detail cards (destinations per player, ordered by club value) */}
       <h2 className="mt-10 font-display text-2xl font-semibold text-fg">{t("wcs.detail.title")}</h2>
       <div className="mt-4 space-y-4">
         {data.board.slice(0, 5).map((s) => (
@@ -106,19 +112,50 @@ export default function WorldCupStarsPage() {
   );
 }
 
-function moverTag(status: string | null, t: ReturnType<typeof useT>): string | null {
-  if (status === "confirmed") return t("wcs.mover.confirmed");
-  if (status === "rumored") return t("wcs.mover.rumored");
-  return null;
+// Compact World Cup stat line: goals / assists / apps / rating (+ curated marker).
+function WcStatLine({ s, ko, t }: { s: Star; ko: boolean; t: ReturnType<typeof useT> }) {
+  const ga = ko ? `${s.wc_goals}골 ${s.wc_assists}도움` : `${s.wc_goals}G ${s.wc_assists}A`;
+  const apps = ko ? `${s.wc_apps}경기` : `${s.wc_apps} apps`;
+  const rating = s.wc_rating > 0 ? s.wc_rating.toFixed(1) : null;
+  const curated = !!s.stat_source && s.stat_source !== "fotmob";
+  return (
+    <span className="inline-flex flex-wrap items-center gap-x-1.5 text-xs text-fg-dim">
+      <span className="font-medium text-fg-muted">{ga}</span>
+      <span aria-hidden>·</span><span>{apps}</span>
+      {rating && (<><span aria-hidden>·</span><span>{ko ? "평점" : "rating"} {rating}</span></>)}
+      {curated && <span className="cursor-help text-fg-dim/70" title={t("wcs.stat.curated")}>*</span>}
+    </span>
+  );
+}
+
+// Real-world transfer rumor / confirmed move.
+function RumorLine({ r, t, ko }: { r: Rumor; t: ReturnType<typeof useT>; ko: boolean }) {
+  const confirmed = r.status === "confirmed";
+  const to = ko ? (r.to_club_ko || r.to_club) : r.to_club;
+  const feeLabel = confirmed ? t("wcs.rumor.fee") : t("wcs.rumor.reported");
+  return (
+    <div className={"mt-4 rounded-lg border px-4 py-3 text-sm " +
+      (confirmed ? "border-cyan/40 bg-cyan/[0.08]" : "border-accent/30 bg-accent/[0.06]")}>
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+        <span className={"chip " + (confirmed ? "border-cyan/30 text-cyan" : "border-accent/30 text-accent")}>
+          {confirmed ? t("wcs.mover.confirmed") : t("wcs.mover.rumored")}
+        </span>
+        <span className="text-fg-muted">
+          {r.from_club} <span className="text-fg-dim">→</span>{" "}
+          <span className="font-semibold text-fg">{to}</span>
+          {r.reported_fee_eur ? <span className="text-fg-dim"> · {feeLabel} {eurM(r.reported_fee_eur)}</span> : null}
+        </span>
+      </div>
+      {r.source && <p className="mt-1 text-[11px] leading-relaxed text-fg-dim">{r.source}</p>}
+    </div>
+  );
 }
 
 function JamesCard({ s, t, ko }: { s: Star; t: ReturnType<typeof useT>; ko: boolean }) {
-  const tag = moverTag(s.mover_status, t);
   return (
     <section className="mt-8 overflow-hidden rounded-xl border border-accent/40 bg-accent/[0.07] p-6 shadow-glow sm:p-7">
       <div className="flex items-center gap-2">
         <span className="chip border-accent/40 bg-accent/10 text-accent">★ {t("wcs.james.tag")}</span>
-        {tag && <span className="chip border-cyan/20 text-cyan">{tag}</span>}
       </div>
       <div className="mt-3 flex flex-wrap items-baseline gap-x-3 gap-y-1">
         <h2 className="font-display text-3xl font-semibold text-fg">{ko ? s.name_ko : s.name}</h2>
@@ -127,18 +164,20 @@ function JamesCard({ s, t, ko }: { s: Star; t: ReturnType<typeof useT>; ko: bool
       <p className="mt-1 text-sm text-fg-muted">
         {ko ? s.nation_ko : s.nation} · {s.current_club} · {t("wcs.age")} {s.age} · {s.position}
       </p>
+      <div className="mt-2"><WcStatLine s={s} ko={ko} t={t} /></div>
       <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-3">
         <ValueTile label={t("wcs.before")} value={eurM(s.v0_eur)} />
         <ValueTile label={t("wcs.after")} value={eurM(s.v1_eur)} accent
           badge={`×${s.multiplier.toFixed(2)}`} />
         <ValueTile label={t("wcs.dest.fee", { club: ko ? s.headline_club_ko : s.headline_club })}
-          value={feeRange(s.fee_low_eur, s.fee_high_eur)} accent />
+          value={feeRange(s.fee_low_eur, s.fee_high_eur)} accent sub={t("wcs.model.pred")} />
       </div>
+      {s.rumor && <RumorLine r={s.rumor} t={t} ko={ko} />}
     </section>
   );
 }
 
-function ValueTile({ label, value, accent, badge }: { label: string; value: string; accent?: boolean; badge?: string }) {
+function ValueTile({ label, value, accent, badge, sub }: { label: string; value: string; accent?: boolean; badge?: string; sub?: string }) {
   return (
     <div className="rounded-lg border border-line bg-ink-900/40 px-4 py-3">
       <div className="text-[11px] uppercase tracking-wide text-fg-dim">{label}</div>
@@ -146,6 +185,7 @@ function ValueTile({ label, value, accent, badge }: { label: string; value: stri
         <span className={"font-display text-2xl font-bold " + (accent ? "text-accent" : "text-fg")}>{value}</span>
         {badge && <span className="rounded bg-accent/15 px-1.5 py-0.5 font-mono text-xs font-semibold text-accent">{badge}</span>}
       </div>
+      {sub && <div className="mt-0.5 text-[10px] uppercase tracking-wide text-fg-dim">{sub}</div>}
     </div>
   );
 }
@@ -155,10 +195,13 @@ function BoardRow({ s, t, ko, maxJump, isJames }: { s: Star; t: ReturnType<typeo
     <li className="relative grid grid-cols-[1.6rem_1fr_5.5rem_7rem] items-center gap-x-2 px-3 py-2.5 text-sm sm:grid-cols-[1.6rem_1fr_8rem_9rem]">
       <span aria-hidden className="absolute inset-y-0 left-0 bg-accent/10" style={{ width: `${(s.jump_eur / maxJump) * 100}%` }} />
       <span className="relative z-10 font-mono text-fg-dim">{s.rank}</span>
-      <span className="relative z-10 min-w-0 truncate">
-        <span className={isJames ? "font-semibold text-accent" : "text-fg"}>{ko ? s.name_ko : s.name}</span>
-        {isJames && <span className="ml-1 text-accent">★</span>}
-        <span className="ml-1.5 text-xs text-fg-dim">{ko ? s.nation_ko : s.nation} · {s.age}</span>
+      <span className="relative z-10 min-w-0">
+        <span className="flex items-center gap-1 truncate">
+          <span className={isJames ? "font-semibold text-accent" : "text-fg"}>{ko ? s.name_ko : s.name}</span>
+          {isJames && <span className="text-accent">★</span>}
+          <span className="ml-0.5 text-xs text-fg-dim">{ko ? s.nation_ko : s.nation} · {s.age} · {s.position}</span>
+        </span>
+        <span className="mt-0.5 block"><WcStatLine s={s} ko={ko} t={t} /></span>
       </span>
       <span className="relative z-10 text-right">
         <span className="text-fg-dim">{eurM(s.v0_eur)}</span>
@@ -167,16 +210,21 @@ function BoardRow({ s, t, ko, maxJump, isJames }: { s: Star; t: ReturnType<typeo
         <span className="ml-1 font-mono text-[11px] text-accent">×{s.multiplier.toFixed(2)}</span>
       </span>
       <span className="relative z-10 truncate text-right text-fg-muted">
-        {ko ? s.headline_club_ko : s.headline_club}
+        {s.actual_move
+          ? (ko ? s.headline_club_ko : s.headline_club)
+          : s.rumor
+            ? (ko ? (s.rumor.to_club_ko || s.rumor.to_club) : s.rumor.to_club)
+            : (ko ? s.headline_club_ko : s.headline_club)}
         {s.actual_move && <span className="ml-1 text-cyan" title={t("wcs.mover.confirmed")}>✔</span>}
+        {!s.actual_move && s.rumor && <span className="ml-1 text-accent" title={t("wcs.mover.rumored")}>●</span>}
       </span>
     </li>
   );
 }
 
 function DetailCard({ s, t, ko, isJames }: { s: Star; t: ReturnType<typeof useT>; ko: boolean; isJames: boolean }) {
-  const tag = moverTag(s.mover_status, t);
-  const best = Math.max(...s.destinations.map((d) => d.fee_high_eur), 1);
+  const maxVal = Math.max(...s.destinations.map((d) => d.club_value_eur), 1);
+  const hypo = !s.actual_move && !s.rumor;
   return (
     <section className="panel p-5 sm:p-6">
       <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
@@ -190,27 +238,32 @@ function DetailCard({ s, t, ko, isJames }: { s: Star; t: ReturnType<typeof useT>
           {eurM(s.v0_eur)} → {eurM(s.v1_eur)} <span className="font-mono text-sm">×{s.multiplier.toFixed(2)}</span>
         </span>
       </div>
-      {tag && <div className="mt-2"><span className="chip border-cyan/20 text-cyan">{tag}</span></div>}
+      <div className="mt-1.5"><WcStatLine s={s} ko={ko} t={t} /></div>
 
       {s.actual_move && (
-        <div className="mt-3 flex items-center justify-between rounded-lg border border-cyan/40 bg-cyan/[0.08] px-4 py-3">
+        <div className="mt-4 flex items-center justify-between rounded-lg border border-cyan/40 bg-cyan/[0.08] px-4 py-3">
           <span className="text-sm text-fg-muted">
             ✔ {t("wcs.actual.label")}: <span className="font-semibold text-fg">{ko ? s.headline_club_ko : s.headline_club}</span>
           </span>
           <span className="font-display text-lg font-bold text-cyan">{eurM(s.fee_low_eur)}</span>
         </div>
       )}
+      {!s.actual_move && s.rumor && <RumorLine r={s.rumor} t={t} ko={ko} />}
 
-      <div className="mt-4 overflow-hidden rounded-lg border border-line">
-        <div className="grid grid-cols-[1fr_9rem] gap-x-3 border-b border-line bg-ink-800/40 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-fg-dim">
-          <span>{s.actual_move ? t("wcs.modelfit") : t("wcs.dest.title")}</span>
+      {hypo && <p className="mt-4 text-xs text-fg-dim">{t("wcs.dest.hypo")}</p>}
+
+      <div className="mt-3 overflow-hidden rounded-lg border border-line">
+        <div className="grid grid-cols-[1fr_4.5rem_8.5rem] gap-x-3 border-b border-line bg-ink-800/40 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-fg-dim">
+          <span>{s.actual_move ? t("wcs.modelfit") : t("wcs.dest.byvalue")}</span>
+          <span className="text-right">{t("wcs.col.value")}</span>
           <span className="text-right">{t("wcs.col.fee")}</span>
         </div>
         <ul className="divide-y divide-line">
-          {s.destinations.slice(0, 3).map((d, i) => (
-            <li key={d.club} className="relative grid grid-cols-[1fr_9rem] items-center gap-x-3 px-4 py-2.5 text-sm">
-              <span aria-hidden className="absolute inset-y-0 left-0 bg-cyan/10" style={{ width: `${(d.fee_high_eur / best) * 100}%` }} />
-              <span className={"relative z-10 " + (i === 0 ? "font-semibold text-fg" : "text-fg-muted")}>{ko ? d.club_ko : d.club}</span>
+          {s.destinations.slice(0, 5).map((d, i) => (
+            <li key={d.club} className="relative grid grid-cols-[1fr_4.5rem_8.5rem] items-center gap-x-3 px-4 py-2.5 text-sm">
+              <span aria-hidden className="absolute inset-y-0 left-0 bg-cyan/10" style={{ width: `${(d.club_value_eur / maxVal) * 100}%` }} />
+              <span className={"relative z-10 truncate " + (i === 0 ? "font-semibold text-fg" : "text-fg-muted")}>{ko ? d.club_ko : d.club}</span>
+              <span className="relative z-10 text-right font-mono text-xs text-fg-dim">{clubVal(d.club_value_eur)}</span>
               <span className={"relative z-10 text-right font-display font-semibold " + (i === 0 ? "text-accent" : "text-fg")}>{feeRange(d.fee_low_eur, d.fee_high_eur)}</span>
             </li>
           ))}
