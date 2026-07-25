@@ -19,7 +19,7 @@ const FEATURES = [
 
 const STATS = [
   { key: "landing.stat.sims", value: "1,000,000" },
-  { key: "landing.stat.transfers", value: "2,123" },
+  { key: "landing.stat.transfers", value: "24,000" },
   { key: "landing.stat.accuracy", value: "ρ 0.85" },
 ] as const;
 

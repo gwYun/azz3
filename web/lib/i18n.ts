@@ -151,7 +151,7 @@ const en = {
   "build.fee.krwApprox": "≈ {amount}",
   "build.counterfactuals.krwApprox": "≈ {delta} in KRW",
   "build.fee.calibration":
-    "Model error: about ±€7M. Trained on 2,123 Big-5 league transfers (2014–2022), validated on 292 held-out transfers. Spearman ρ 0.84.",
+    "Model error: about ±€5.35M. Trained on 24,000 Big-5 league transfers (2014–2022), validated on 292 held-out transfers. Spearman ρ 0.85.",
   "build.fee.calibration.aria": "Calibration info",
   "build.counterfactuals.title": "Top stat improvements",
   "build.counterfactuals.format": "If you raised {feature} by {amount}, you would be worth {delta}",
@@ -489,7 +489,7 @@ const ko: Record<keyof typeof en, string> = {
   "nav.sub.soccer": "축구",
   "nav.sub.baseball": "야구",
   "nav.sub.build": "가상 선수빌드",
-  "nav.sub.worldcup": "26월드컵",
+  "nav.sub.worldcup": "26월드컵",ㅕㅔ
   "nav.sub.kbo": "KBO",
   "nav.sub.matchup": "KBO 승부예측",
   "nav.lang.label": "언어",
@@ -603,7 +603,7 @@ const ko: Record<keyof typeof en, string> = {
   "build.fee.krwApprox": "약 {amount}",
   "build.counterfactuals.krwApprox": "원화 환산 약 {delta}",
   "build.fee.calibration":
-    "모델 오차는 약 ±€7M입니다. 빅5 리그 이적 2,123건(2014–2022)으로 학습하고, 292건을 검증 데이터로 사용했습니다. Spearman ρ 0.84.",
+    "모델 오차는 약 ±€5.35M입니다. 빅5 리그 이적 2만 4천 건(2014–2022)으로 학습하고, 292건을 검증 데이터로 사용했습니다. Spearman ρ 0.85.",
   "build.fee.calibration.aria": "보정 정보",
   "build.counterfactuals.title": "이적료를 가장 많이 올리는 변화",
   "build.counterfactuals.format": "{feature} 지표를 {amount} 올리면 이적료가 {delta} 상승합니다",
