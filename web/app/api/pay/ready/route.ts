@@ -44,7 +44,8 @@ export async function POST(request: Request) {
     await repo.createPayment(admin, { orderId: order.id, tid: res.tid, raw: res });
     await repo.setOrderStatus(admin, order.id, "ready");
     return NextResponse.json({ redirectUrl: res.next_redirect_pc_url });
-  } catch {
+  } catch (err) {
+    console.error("[pay/ready] kakao ready failed:", err);
     await repo.setOrderStatus(admin, order.id, "failed");
     return NextResponse.json({ error: "payment_ready_failed" }, { status: 502 });
   }

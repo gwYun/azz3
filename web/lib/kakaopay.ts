@@ -13,7 +13,8 @@
 const HOST = "https://open-api.kakaopay.com";
 
 /** Merchant code. Defaults to the shared test CID for dev. */
-export const KAKAOPAY_CID = process.env.KAKAOPAY_CID || "TC0ONETIME";
+export const KAKAOPAY_CID =
+  process.env.KAKAO_PAY_CID || process.env.KAKAOPAY_CID || "TC0ONETIME";
 
 export class KakaoPayError extends Error {
   constructor(
@@ -27,8 +28,8 @@ export class KakaoPayError extends Error {
 }
 
 function secretKey(): string {
-  const key = process.env.KAKAOPAY_SECRET_KEY;
-  if (!key) throw new Error("KAKAOPAY_SECRET_KEY is not set (server-only)");
+  const key = process.env.KAKAO_PAY_SECRET_KEY || process.env.KAKAOPAY_SECRET_KEY;
+  if (!key) throw new Error("KAKAO_PAY_SECRET_KEY is not set (server-only)");
   return key;
 }
 

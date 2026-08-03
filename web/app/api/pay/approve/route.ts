@@ -47,7 +47,8 @@ export async function GET(request: Request) {
       partnerUserId: user.id,
       pgToken,
     });
-  } catch {
+  } catch (err) {
+    console.error("[pay/approve] kakao approve failed:", err);
     await repo.setOrderStatus(admin, orderId, "failed");
     await repo.setPaymentStatusByOrder(admin, orderId, "failed");
     return back(origin, "error");
