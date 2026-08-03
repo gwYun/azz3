@@ -476,6 +476,22 @@ const en = {
   "auth.account": "Account",
   "auth.canceled": "Login canceled.",
   "auth.error": "Login failed. Please try again.",
+
+  // Premium (Kakao Pay unlock)
+  "nav.premium": "Premium",
+  "premium.title": "Premium",
+  "premium.desc": "A one-time unlock.",
+  "premium.locked": "This is a premium feature.",
+  "premium.loginToUnlock": "Log in to unlock premium.",
+  "premium.buy": "Unlock premium · ₩{price}",
+  "premium.starting": "Starting checkout…",
+  "premium.loginFirst": "Please log in first.",
+  "premium.startFailed": "Couldn't start payment. Please try again.",
+  "premium.unlocked": "Premium unlocked",
+  "premium.unlockedBody": "Thanks! Your premium features are active.",
+  "premium.paySuccess": "Payment complete. Premium unlocked!",
+  "premium.payCanceled": "Payment canceled.",
+  "premium.payFailed": "Payment failed. Please try again.",
 } as const;
 
 const ko: Record<keyof typeof en, string> = {
@@ -935,6 +951,22 @@ const ko: Record<keyof typeof en, string> = {
   "auth.account": "내 계정",
   "auth.canceled": "로그인이 취소되었습니다.",
   "auth.error": "로그인에 실패했습니다. 다시 시도해 주세요.",
+
+  // Premium (Kakao Pay unlock)
+  "nav.premium": "프리미엄",
+  "premium.title": "프리미엄",
+  "premium.desc": "일회성 언락입니다.",
+  "premium.locked": "프리미엄 전용 기능입니다.",
+  "premium.loginToUnlock": "로그인 후 언락할 수 있습니다.",
+  "premium.buy": "프리미엄 언락 · ₩{price}",
+  "premium.starting": "결제 준비 중…",
+  "premium.loginFirst": "먼저 로그인해 주세요.",
+  "premium.startFailed": "결제를 시작하지 못했습니다. 다시 시도해 주세요.",
+  "premium.unlocked": "프리미엄 언락됨",
+  "premium.unlockedBody": "감사합니다! 프리미엄 기능이 활성화됐습니다.",
+  "premium.paySuccess": "결제 완료. 프리미엄이 언락됐습니다!",
+  "premium.payCanceled": "결제가 취소되었습니다.",
+  "premium.payFailed": "결제에 실패했습니다. 다시 시도해 주세요.",
 };
 
 export const dict = { en, ko } as const;

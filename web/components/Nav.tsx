@@ -30,6 +30,7 @@ export function Nav() {
     { href: "/glossary", label: t("nav.glossary") },
     { href: "/transfers", label: t("nav.market"), activePaths: MARKET_PATHS },
     { href: "/worldcup", label: t("nav.match"), activePaths: MATCH_PATHS },
+    { href: "/premium", label: t("nav.premium") },
     { href: "/contact", label: t("nav.contact") },
   ];
 
