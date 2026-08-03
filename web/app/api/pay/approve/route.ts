@@ -3,11 +3,10 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import * as repo from "@/lib/pay-repo";
 import * as kakao from "@/lib/kakaopay";
-import { PREMIUM_PRODUCT } from "@/lib/premium";
 import { ownsOrder, isAlreadyApproved, approvedAmountMatches } from "@/lib/pay-logic";
 
 function back(origin: string, pay: "success" | "error"): Response {
-  return NextResponse.redirect(`${origin}/premium?pay=${pay}`);
+  return NextResponse.redirect(`${origin}/credits?pay=${pay}`);
 }
 
 /**
@@ -67,11 +66,11 @@ export async function GET(request: Request) {
     raw: approveRes,
   });
   await repo.setOrderStatus(admin, orderId, "approved");
-  await repo.grantEntitlement(admin, {
-    userId: user.id,
-    product: PREMIUM_PRODUCT,
-    sourcePaymentId: payment.id,
-  });
+  // Credit the pack. The idempotency guard above (isAlreadyApproved) ensures
+  // this runs exactly once per order, so credits are never double-added.
+  if (order.credits > 0) {
+    await repo.addCredits(admin, user.id, order.credits);
+  }
 
   return back(origin, "success");
 }

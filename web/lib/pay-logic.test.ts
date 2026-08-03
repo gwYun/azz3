@@ -4,8 +4,9 @@ import { ownsOrder, isAlreadyApproved, approvedAmountMatches, type Order } from 
 const order: Order = {
   id: "o1",
   user_id: "u1",
-  product: "premium",
-  amount: 4900,
+  product: "credits-5",
+  amount: 4500,
+  credits: 5,
   status: "ready",
 };
 
@@ -33,7 +34,7 @@ describe("pay-logic", () => {
 
   describe("approvedAmountMatches", () => {
     it("true on an exact integer match", () => {
-      expect(approvedAmountMatches(order, 4900)).toBe(true);
+      expect(approvedAmountMatches(order, 4500)).toBe(true);
     });
     it("false on a mismatched amount", () => {
       expect(approvedAmountMatches(order, 100)).toBe(false);
@@ -45,7 +46,7 @@ describe("pay-logic", () => {
       expect(approvedAmountMatches(order, undefined)).toBe(false);
     });
     it("false on a non-integer", () => {
-      expect(approvedAmountMatches(order, 4900.5)).toBe(false);
+      expect(approvedAmountMatches(order, 4500.5)).toBe(false);
     });
   });
 });

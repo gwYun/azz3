@@ -9,6 +9,7 @@ export type Order = {
   user_id: string;
   product: string;
   amount: number; // KRW, integer
+  credits: number; // credits this order grants on approval (0 if none)
   status: OrderStatus;
 };
 

@@ -8,6 +8,7 @@ import {
   starterForGame, bullpenForGame, optimizeLineup, muForOrder, evaluateMatchup, negBinomPmf,
 } from "@/lib/matchup-sim";
 import type { SimResult, SimRequest } from "@/lib/matchup.worker";
+import { KboResultGate } from "@/components/KboResultGate";
 
 const teamName = (t: { en: string; ko: string }, l: Locale) => (l === "ko" ? t.ko : t.en);
 const pct = (v: number) => `${(v * 100).toFixed(1)}%`;
@@ -118,7 +119,7 @@ export default function MatchupPage() {
       </section>
 
       {engine && (
-        <>
+        <KboResultGate home={homeCode} away={awayCode}>
           {/* Win probability */}
           <section className="mt-8">
             <div className="flex items-baseline justify-between text-sm">
@@ -168,7 +169,7 @@ export default function MatchupPage() {
               projMu={engine.projAmu} optMu={engine.aOpt.mu} side={t("matchup.away")} />
           </section>
           <p className="mt-3 text-xs leading-relaxed text-fg-dim">{t("matchup.lineup.note")}</p>
-        </>
+        </KboResultGate>
       )}
 
       {/* Method */}

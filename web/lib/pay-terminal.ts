@@ -8,7 +8,7 @@ import * as repo from "@/lib/pay-repo";
  * Shared handler for the fail/cancel redirect URLs Kakao Pay calls. Marks the
  * order + payment terminal — but only if the session user owns the order and it
  * isn't already approved (so a stray cancel can't undo a paid order). Always
- * ends on a redirect to /premium with a notice.
+ * ends on a redirect to /credits with a notice.
  */
 export async function handleTerminal(
   request: Request,
@@ -32,5 +32,5 @@ export async function handleTerminal(
     }
   }
 
-  return NextResponse.redirect(`${origin}/premium?pay=${notice}`);
+  return NextResponse.redirect(`${origin}/credits?pay=${notice}`);
 }
