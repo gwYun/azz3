@@ -469,6 +469,13 @@ const en = {
   // Common
   "loading": "Loading…",
   "common.cancel": "Cancel",
+
+  // Auth (Kakao login)
+  "auth.loginWithKakao": "Log in with Kakao",
+  "auth.logout": "Log out",
+  "auth.account": "Account",
+  "auth.canceled": "Login canceled.",
+  "auth.error": "Login failed. Please try again.",
 } as const;
 
 const ko: Record<keyof typeof en, string> = {
@@ -489,7 +496,7 @@ const ko: Record<keyof typeof en, string> = {
   "nav.sub.soccer": "축구",
   "nav.sub.baseball": "야구",
   "nav.sub.build": "가상 선수빌드",
-  "nav.sub.worldcup": "26월드컵",ㅕㅔ
+  "nav.sub.worldcup": "26월드컵",
   "nav.sub.kbo": "KBO",
   "nav.sub.matchup": "KBO 승부예측",
   "nav.lang.label": "언어",
@@ -921,6 +928,13 @@ const ko: Record<keyof typeof en, string> = {
   // Common
   "loading": "불러오는 중…",
   "common.cancel": "취소",
+
+  // Auth (Kakao login)
+  "auth.loginWithKakao": "카카오로 로그인",
+  "auth.logout": "로그아웃",
+  "auth.account": "내 계정",
+  "auth.canceled": "로그인이 취소되었습니다.",
+  "auth.error": "로그인에 실패했습니다. 다시 시도해 주세요.",
 };
 
 export const dict = { en, ko } as const;

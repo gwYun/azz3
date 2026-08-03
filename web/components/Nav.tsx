@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useT } from "@/lib/i18n-context";
 import { LangToggle } from "./LangToggle";
+import { AuthButton } from "./AuthButton";
 import { Logo } from "./Logo";
 
 type NavItem = { href: string; label: string; activePaths?: string[] };
@@ -95,7 +96,10 @@ export function Nav() {
           <Logo />
         </Link>
         <nav className="hidden items-center gap-1 sm:flex">{items.map(renderItem)}</nav>
-        <LangToggle />
+        <div className="flex items-center gap-2 sm:gap-3">
+          <AuthButton />
+          <LangToggle />
+        </div>
       </div>
       {/* Mobile: horizontally scrollable tab row (desktop uses the inline nav above) */}
       <nav
