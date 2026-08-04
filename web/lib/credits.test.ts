@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { CREDIT_PACKS, getPack, kboProduct, isFreeMatchup } from "./credits";
+import { CREDIT_PACKS, getPack, kboProduct, isFreeTeam, isTeamSlotOpen } from "./credits";
 
 describe("credits config", () => {
   it("getPack returns the pack for a valid id", () => {
@@ -27,15 +27,22 @@ describe("credits config", () => {
     }
   });
 
-  it("kboProduct builds an order-sensitive key", () => {
-    expect(kboProduct("LG", "DOOSAN")).toBe("kbo:LG-DOOSAN");
-    expect(kboProduct("DOOSAN", "LG")).toBe("kbo:DOOSAN-LG");
+  it("kboProduct builds a team + slot key", () => {
+    expect(kboProduct("LG", "home")).toBe("kbo:LG:home");
+    expect(kboProduct("LG", "away")).toBe("kbo:LG:away");
   });
 
-  it("isFreeMatchup is true only for Samsung vs Hanwha, both orderings", () => {
-    expect(isFreeMatchup("SS", "HH")).toBe(true);
-    expect(isFreeMatchup("HH", "SS")).toBe(true);
-    expect(isFreeMatchup("SS", "LG")).toBe(false);
-    expect(isFreeMatchup("LG", "OB")).toBe(false);
+  it("isFreeTeam is true only for Samsung and Hanwha", () => {
+    expect(isFreeTeam("SS")).toBe(true);
+    expect(isFreeTeam("HH")).toBe(true);
+    expect(isFreeTeam("LG")).toBe(false);
+  });
+
+  it("isTeamSlotOpen: free teams always; others only for the unlocked slot", () => {
+    expect(isTeamSlotOpen("SS", "home", [])).toBe(true);
+    expect(isTeamSlotOpen("HH", "away", [])).toBe(true);
+    expect(isTeamSlotOpen("LG", "home", [])).toBe(false);
+    expect(isTeamSlotOpen("LG", "home", ["kbo:LG:home"])).toBe(true);
+    expect(isTeamSlotOpen("LG", "away", ["kbo:LG:home"])).toBe(false);
   });
 });

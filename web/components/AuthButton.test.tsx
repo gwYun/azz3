@@ -1,17 +1,16 @@
 // @vitest-environment happy-dom
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { I18nProvider } from "@/lib/i18n-context";
 
 const getUser = vi.fn();
-const signInWithOAuth = vi.fn().mockResolvedValue({ data: {}, error: null });
 const onAuthStateChange = vi.fn(() => ({
   data: { subscription: { unsubscribe: vi.fn() } },
 }));
 
 vi.mock("@/lib/supabase/client", () => ({
   isSupabaseConfigured: true,
-  createClient: () => ({ auth: { getUser, onAuthStateChange, signInWithOAuth } }),
+  createClient: () => ({ auth: { getUser, onAuthStateChange } }),
 }));
 
 import { AuthButton } from "./AuthButton";
@@ -25,26 +24,15 @@ const renderButton = () =>
 
 beforeEach(() => {
   getUser.mockReset();
-  signInWithOAuth.mockClear();
   onAuthStateChange.mockClear();
 });
 
 describe("AuthButton", () => {
-  it("shows the Kakao login button when logged out", async () => {
+  it("shows a Log in link to /login when logged out", async () => {
     getUser.mockResolvedValue({ data: { user: null } });
     renderButton();
-    expect(
-      await screen.findByRole("button", { name: /카카오로 로그인/ }),
-    ).toBeTruthy();
-  });
-
-  it("calls signInWithOAuth with the kakao provider on click", async () => {
-    getUser.mockResolvedValue({ data: { user: null } });
-    renderButton();
-    const btn = await screen.findByRole("button", { name: /카카오로 로그인/ });
-    fireEvent.click(btn);
-    await waitFor(() => expect(signInWithOAuth).toHaveBeenCalled());
-    expect(signInWithOAuth.mock.calls[0][0].provider).toBe("kakao");
+    const link = await screen.findByRole("link", { name: /로그인/ });
+    expect(link.getAttribute("href")).toBe("/login");
   });
 
   it("shows the nickname and a logout control when logged in", async () => {

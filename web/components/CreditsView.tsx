@@ -78,14 +78,17 @@ export function CreditsView() {
           <p className="mt-2 text-sm text-fg-muted">{t("credits.noUnlocks")}</p>
         ) : (
           <ul className="mt-3 flex flex-wrap gap-2">
-            {kboUnlocks.map((p) => (
-              <li
-                key={p}
-                className="rounded-md border border-line bg-ink-850/40 px-3 py-1.5 font-mono text-xs text-fg"
-              >
-                {p.replace("kbo:", "").replace("-", " vs ")}
-              </li>
-            ))}
+            {kboUnlocks.map((p) => {
+              const [, team, slot] = p.split(":");
+              return (
+                <li
+                  key={p}
+                  className="rounded-md border border-line bg-ink-850/40 px-3 py-1.5 font-mono text-xs text-fg"
+                >
+                  {team} · {slot}
+                </li>
+              );
+            })}
           </ul>
         )}
       </section>

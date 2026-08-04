@@ -471,6 +471,10 @@ const en = {
   "common.cancel": "Cancel",
 
   // Auth (Kakao login)
+  "auth.login": "Log in",
+  "auth.loginTitle": "Log in",
+  "auth.loginSubtitle": "Sign in to buy credits and unlock results.",
+  "auth.notConfigured": "Login isn't configured yet.",
   "auth.loginWithKakao": "Log in with Kakao",
   "auth.logout": "Log out",
   "auth.account": "Account",
@@ -494,7 +498,7 @@ const en = {
   "credits.locked": "Result locked",
   "credits.loginToUnlock": "Log in to unlock.",
   "credits.balanceLine": "You have {n} credits.",
-  "credits.unlockOne": "Unlock (1 credit)",
+  "credits.unlockN": "Unlock ({n} credits)",
   "credits.unlocking": "Unlocking…",
   "credits.unlocked": "Unlocked!",
   "credits.unlockFailed": "Unlock failed. Please try again.",
@@ -959,6 +963,10 @@ const ko: Record<keyof typeof en, string> = {
   "common.cancel": "취소",
 
   // Auth (Kakao login)
+  "auth.login": "로그인",
+  "auth.loginTitle": "로그인",
+  "auth.loginSubtitle": "로그인하고 크레딧 구매·결과 잠금 해제를 이용하세요.",
+  "auth.notConfigured": "로그인이 아직 설정되지 않았습니다.",
   "auth.loginWithKakao": "카카오로 로그인",
   "auth.logout": "로그아웃",
   "auth.account": "내 계정",
@@ -982,7 +990,7 @@ const ko: Record<keyof typeof en, string> = {
   "credits.locked": "결과 잠김",
   "credits.loginToUnlock": "로그인 후 해제할 수 있습니다.",
   "credits.balanceLine": "보유 크레딧 {n}개.",
-  "credits.unlockOne": "1 크레딧으로 잠금 해제",
+  "credits.unlockN": "잠금 해제 ({n}크레딧)",
   "credits.unlocking": "해제 중…",
   "credits.unlocked": "잠금 해제됨!",
   "credits.unlockFailed": "잠금 해제에 실패했습니다. 다시 시도해 주세요.",

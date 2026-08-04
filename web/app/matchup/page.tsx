@@ -10,7 +10,7 @@ import {
 import type { SimResult, SimRequest } from "@/lib/matchup.worker";
 import { KboResultGate } from "@/components/KboResultGate";
 import { useAccount } from "@/lib/useAccount";
-import { isFreeMatchup, kboProduct } from "@/lib/credits";
+import { isTeamSlotOpen } from "@/lib/credits";
 
 const teamName = (t: { en: string; ko: string }, l: Locale) => (l === "ko" ? t.ko : t.en);
 const pct = (v: number) => `${(v * 100).toFixed(1)}%`;
@@ -87,13 +87,11 @@ export default function MatchupPage() {
   const teams = data.teams;
   const swap = () => { setHomeCode(awayCode); setAwayCode(homeCode); };
 
-  // Lock indicator per team option — order-sensitive (home vs away is a separate
-  // purchase from away vs home), so each picker is scored against the fixed
-  // opposite side. Free tasters and already-unlocked pairings show no lock.
-  const homeLocked = (code: string) =>
-    !!awayCode && !isFreeMatchup(code, awayCode) && !unlocked.includes(kboProduct(code, awayCode));
-  const awayLocked = (code: string) =>
-    !!homeCode && !isFreeMatchup(homeCode, code) && !unlocked.includes(kboProduct(homeCode, code));
+  // Lock indicator per team option. Unlocks are per team per slot, so the home
+  // picker scores each team as a home pick and the away picker as an away pick
+  // (independent purchases). Free teams (SS/HH) and owned slots show no lock.
+  const homeLocked = (code: string) => !isTeamSlotOpen(code, "home", unlocked);
+  const awayLocked = (code: string) => !isTeamSlotOpen(code, "away", unlocked);
 
   return (
     <article className="mx-auto max-w-3xl">

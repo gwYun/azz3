@@ -26,39 +26,39 @@ beforeEach(() => {
 });
 
 describe("unlock route", () => {
-  it("spends a credit and returns unlocked", async () => {
+  it("spends a credit and unlocks the team+slot", async () => {
     vi.mocked(repo.spendCreditForUnlock).mockResolvedValue("unlocked");
-    const res = await POST(req({ home: "LG", away: "DOOSAN" }));
+    const res = await POST(req({ team: "LG", slot: "home" }));
     expect(repo.spendCreditForUnlock).toHaveBeenCalledWith(
       expect.anything(),
       "user-1",
-      "kbo:LG-DOOSAN",
+      "kbo:LG:home",
     );
     expect(res.status).toBe(200);
-    expect(await res.json()).toMatchObject({ status: "unlocked", product: "kbo:LG-DOOSAN" });
+    expect(await res.json()).toMatchObject({ status: "unlocked", product: "kbo:LG:home" });
   });
 
   it("returns already (no second charge) when already unlocked", async () => {
     vi.mocked(repo.spendCreditForUnlock).mockResolvedValue("already");
-    const res = await POST(req({ home: "LG", away: "DOOSAN" }));
+    const res = await POST(req({ team: "LG", slot: "away" }));
     expect(res.status).toBe(200);
     expect(await res.json()).toMatchObject({ status: "already" });
   });
 
   it("returns 402 on insufficient credits", async () => {
     vi.mocked(repo.spendCreditForUnlock).mockResolvedValue("insufficient");
-    const res = await POST(req({ home: "LG", away: "DOOSAN" }));
+    const res = await POST(req({ team: "LG", slot: "home" }));
     expect(res.status).toBe(402);
   });
 
-  it("rejects an invalid matchup (same team) without spending", async () => {
-    const res = await POST(req({ home: "LG", away: "LG" }));
+  it("rejects an invalid slot without spending", async () => {
+    const res = await POST(req({ team: "LG", slot: "middle" }));
     expect(repo.spendCreditForUnlock).not.toHaveBeenCalled();
     expect(res.status).toBe(400);
   });
 
-  it("does not spend a credit on a free taster matchup (Samsung vs Hanwha)", async () => {
-    const res = await POST(req({ home: "SS", away: "HH" }));
+  it("does not spend a credit on a free team (Samsung/Hanwha)", async () => {
+    const res = await POST(req({ team: "SS", slot: "home" }));
     expect(repo.spendCreditForUnlock).not.toHaveBeenCalled();
     expect(res.status).toBe(200);
     expect(await res.json()).toMatchObject({ status: "free" });
@@ -66,7 +66,7 @@ describe("unlock route", () => {
 
   it("401 when not logged in", async () => {
     h.user = null;
-    const res = await POST(req({ home: "LG", away: "DOOSAN" }));
+    const res = await POST(req({ team: "LG", slot: "home" }));
     expect(res.status).toBe(401);
   });
 });

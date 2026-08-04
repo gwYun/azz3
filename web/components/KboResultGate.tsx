@@ -3,17 +3,19 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useAccount } from "@/lib/useAccount";
-import { kboProduct, isFreeMatchup } from "@/lib/credits";
+import { isTeamSlotOpen, type Slot } from "@/lib/credits";
 import { useToast } from "@/lib/toast-context";
 import { useT } from "@/lib/i18n-context";
 
 /**
- * Soft paywall for a KBO matchup result. If the user has unlocked this pairing
- * (kbo:HOME-AWAY), the result shows. Otherwise it renders blurred behind an
- * overlay: spend 1 credit to unlock (if balance ≥ 1), or go buy credits.
+ * Soft paywall for a KBO matchup result. Unlocks are per team per slot: the
+ * result shows once the HOME team is open as home AND the AWAY team is open as
+ * away (Samsung/Hanwha are free in both slots). Otherwise the result is blurred
+ * behind an overlay that unlocks whichever side(s) are still locked — 1 credit
+ * each, so a fully-locked pairing costs 2.
  *
  * Soft by design (the sim runs client-side, so values are in the DOM under the
- * blur). Chosen tradeoff — a hard paywall would require moving the sim server-side.
+ * blur). A hard paywall would require moving the sim server-side.
  */
 export function KboResultGate({
   home,
@@ -29,41 +31,39 @@ export function KboResultGate({
   const { credits, unlocked, loading, signedIn, refresh } = useAccount();
   const [busy, setBusy] = useState(false);
 
-  const product = kboProduct(home, away);
-  const isUnlocked = unlocked.includes(product);
-
-  // Free taster matchups (Samsung vs Hanwha) bypass the paywall entirely.
-  if (isFreeMatchup(home, away)) {
-    return (
-      <>
-        <div className="mt-8 inline-flex items-center gap-1.5 rounded-full border border-accent/40 bg-accent/10 px-3 py-1 text-xs font-medium text-accent">
-          {t("credits.freeTaster")}
-        </div>
-        {children}
-      </>
-    );
-  }
+  const homeOpen = isTeamSlotOpen(home, "home", unlocked);
+  const awayOpen = isTeamSlotOpen(away, "away", unlocked);
 
   if (loading) return <div className="mt-8 h-40" aria-hidden />;
-  if (isUnlocked) return <>{children}</>;
+  if (homeOpen && awayOpen) return <>{children}</>;
+
+  const missing: { team: string; slot: Slot }[] = [
+    ...(homeOpen ? [] : [{ team: home, slot: "home" as Slot }]),
+    ...(awayOpen ? [] : [{ team: away, slot: "away" as Slot }]),
+  ];
+  const cost = missing.length;
 
   const unlock = async () => {
     setBusy(true);
     try {
-      const res = await fetch("/api/unlock", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ home, away }),
-      });
-      if (res.status === 402) {
-        show(t("credits.needMore"));
-        setBusy(false);
-        return;
-      }
-      if (!res.ok) {
-        show(t("credits.unlockFailed"));
-        setBusy(false);
-        return;
+      for (const m of missing) {
+        const res = await fetch("/api/unlock", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(m),
+        });
+        if (res.status === 402) {
+          show(t("credits.needMore"));
+          refresh();
+          setBusy(false);
+          return;
+        }
+        if (!res.ok) {
+          show(t("credits.unlockFailed"));
+          refresh();
+          setBusy(false);
+          return;
+        }
       }
       show(t("credits.unlocked"));
       refresh();
@@ -76,14 +76,16 @@ export function KboResultGate({
 
   return (
     <div className="relative mt-8">
-      <div className="pointer-events-none select-none blur-md" aria-hidden>
+      {/* Capped, blurred teaser so the locked block stays compact and the CTA
+          sits near the top (not lost in the middle of a tall result). */}
+      <div className="pointer-events-none max-h-80 select-none overflow-hidden blur-md" aria-hidden>
         {children}
       </div>
-      <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-2xl bg-ink-950/70 p-6 text-center backdrop-blur-sm">
+      <div className="absolute inset-0 flex flex-col items-center justify-start gap-3 rounded-2xl bg-ink-950/70 p-6 pt-12 text-center backdrop-blur-sm">
         <p className="font-display text-lg font-semibold text-fg">{t("credits.locked")}</p>
         {!signedIn ? (
           <p className="text-sm text-fg-muted">{t("credits.loginToUnlock")}</p>
-        ) : credits >= 1 ? (
+        ) : credits >= cost ? (
           <>
             <p className="text-sm text-fg-muted">{t("credits.balanceLine", { n: String(credits) })}</p>
             <button
@@ -92,7 +94,7 @@ export function KboResultGate({
               disabled={busy}
               className="rounded-md bg-accent px-4 py-2 text-sm font-semibold text-ink-950 transition hover:brightness-95 disabled:opacity-60"
             >
-              {busy ? t("credits.unlocking") : t("credits.unlockOne")}
+              {busy ? t("credits.unlocking") : t("credits.unlockN", { n: String(cost) })}
             </button>
           </>
         ) : (

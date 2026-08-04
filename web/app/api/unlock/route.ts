@@ -2,14 +2,15 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import * as repo from "@/lib/pay-repo";
-import { kboProduct, isFreeMatchup } from "@/lib/credits";
+import { kboProduct, isFreeTeam, type Slot } from "@/lib/credits";
 
 /**
- * Spend 1 credit to unlock a KBO matchup result. Auth required.
- * Body: { home, away } team codes.
+ * Spend 1 credit to unlock a team in a slot (home or away). Auth required.
+ * Body: { team, slot }. Unlocks are per team per slot, so unlocking LG as home
+ * is separate from LG as away.
  *
- * The spend is atomic + idempotent in the DB (spend_credit_for_unlock):
- *   already unlocked → no charge; balance < 1 → 402.
+ * Atomic + idempotent in the DB (spend_credit_for_unlock):
+ *   already unlocked → no charge; balance < 1 → 402. Free teams never charge.
  */
 export async function POST(request: Request) {
   const supabase = createClient();
@@ -21,21 +22,19 @@ export async function POST(request: Request) {
   }
 
   const body = (await request.json().catch(() => null)) as
-    | { home?: string; away?: string }
+    | { team?: string; slot?: string }
     | null;
-  const home = body?.home?.trim();
-  const away = body?.away?.trim();
-  if (!home || !away || home === away) {
-    return NextResponse.json({ error: "invalid_matchup" }, { status: 400 });
+  const team = body?.team?.trim();
+  const slot = body?.slot;
+  if (!team || (slot !== "home" && slot !== "away")) {
+    return NextResponse.json({ error: "invalid_request" }, { status: 400 });
   }
 
-  // Free taster matchups never spend a credit (defensive — the UI never calls
-  // unlock for these, but a direct request shouldn't burn a credit).
-  if (isFreeMatchup(home, away)) {
+  if (isFreeTeam(team)) {
     return NextResponse.json({ status: "free" });
   }
 
-  const product = kboProduct(home, away);
+  const product = kboProduct(team, slot as Slot);
   const admin = createAdminClient();
   const result = await repo.spendCreditForUnlock(admin, user.id, product);
 

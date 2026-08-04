@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import type { User } from "@supabase/supabase-js";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 import { useT } from "@/lib/i18n-context";
@@ -15,7 +16,7 @@ import { useT } from "@/lib/i18n-context";
  *
  *   pre-config      → render nothing (no Supabase env yet)
  *   session unknown → stable-size placeholder (avoids logged-out→in flash)
- *   logged out      → Kakao login button
+ *   logged out      → "Log in" link to /login (provider choices live there)
  *   logged in       → nickname + logout (POST form)
  */
 export function AuthButton() {
@@ -45,19 +46,6 @@ export function AuthButton() {
     };
   }, []);
 
-  const signIn = async () => {
-    const supabase = createClient();
-    // Supabase's Kakao provider requests account_email + profile_* by default,
-    // and APPENDS (does not replace) any `scopes` option — so email can't be
-    // dropped client-side. That's fine: keep the Kakao email consent item
-    // OPTIONAL (선택 동의) so it never hard-blocks, and key identity on the
-    // provider sub, not email (email may be null). See plan §3 (OV5).
-    await supabase.auth.signInWithOAuth({
-      provider: "kakao",
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
-    });
-  };
-
   if (!isSupabaseConfigured) return null;
 
   if (!ready) {
@@ -66,13 +54,12 @@ export function AuthButton() {
 
   if (!user) {
     return (
-      <button
-        type="button"
-        onClick={signIn}
-        className="inline-flex items-center gap-1.5 rounded-md bg-[#FEE500] px-3 py-1.5 text-xs font-semibold text-[#191600] transition hover:brightness-95"
+      <Link
+        href="/login"
+        className="inline-flex items-center rounded-md border border-line px-3 py-1.5 text-xs font-medium text-fg transition hover:bg-white/5"
       >
-        {t("auth.loginWithKakao")}
-      </button>
+        {t("auth.login")}
+      </Link>
     );
   }
 

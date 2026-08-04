@@ -24,22 +24,28 @@ export function getPack(id: string): CreditPack | null {
 /** Price of a single unlock in KRW (the 1-credit pack). */
 export const UNLOCK_PRICE_KRW = 1000;
 
+export type Slot = "home" | "away";
+
 /**
- * Entitlement product key for a KBO matchup result. Order-sensitive: home vs
- * away differs from away vs home in the sim (home advantage), so the key keeps
- * the ordering. One unlock covers the whole series for that pairing.
+ * Entitlement product key for one team in one slot, e.g. "kbo:LG:home".
+ * Unlocks are PER TEAM PER SLOT: unlocking LG as home is a separate purchase
+ * from LG as away, and once bought it stays unlocked for that slot forever.
  */
-export function kboProduct(homeCode: string, awayCode: string): string {
-  return `kbo:${homeCode}-${awayCode}`;
+export function kboProduct(team: string, slot: Slot): string {
+  return `kbo:${team}:${slot}`;
 }
 
 /**
- * Free "taster" matchups — Samsung (SS) vs Hanwha (HH), both orderings. These
- * show without a credit so users can sample the product; every other pairing is
- * gated. Codes come from public/kbo-matchup.json.
+ * Free teams — Samsung (SS) and Hanwha (HH) are always open in BOTH slots so
+ * users can sample the product. Codes come from public/kbo-matchup.json.
  */
-const FREE_PAIRS: ReadonlySet<string> = new Set(["SS-HH", "HH-SS"]);
+const FREE_TEAMS: ReadonlySet<string> = new Set(["SS", "HH"]);
 
-export function isFreeMatchup(homeCode: string, awayCode: string): boolean {
-  return FREE_PAIRS.has(`${homeCode}-${awayCode}`);
+export function isFreeTeam(team: string): boolean {
+  return FREE_TEAMS.has(team);
+}
+
+/** True if the team is usable in this slot without a purchase (free or owned). */
+export function isTeamSlotOpen(team: string, slot: Slot, unlocked: string[]): boolean {
+  return isFreeTeam(team) || unlocked.includes(kboProduct(team, slot));
 }
