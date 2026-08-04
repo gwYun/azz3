@@ -9,6 +9,8 @@ import {
 } from "@/lib/matchup-sim";
 import type { SimResult, SimRequest } from "@/lib/matchup.worker";
 import { KboResultGate } from "@/components/KboResultGate";
+import { useAccount } from "@/lib/useAccount";
+import { isFreeMatchup, kboProduct } from "@/lib/credits";
 
 const teamName = (t: { en: string; ko: string }, l: Locale) => (l === "ko" ? t.ko : t.en);
 const pct = (v: number) => `${(v * 100).toFixed(1)}%`;
@@ -18,6 +20,7 @@ const SERIES_GAMES = 5;
 export default function MatchupPage() {
   const t = useT();
   const { locale } = useI18n();
+  const { unlocked } = useAccount();
   const [data, setData] = useState<MatchupData | null>(null);
   const [homeCode, setHomeCode] = useState<string>("");
   const [awayCode, setAwayCode] = useState<string>("");
@@ -84,6 +87,14 @@ export default function MatchupPage() {
   const teams = data.teams;
   const swap = () => { setHomeCode(awayCode); setAwayCode(homeCode); };
 
+  // Lock indicator per team option — order-sensitive (home vs away is a separate
+  // purchase from away vs home), so each picker is scored against the fixed
+  // opposite side. Free tasters and already-unlocked pairings show no lock.
+  const homeLocked = (code: string) =>
+    !!awayCode && !isFreeMatchup(code, awayCode) && !unlocked.includes(kboProduct(code, awayCode));
+  const awayLocked = (code: string) =>
+    !!homeCode && !isFreeMatchup(homeCode, code) && !unlocked.includes(kboProduct(homeCode, code));
+
   return (
     <article className="mx-auto max-w-3xl">
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">{t("matchup.eyebrow")}</p>
@@ -97,9 +108,9 @@ export default function MatchupPage() {
       {/* Selector */}
       <section className="mt-8 rounded-2xl border border-line bg-ink-850/50 p-5 sm:p-6">
         <div className="grid grid-cols-[1fr_auto_1fr] items-end gap-3">
-          <TeamPick label={t("matchup.home")} value={homeCode} exclude={awayCode} teams={teams} locale={locale} onChange={setHomeCode} />
+          <TeamPick label={t("matchup.home")} value={homeCode} exclude={awayCode} teams={teams} locale={locale} onChange={setHomeCode} locked={homeLocked} />
           <button onClick={swap} className="btn-secondary mb-0.5 h-9 px-3 text-sm" aria-label={t("matchup.swap")}>⇄</button>
-          <TeamPick label={t("matchup.away")} value={awayCode} exclude={homeCode} teams={teams} locale={locale} onChange={setAwayCode} />
+          <TeamPick label={t("matchup.away")} value={awayCode} exclude={homeCode} teams={teams} locale={locale} onChange={setAwayCode} locked={awayLocked} />
         </div>
         <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-3">
           <div className="flex items-center gap-2">
@@ -187,16 +198,22 @@ export default function MatchupPage() {
 
 // ---- subcomponents --------------------------------------------------------- //
 
-function TeamPick({ label, value, exclude, teams, locale, onChange }: {
+function TeamPick({ label, value, exclude, teams, locale, onChange, locked }: {
   label: string; value: string; exclude: string; teams: Team[]; locale: Locale; onChange: (c: string) => void;
+  locked?: (code: string) => boolean;
 }) {
   return (
     <label className="block">
       <span className="text-xs font-medium uppercase tracking-wide text-fg-dim">{label}</span>
       <select value={value} onChange={(e) => onChange(e.target.value)} className="input-text mt-1 w-full">
-        {teams.map((tm) => (
-          <option key={tm.code} value={tm.code} disabled={tm.code === exclude}>{teamName(tm, locale)}</option>
-        ))}
+        {teams.map((tm) => {
+          const isLocked = tm.code !== exclude && locked?.(tm.code);
+          return (
+            <option key={tm.code} value={tm.code} disabled={tm.code === exclude}>
+              {teamName(tm, locale)}{isLocked ? " 🔒" : ""}
+            </option>
+          );
+        })}
       </select>
     </label>
   );
