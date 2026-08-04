@@ -1,12 +1,20 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import {
+  createContext,
+  createElement,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
+} from "react";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 
 export type Account = {
   /** Credit balance. */
   credits: number;
-  /** Entitlement product keys the user owns (e.g. "kbo:LG-DOOSAN"). */
+  /** Entitlement product keys the user owns (e.g. "kbo:LG:home"). */
   unlocked: string[];
   loading: boolean;
   signedIn: boolean;
@@ -15,12 +23,16 @@ export type Account = {
 };
 
 const EMPTY = { credits: 0, unlocked: [] as string[] };
+const AccountContext = createContext<Account | null>(null);
 
 /**
- * Reads the current user's credit balance + unlocked products through RLS
- * (both are select-own). Re-reads on auth changes and on refresh().
+ * Single source of truth for the current user's credit balance + unlocks.
+ * Provider lives once in the root layout, so the /matchup picker locks and the
+ * result gate share ONE state — a refresh() after an unlock updates both (before
+ * this was a per-component hook, so an unlock refreshed the gate but not the
+ * picker's 🔒). Reads through RLS (both select-own); re-reads on auth change.
  */
-export function useAccount(): Account {
+export function AccountProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState({ ...EMPTY, loading: true, signedIn: false });
   const [tick, setTick] = useState(0);
   const refresh = useCallback(() => setTick((t) => t + 1), []);
@@ -63,5 +75,11 @@ export function useAccount(): Account {
     };
   }, [tick]);
 
-  return { ...state, refresh };
+  return createElement(AccountContext.Provider, { value: { ...state, refresh } }, children);
+}
+
+export function useAccount(): Account {
+  const ctx = useContext(AccountContext);
+  if (!ctx) throw new Error("useAccount must be used inside <AccountProvider>");
+  return ctx;
 }
