@@ -32,3 +32,14 @@ export const UNLOCK_PRICE_KRW = 1000;
 export function kboProduct(homeCode: string, awayCode: string): string {
   return `kbo:${homeCode}-${awayCode}`;
 }
+
+/**
+ * Free "taster" matchups — Samsung (SS) vs Hanwha (HH), both orderings. These
+ * show without a credit so users can sample the product; every other pairing is
+ * gated. Codes come from public/kbo-matchup.json.
+ */
+const FREE_PAIRS: ReadonlySet<string> = new Set(["SS-HH", "HH-SS"]);
+
+export function isFreeMatchup(homeCode: string, awayCode: string): boolean {
+  return FREE_PAIRS.has(`${homeCode}-${awayCode}`);
+}

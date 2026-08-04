@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useAccount } from "@/lib/useAccount";
-import { kboProduct } from "@/lib/credits";
+import { kboProduct, isFreeMatchup } from "@/lib/credits";
 import { useToast } from "@/lib/toast-context";
 import { useT } from "@/lib/i18n-context";
 
@@ -31,6 +31,18 @@ export function KboResultGate({
 
   const product = kboProduct(home, away);
   const isUnlocked = unlocked.includes(product);
+
+  // Free taster matchups (Samsung vs Hanwha) bypass the paywall entirely.
+  if (isFreeMatchup(home, away)) {
+    return (
+      <>
+        <div className="mt-8 inline-flex items-center gap-1.5 rounded-full border border-accent/40 bg-accent/10 px-3 py-1 text-xs font-medium text-accent">
+          {t("credits.freeTaster")}
+        </div>
+        {children}
+      </>
+    );
+  }
 
   if (loading) return <div className="mt-8 h-40" aria-hidden />;
   if (isUnlocked) return <>{children}</>;

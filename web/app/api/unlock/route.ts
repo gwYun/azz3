@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import * as repo from "@/lib/pay-repo";
-import { kboProduct } from "@/lib/credits";
+import { kboProduct, isFreeMatchup } from "@/lib/credits";
 
 /**
  * Spend 1 credit to unlock a KBO matchup result. Auth required.
@@ -27,6 +27,12 @@ export async function POST(request: Request) {
   const away = body?.away?.trim();
   if (!home || !away || home === away) {
     return NextResponse.json({ error: "invalid_matchup" }, { status: 400 });
+  }
+
+  // Free taster matchups never spend a credit (defensive — the UI never calls
+  // unlock for these, but a direct request shouldn't burn a credit).
+  if (isFreeMatchup(home, away)) {
+    return NextResponse.json({ status: "free" });
   }
 
   const product = kboProduct(home, away);

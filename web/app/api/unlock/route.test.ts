@@ -57,6 +57,13 @@ describe("unlock route", () => {
     expect(res.status).toBe(400);
   });
 
+  it("does not spend a credit on a free taster matchup (Samsung vs Hanwha)", async () => {
+    const res = await POST(req({ home: "SS", away: "HH" }));
+    expect(repo.spendCreditForUnlock).not.toHaveBeenCalled();
+    expect(res.status).toBe(200);
+    expect(await res.json()).toMatchObject({ status: "free" });
+  });
+
   it("401 when not logged in", async () => {
     h.user = null;
     const res = await POST(req({ home: "LG", away: "DOOSAN" }));

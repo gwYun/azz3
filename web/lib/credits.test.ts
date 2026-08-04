@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { CREDIT_PACKS, getPack, kboProduct } from "./credits";
+import { CREDIT_PACKS, getPack, kboProduct, isFreeMatchup } from "./credits";
 
 describe("credits config", () => {
   it("getPack returns the pack for a valid id", () => {
@@ -30,5 +30,12 @@ describe("credits config", () => {
   it("kboProduct builds an order-sensitive key", () => {
     expect(kboProduct("LG", "DOOSAN")).toBe("kbo:LG-DOOSAN");
     expect(kboProduct("DOOSAN", "LG")).toBe("kbo:DOOSAN-LG");
+  });
+
+  it("isFreeMatchup is true only for Samsung vs Hanwha, both orderings", () => {
+    expect(isFreeMatchup("SS", "HH")).toBe(true);
+    expect(isFreeMatchup("HH", "SS")).toBe(true);
+    expect(isFreeMatchup("SS", "LG")).toBe(false);
+    expect(isFreeMatchup("LG", "OB")).toBe(false);
   });
 });
