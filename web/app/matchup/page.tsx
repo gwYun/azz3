@@ -25,8 +25,11 @@ export default function MatchupPage() {
   const [homeCode, setHomeCode] = useState<string>("");
   const [awayCode, setAwayCode] = useState<string>("");
   const [game, setGame] = useState(0);
-  const [useOptimal, setUseOptimal] = useState(false);
   const [leverage, setLeverage] = useState(true);
+  // User-edited batting orders (indices into team.batters). null = the model's projected
+  // lineup. The engine takes an arbitrary order, so editing just feeds a different array.
+  const [homeOrder, setHomeOrder] = useState<number[] | null>(null);
+  const [awayOrder, setAwayOrder] = useState<number[] | null>(null);
   const [sim, setSim] = useState<SimResult | null>(null);
   const workerRef = useRef<Worker | null>(null);
 
@@ -36,6 +39,11 @@ export default function MatchupPage() {
       if (d.teams.length >= 2) { setHomeCode(d.teams[0].code); setAwayCode(d.teams[1].code); }
     }).catch(() => setData(null));
   }, []);
+
+  // A team's 14-man pool differs per team, so a custom order is only valid for the team it
+  // was built on — reset to projected when the team (not the game) changes.
+  useEffect(() => { setHomeOrder(null); }, [homeCode]);
+  useEffect(() => { setAwayOrder(null); }, [awayCode]);
 
   // 1,000,000-draw Monte Carlo runs off the main thread; falls back to the exact PMF.
   useEffect(() => {
@@ -64,17 +72,19 @@ export default function MatchupPage() {
     const eliteH = leverage ? homePen.eliteRates : null;
     const hProj = home.lineup_projected.slice(0, 9);
     const aProj = away.lineup_projected.slice(0, 9);
+    const hOrder = homeOrder ?? hProj;                     // custom edit or projected
+    const aOrder = awayOrder ?? aProj;
+    // Win-max lineup (for the "apply optimal" action + the achievable-gain hint).
     const hOpt = optimizeLineup(home.batters, hProj, as.rates, awayPen.rates, eliteA, as.sp_innings, lg, true, home.mu_calib);
     const aOpt = optimizeLineup(away.batters, aProj, hs.rates, homePen.rates, eliteH, hs.sp_innings, lg, false, away.mu_calib);
-    const hOrder = useOptimal ? hOpt.order : hProj;
-    const aOrder = useOptimal ? aOpt.order : aProj;
     const res = evaluateMatchup(lg, home, away, hOrder, aOrder, hs, as, homePen, awayPen, leverage);
+    // Projected-lineup μ baseline so the badge reads "vs the model's projected lineup".
     const projHmu = muForOrder(home.batters, hProj, as.rates, awayPen.rates, eliteA, as.sp_innings, lg, true, home.mu_calib);
     const projAmu = muForOrder(away.batters, aProj, hs.rates, homePen.rates, eliteH, hs.sp_innings, lg, false, away.mu_calib);
-    return { home, away, lg, hs, as, homePen, awayPen, hProj, aProj, hOpt, aOpt, hOrder, aOrder, res, projHmu, projAmu };
-  }, [data, homeCode, awayCode, game, useOptimal, leverage]);
+    return { home, away, lg, hs, as, homePen, awayPen, hProj, aProj, hOrder, aOrder, hOpt, aOpt, res, projHmu, projAmu };
+  }, [data, homeCode, awayCode, game, leverage, homeOrder, awayOrder]);
 
-  // Kick the Monte Carlo whenever the μ pair changes.
+  // Kick the Monte Carlo whenever the μ pair changes (team, game, lineup, leverage).
   useEffect(() => {
     if (!engine) return;
     const req: SimRequest = { muHome: engine.res.muHome, muAway: engine.res.muAway, k: engine.lg.k, n: 1_000_000 };
@@ -92,6 +102,12 @@ export default function MatchupPage() {
   // (independent purchases). Free teams (SS/HH) and owned slots show no lock.
   const homeLocked = (code: string) => !isTeamSlotOpen(code, "home", unlocked);
   const awayLocked = (code: string) => !isTeamSlotOpen(code, "away", unlocked);
+
+  // Most-likely (modal) integer score from the run distribution — the single score most
+  // likely to occur, not the fractional expected value. Uses the Monte-Carlo histogram
+  // when ready, else the exact NegBinom PMF; both are indexed by integer run totals.
+  const distHome = engine ? distFrom(sim?.histHome, engine.res.muHome, engine.lg.k) : [];
+  const distAway = engine ? distFrom(sim?.histAway, engine.res.muAway, engine.lg.k) : [];
 
   return (
     <article className="mx-auto max-w-3xl">
@@ -122,7 +138,6 @@ export default function MatchupPage() {
               ))}
             </div>
           </div>
-          <Toggle label={t("matchup.toggle.optimal")} on={useOptimal} set={setUseOptimal} />
           <Toggle label={t("matchup.toggle.leverage")} on={leverage} set={setLeverage} />
         </div>
       </section>
@@ -150,8 +165,8 @@ export default function MatchupPage() {
                 value={engine.res.homeWin >= engine.res.awayWin ? teamName(engine.home, locale) : teamName(engine.away, locale)}
                 sub={pct(Math.max(engine.res.homeWin, engine.res.awayWin))} />
               <Stat label={t("matchup.expscore")}
-                value={`${engine.res.muHome.toFixed(1)} : ${engine.res.muAway.toFixed(1)}`}
-                sub={`${t("matchup.mu")}`} />
+                value={`${modeOf(distHome)} : ${modeOf(distAway)}`}
+                sub={t("matchup.mode")} />
               <Stat label={t("matchup.dist.title")}
                 value={sim ? (1_000_000).toLocaleString() : t("matchup.calc")}
                 sub={sim ? t("matchup.sims", { sims: "" }).trim() : undefined} />
@@ -162,22 +177,30 @@ export default function MatchupPage() {
           <section className="mt-8">
             <h2 className="font-display text-lg font-semibold tracking-tight text-fg">{t("matchup.dist.title")}</h2>
             <Histogram
-              home={distFrom(sim?.histHome, engine.res.muHome, engine.lg.k)}
-              away={distFrom(sim?.histAway, engine.res.muAway, engine.lg.k)}
+              home={distHome} away={distAway}
               homeLabel={teamName(engine.home, locale)} awayLabel={teamName(engine.away, locale)}
             />
           </section>
 
-          {/* Lineups */}
-          <section className="mt-10 grid gap-6 md:grid-cols-2">
-            <LineupColumn t={t} locale={locale} team={engine.home} starter={engine.hs} pen={engine.homePen}
-              projOrder={engine.hProj} optOrder={engine.hOpt.order}
-              projMu={engine.projHmu} optMu={engine.hOpt.mu} side={t("matchup.home")} />
-            <LineupColumn t={t} locale={locale} team={engine.away} starter={engine.as} pen={engine.awayPen}
-              projOrder={engine.aProj} optOrder={engine.aOpt.order}
-              projMu={engine.projAmu} optMu={engine.aOpt.mu} side={t("matchup.away")} />
+          {/* Editable lineups */}
+          <section className="mt-10">
+            <p className="mb-3 text-sm text-fg-muted">{t("matchup.lineup.editHint")}</p>
+            <div className="grid gap-6 md:grid-cols-2">
+              <LineupColumn t={t} locale={locale} team={engine.home} starter={engine.hs} pen={engine.homePen}
+                order={engine.hOrder} onOrderChange={setHomeOrder}
+                isCustom={homeOrder !== null} gain={engine.res.muHome - engine.projHmu}
+                optGain={engine.hOpt.mu - engine.projHmu}
+                onOptimal={() => setHomeOrder(engine.hOpt.order.slice())} onReset={() => setHomeOrder(null)}
+                side={t("matchup.home")} />
+              <LineupColumn t={t} locale={locale} team={engine.away} starter={engine.as} pen={engine.awayPen}
+                order={engine.aOrder} onOrderChange={setAwayOrder}
+                isCustom={awayOrder !== null} gain={engine.res.muAway - engine.projAmu}
+                optGain={engine.aOpt.mu - engine.projAmu}
+                onOptimal={() => setAwayOrder(engine.aOpt.order.slice())} onReset={() => setAwayOrder(null)}
+                side={t("matchup.away")} />
+            </div>
+            <p className="mt-3 text-xs leading-relaxed text-fg-dim">{t("matchup.lineup.note")}</p>
           </section>
-          <p className="mt-3 text-xs leading-relaxed text-fg-dim">{t("matchup.lineup.note")}</p>
         </KboResultGate>
       )}
 
@@ -237,12 +260,12 @@ function Stat({ label, value, sub }: { label: string; value: string; sub?: strin
   );
 }
 
-function LineupColumn({ t, locale, team, starter, pen, projOrder, optOrder, projMu, optMu, side }: {
+function LineupColumn({ t, locale, team, starter, pen, order, onOrderChange, isCustom, gain, optGain, onOptimal, onReset, side }: {
   t: ReturnType<typeof useT>; locale: Locale; team: Team; starter: Pitcher; pen: BullpenState;
-  projOrder: number[]; optOrder: number[]; projMu: number; optMu: number; side: string;
+  order: number[]; onOrderChange: (o: number[]) => void; isCustom: boolean;
+  gain: number; optGain: number; onOptimal: () => void; onReset: () => void; side: string;
 }) {
-  const gain = optMu - projMu;
-  const changed = optOrder.join(",") !== projOrder.join(",");
+  const canOptimize = optGain > 0.01 && Math.abs(gain - optGain) > 0.01;
   return (
     <div className="rounded-xl border border-line bg-ink-850/30 p-4">
       <div className="flex items-baseline justify-between">
@@ -260,47 +283,87 @@ function LineupColumn({ t, locale, team, starter, pen, projOrder, optOrder, proj
           )}
         </p>
       )}
-      <LineupTable t={t} team={team} order={projOrder} title={t("matchup.lineup.projected")} />
-      {changed && (
-        <LineupTable t={t} team={team} order={optOrder}
-          title={t("matchup.lineup.optimal")}
-          badge={gain > 0.01 ? t("matchup.lineup.gain", { gain: gain.toFixed(2) }) : undefined} />
-      )}
+      <div className="mt-3 flex items-center justify-between gap-2">
+        <span className="text-xs font-semibold uppercase tracking-wide text-fg-dim">
+          {isCustom ? t("matchup.lineup.custom") : t("matchup.lineup.projected")}
+          {Math.abs(gain) > 0.01 && (
+            <span className={"ml-2 font-mono " + (gain > 0 ? "text-accent" : "text-fg-dim")}>
+              {t("matchup.lineup.gain", { gain: (gain > 0 ? "+" : "") + gain.toFixed(2) })}
+            </span>
+          )}
+        </span>
+        <div className="flex gap-1.5">
+          <button onClick={onOptimal} disabled={!canOptimize}
+            className="btn-secondary h-6 px-2 text-[11px] disabled:opacity-40"
+            title={optGain > 0.01 ? t("matchup.lineup.gain", { gain: "+" + optGain.toFixed(2) }) : undefined}>
+            {t("matchup.lineup.optimize")}
+          </button>
+          {isCustom && (
+            <button onClick={onReset} className="btn-secondary h-6 px-2 text-[11px]">
+              {t("matchup.lineup.reset")}
+            </button>
+          )}
+        </div>
+      </div>
+      <LineupTable t={t} pool={team.batters} order={order} onOrderChange={onOrderChange} />
     </div>
   );
 }
 
-function LineupTable({ t, team, order, title, badge }: {
-  t: ReturnType<typeof useT>; team: Team; order: number[]; title: string; badge?: string;
+function LineupTable({ t, pool, order, onOrderChange }: {
+  t: ReturnType<typeof useT>; pool: Batter[]; order: number[]; onOrderChange: (o: number[]) => void;
 }) {
+  const move = (i: number, d: number) => {
+    const j = i + d;
+    if (j < 0 || j > 8) return;
+    const o = order.slice();
+    [o[i], o[j]] = [o[j], o[i]];
+    onOrderChange(o);
+  };
+  const setSlot = (i: number, poolIdx: number) => {
+    const o = order.slice();
+    const at = o.indexOf(poolIdx);
+    if (at >= 0) [o[i], o[at]] = [o[at], o[i]];   // already batting → swap positions
+    else o[i] = poolIdx;                          // bench bat → substitute in
+    onOrderChange(o);
+  };
   return (
-    <div className="mt-3">
-      <div className="mb-1 flex items-center justify-between">
-        <span className="text-xs font-semibold uppercase tracking-wide text-fg-dim">{title}</span>
-        {badge && <span className="chip text-[11px] text-accent">{badge}</span>}
+    <div className="mt-2 overflow-hidden rounded-lg border border-line">
+      <div className={HEAD + " grid-cols-[1.25rem_1fr_2.75rem_2.75rem_2.5rem]"}>
+        <span className="text-right">{t("matchup.col.order")}</span>
+        <span>{t("matchup.col.player")}</span>
+        <span className="text-right">{t("matchup.col.wrc")}</span>
+        <span className="text-right">{t("matchup.col.ob")}</span>
+        <span />
       </div>
-      <div className="overflow-hidden rounded-lg border border-line">
-        <div className={HEAD + " grid-cols-[1.5rem_1fr_3rem_3rem]"}>
-          <span className="text-right">{t("matchup.col.order")}</span>
-          <span>{t("matchup.col.player")}</span>
-          <span className="text-right">{t("matchup.col.wrc")}</span>
-          <span className="text-right">{t("matchup.col.ob")}</span>
-        </div>
-        <ul className="divide-y divide-line/60">
-          {order.map((idx, slot) => {
-            const b: Batter = team.batters[idx];
-            const ob = 1 - b.rates.out;
-            return (
-              <li key={idx} className="grid grid-cols-[1.5rem_1fr_3rem_3rem] items-center gap-x-2 px-3 py-1.5 text-sm">
-                <span className="text-right font-mono text-fg-dim">{slot + 1}</span>
-                <span className="truncate text-fg">{b.name}</span>
-                <span className="text-right font-mono tabular-nums text-fg-muted">{b.wrc_plus.toFixed(0)}</span>
-                <span className="text-right font-mono tabular-nums text-fg-dim">{(ob * 100).toFixed(0)}</span>
-              </li>
-            );
-          })}
-        </ul>
-      </div>
+      <ul className="divide-y divide-line/60">
+        {order.map((idx, slot) => {
+          const b = pool[idx];
+          const ob = 1 - b.rates.out;
+          return (
+            <li key={slot} className="grid grid-cols-[1.25rem_1fr_2.75rem_2.75rem_2.5rem] items-center gap-x-2 px-3 py-1.5 text-sm">
+              <span className="text-right font-mono text-fg-dim">{slot + 1}</span>
+              <select value={idx} onChange={(e) => setSlot(slot, Number(e.target.value))}
+                aria-label={t("matchup.col.player")}
+                className="min-w-0 truncate rounded border border-line bg-ink-800/60 px-1.5 py-1 text-sm text-fg focus:border-accent focus:outline-none">
+                {pool.map((p, pi) => (
+                  <option key={pi} value={pi}>{p.name} · {p.wrc_plus.toFixed(0)}</option>
+                ))}
+              </select>
+              <span className="text-right font-mono tabular-nums text-fg-muted">{b.wrc_plus.toFixed(0)}</span>
+              <span className="text-right font-mono tabular-nums text-fg-dim">{(ob * 100).toFixed(0)}</span>
+              <span className="flex justify-end gap-0.5">
+                <button onClick={() => move(slot, -1)} disabled={slot === 0}
+                  aria-label={t("matchup.lineup.moveUp")}
+                  className="flex h-5 w-5 items-center justify-center rounded text-fg-dim hover:text-fg disabled:opacity-25">▲</button>
+                <button onClick={() => move(slot, 1)} disabled={slot === 8}
+                  aria-label={t("matchup.lineup.moveDown")}
+                  className="flex h-5 w-5 items-center justify-center rounded text-fg-dim hover:text-fg disabled:opacity-25">▼</button>
+              </span>
+            </li>
+          );
+        })}
+      </ul>
     </div>
   );
 }
@@ -322,8 +385,8 @@ function Histogram({ home, away, homeLabel, awayLabel }: {
       <div className="flex items-end gap-1" style={{ height: CHART_H }}>
         {bars.map((r) => (
           <div key={r} className="flex flex-1 items-end justify-center gap-px">
-            <span className="w-1/2 rounded-sm bg-accent/70" style={{ height: px(home[r]) }} />
-            <span className="w-1/2 rounded-sm bg-cyan/60" style={{ height: px(away[r]) }} />
+            <span className="w-1/2 rounded-sm bg-accent/70" style={{ height: px(home[r] ?? 0) }} />
+            <span className="w-1/2 rounded-sm bg-cyan/60" style={{ height: px(away[r] ?? 0) }} />
           </div>
         ))}
       </div>
@@ -343,4 +406,11 @@ function distFrom(hist: number[] | undefined, mu: number, k: number): number[] {
     return hist.map((c) => c / total);
   }
   return Array.from(negBinomPmf(mu, k, 25));
+}
+
+// The most likely integer run total = argmax of the run distribution.
+function modeOf(dist: number[]): number {
+  let mi = 0, mv = -1;
+  for (let i = 0; i < dist.length; i++) if (dist[i] > mv) { mv = dist[i]; mi = i; }
+  return mi;
 }
