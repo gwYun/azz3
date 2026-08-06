@@ -44,7 +44,11 @@ K_PIT = 180.0
 POOL_SIZE = 14          # batters exported per team (9 starters + bench for the optimizer)
 ROTATION = 5
 BULLPEN_ARMS = 8        # individual relievers exported for the client's availability model
-_SIM_PARAMS = dict(breadth=6.0, mode="actual", wexp_weight=0.04, tactics_weight=1.0, fip_blend=0.25)
+# rating_shrink 0.70: shrink team rs/ra toward the league anchor (see run_bottomup /
+# scripts/recalibrate). Keeps /matchup single-game odds calibrated (no overconfident
+# favorites) and consistent with /kbo, which uses the same shrink.
+_SIM_PARAMS = dict(breadth=6.0, mode="actual", wexp_weight=0.04, tactics_weight=1.0,
+                   fip_blend=0.25, rating_shrink=0.70)
 
 # Base-out advancement table: _ADV[state][e] = (new_state, runs), state bit0=1B,1=2B,2=3B.
 # Deterministic, no double plays / first-to-third variance (v1, disclosed); the per-team

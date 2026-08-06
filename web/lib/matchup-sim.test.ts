@@ -5,7 +5,7 @@ import {
   type Rates, type Reliever, type Segment,
 } from "./matchup-sim";
 
-const HOME_FACTOR = 1.1; // baked into the Python reference that produced the fixture
+const HOME_FACTOR = 1.086; // baked into the Python reference that produced the fixture (pooled-recalibrated)
 
 // Cross-language parity: the TS engine must reproduce the Python reference μ
 // (kbo/src/matchup_export.markov_expected_runs) to floating-point precision.
@@ -25,22 +25,22 @@ describe("engine properties", () => {
   const lg = fx.lg_event as Rates;
 
   it("negBinom PMF is a valid distribution", () => {
-    const pmf = negBinomPmf(4.8, 3.64, 25);
+    const pmf = negBinomPmf(4.8, 3.70, 25);
     const sum = Array.from(pmf).reduce((a, b) => a + b, 0);
     expect(sum).toBeCloseTo(1, 6);
     expect(Array.from(pmf).every((p) => p >= 0)).toBe(true);
   });
 
   it("win probability is in [0,1] and complementary", () => {
-    const p = winProbExact(5.2, 4.3, 3.64);
+    const p = winProbExact(5.2, 4.3, 3.70);
     expect(p).toBeGreaterThan(0.5); // higher-scoring team favored
     expect(p).toBeLessThan(1);
-    const q = winProbExact(4.3, 5.2, 3.64);
+    const q = winProbExact(4.3, 5.2, 3.70);
     expect(p + q).toBeCloseTo(1, 6);
   });
 
   it("even matchup is a coin flip", () => {
-    expect(winProbExact(4.7, 4.7, 3.64)).toBeCloseTo(0.5, 6);
+    expect(winProbExact(4.7, 4.7, 3.70)).toBeCloseTo(0.5, 6);
   });
 
   it("log5 suppresses HR share vs a tougher pitcher", () => {

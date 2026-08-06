@@ -4,8 +4,8 @@
   "method": "base-out Markov 기대득점(타순 반영) → NegBinom 맞대결; log5 타자×투수 매치업",
   "league": {
     "lg_R_per_G": 4.9882,
-    "k": 3.64,
-    "home_factor": 1.1,
+    "k": 3.7,
+    "home_factor": 1.086,
     "event": {
       "bb": 0.110062,
       "b1": 0.166667,
@@ -26,11 +26,11 @@
       "ko": "삼성",
       "en": "Samsung Lions",
       "park": "대구",
-      "rs_per_game": 5.92,
-      "ra_per_game": 4.21,
+      "rs_per_game": 5.59,
+      "ra_per_game": 4.48,
       "off_rating": 115.0,
       "def_rating": 115.0,
-      "mu_calib": 1.0448,
+      "mu_calib": 0.9859,
       "batters": [
         {
           "name": "디아즈",
@@ -454,11 +454,11 @@
       "ko": "한화",
       "en": "Hanwha Eagles",
       "park": "대전",
-      "rs_per_game": 5.66,
-      "ra_per_game": 4.9,
+      "rs_per_game": 5.45,
+      "ra_per_game": 4.94,
       "off_rating": 114.0,
       "def_rating": 98.0,
-      "mu_calib": 1.0727,
+      "mu_calib": 1.0316,
       "batters": [
         {
           "name": "페라자",
@@ -882,11 +882,11 @@
       "ko": "NC",
       "en": "NC Dinos",
       "park": "창원",
-      "rs_per_game": 5.31,
-      "ra_per_game": 5.17,
+      "rs_per_game": 5.24,
+      "ra_per_game": 5.08,
       "off_rating": 110.0,
       "def_rating": 96.0,
-      "mu_calib": 1.0683,
+      "mu_calib": 1.0556,
       "batters": [
         {
           "name": "김주원",
@@ -1310,11 +1310,11 @@
       "ko": "KT",
       "en": "KT Wiz",
       "park": "수원",
-      "rs_per_game": 5.54,
-      "ra_per_game": 4.73,
+      "rs_per_game": 5.4,
+      "ra_per_game": 4.79,
       "off_rating": 108.0,
       "def_rating": 102.0,
-      "mu_calib": 1.1801,
+      "mu_calib": 1.1489,
       "batters": [
         {
           "name": "최원준",
@@ -1738,11 +1738,11 @@
       "ko": "KIA",
       "en": "KIA Tigers",
       "park": "광주",
-      "rs_per_game": 5.19,
-      "ra_per_game": 4.85,
+      "rs_per_game": 5.11,
+      "ra_per_game": 4.91,
       "off_rating": 107.0,
       "def_rating": 106.0,
-      "mu_calib": 1.0493,
+      "mu_calib": 1.0327,
       "batters": [
         {
           "name": "김도영",
@@ -2166,11 +2166,11 @@
       "ko": "LG",
       "en": "LG Twins",
       "park": "잠실",
-      "rs_per_game": 5.31,
-      "ra_per_game": 4.72,
+      "rs_per_game": 5.24,
+      "ra_per_game": 4.78,
       "off_rating": 107.0,
       "def_rating": 107.0,
-      "mu_calib": 1.072,
+      "mu_calib": 1.0573,
       "batters": [
         {
           "name": "오스틴",
@@ -2595,10 +2595,10 @@
       "en": "SSG Landers",
       "park": "문학",
       "rs_per_game": 4.86,
-      "ra_per_game": 6.4,
+      "ra_per_game": 6.02,
       "off_rating": 100.0,
       "def_rating": 61.0,
-      "mu_calib": 1.012,
+      "mu_calib": 1.0129,
       "batters": [
         {
           "name": "박성한",
@@ -3022,11 +3022,11 @@
       "ko": "두산",
       "en": "Doosan Bears",
       "park": "잠실",
-      "rs_per_game": 4.69,
-      "ra_per_game": 4.49,
+      "rs_per_game": 4.83,
+      "ra_per_game": 4.59,
       "off_rating": 94.0,
       "def_rating": 118.0,
-      "mu_calib": 0.9844,
+      "mu_calib": 1.0135,
       "batters": [
         {
           "name": "박찬호",
@@ -3450,11 +3450,11 @@
       "ko": "롯데",
       "en": "Lotte Giants",
       "park": "사직",
-      "rs_per_game": 3.96,
-      "ra_per_game": 5.15,
+      "rs_per_game": 4.3,
+      "ra_per_game": 5.05,
       "off_rating": 79.0,
       "def_rating": 105.0,
-      "mu_calib": 0.924,
+      "mu_calib": 1.0057,
       "batters": [
         {
           "name": "레이예스",
@@ -3878,11 +3878,11 @@
       "ko": "키움",
       "en": "Kiwoom Heroes",
       "park": "고척",
-      "rs_per_game": 3.65,
-      "ra_per_game": 5.39,
+      "rs_per_game": 4.01,
+      "ra_per_game": 5.33,
       "off_rating": 66.0,
       "def_rating": 92.0,
-      "mu_calib": 0.8588,
+      "mu_calib": 0.9434,
       "batters": [
         {
           "name": "안치홍",
@@ -4303,6 +4303,6 @@
     }
   ],
   "caveat": "실제 로스터·성적(전 구단 전체 선수) 기반. 타순·선발 로테이션은 모델링(실제 라인업/예고선발은 robots 차단된 /ws/ API에만 있어 미사용). 포지션 미제공 → 라인업은 출전·가치순. statiz 미사용.",
-  "run_id": "2026-07-15T13:24:13Z",
-  "model_commit": "44cdcf5"
+  "run_id": "2026-08-06T17:12:17Z",
+  "model_commit": "f7b275c"
 }

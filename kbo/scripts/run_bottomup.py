@@ -26,7 +26,12 @@ from kbo.src.season_simulate import Season
 
 _OUT = config.OUTPUTS_DIR
 _WEB = config.PROJECT_ROOT / "web" / "public" / "kbo.json"
-_SIM_PARAMS = dict(breadth=6.0, mode="actual", wexp_weight=0.04, tactics_weight=1.0, fip_blend=0.25)
+# rating_shrink 0.70: pull team rs/ra toward the league anchor. Chosen on the 2015-2019
+# game-level log-loss and confirmed out-of-sample on 2026 (scripts/recalibrate.py); it
+# fixes the overconfident single-game favorites + overstated title odds while leaving the
+# standings rank (backtest ρ 0.836→0.839) intact.
+_SIM_PARAMS = dict(breadth=6.0, mode="actual", wexp_weight=0.04, tactics_weight=1.0,
+                   fip_blend=0.25, rating_shrink=0.70)
 
 
 def _git_commit() -> str:

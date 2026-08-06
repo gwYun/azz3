@@ -22,13 +22,17 @@ from __future__ import annotations
 
 import numpy as np
 
-# Calibrated from load_game_results(2015-2019): per-team runs/game var/mean ≈ 2.47.
-DISPERSION_K = 3.64
-# Home-side expected-runs multiplier, calibrated so the simulated DECISIVE home win%
-# matches the observed ~0.538. (It exceeds the literal +0.14 run home edge because an
-# independent-NegBinom score converts a run edge to a win edge less sharply than real
-# games do — so the factor is tuned to the win%, the quantity that matters.)
-HOME_FACTOR = 1.10
+# Dispersion of per-team runs/game (var = mean + mean²/k). Recalibrated on the POOLED
+# real game log — 2015-2019 (choosunsick) + 2026 (Naver) — via scripts/recalibrate.py:
+# pooled mean 5.31 / var 12.91 → k ≈ 3.70 (was 3.64 on 2015-2019 alone).
+DISPERSION_K = 3.70
+# Home-side expected-runs multiplier, calibrated so the mean predicted DECISIVE home
+# win% over the pooled schedule matches the observed pooled rate (0.535: 2015-2019
+# 0.538 + 2026 0.517). Was 1.10 (2015-2019 → 0.538); the 2026 dip to 0.517 is mostly
+# small-sample noise, so the pooled factor barely moves. (It exceeds the literal run
+# edge because an independent-NegBinom score converts a run edge to a win edge less
+# sharply than real games do — so the factor is tuned to the win%, what matters.)
+HOME_FACTOR = 1.086
 _LAM_CLIP = (0.25, 20.0)
 
 

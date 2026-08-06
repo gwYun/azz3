@@ -64,12 +64,21 @@ def _team_metrics(rb: pd.DataFrame, rp: pd.DataFrame, c: dict, aggression: float
 def build_team_ratings(season: int, constants: dict | None = None, breadth: float = 6.0,
                        mode: str = "actual", wexp_weight: float = 0.0,
                        tactics_weight: float = 1.0, fip_blend: float = 0.25,
+                       rating_shrink: float = 1.0,
                        raw: dict | None = None, values: dict | None = None) -> pd.DataFrame:
     """One row per franchise: rs/ra per game + ratings + payroll/synergy/env.
 
     Source precedence: pre-valued `values` (2026-live with replacement fill) > `raw`
     canonical frames > the open dump for `season`. `raw`/`values` =
     {"batters", "pitchers"} frames with position/role.
+
+    `rating_shrink` (<1) linearly pulls each team's rs/ra toward the league anchor
+    (lg_R_per_G) before the sim. The roster→rate pipeline over-spreads teams — it
+    underrates weak offenses and yields overconfident single-game favorites (2026:
+    favorites predicted 0.70 win only 0.62). Shrinkage is a monotone transform, so it
+    barely moves the standings ranking (ρ) while fixing game-level calibration and the
+    overstated title odds. 0.70 was chosen on the 2015-2019 game-level log-loss and
+    confirmed out-of-sample on 2026 (scripts/recalibrate.py). Default 1.0 = off.
     """
     c = constants or lc.open_constants(season)
     if values is None:
@@ -110,8 +119,12 @@ def build_team_ratings(season: int, constants: dict | None = None, breadth: floa
     else:
         df["winning_env"] = 1.0
 
-    df["rs_per_game"] = df["rs"]
-    df["ra_per_game"] = df["ra"]
+    # Shrink rs/ra toward the league anchor (monotone → ranking-preserving). Corrects the
+    # roster pipeline's over-spread; sized on the pooled game-level backtest. off/def_rating
+    # below are z-scored, so they're shrink-invariant (only absolute rs/ra move).
+    lg = c["lg_R_per_G"]
+    df["rs_per_game"] = lg + rating_shrink * (df["rs"] - lg)
+    df["ra_per_game"] = lg + rating_shrink * (df["ra"] - lg)
     df["off_rating"] = 100.0 + 15.0 * _zscore(df["off_index"])
     df["def_rating"] = 100.0 + 15.0 * _zscore(-df["def_index"])
     df["pythag_winpct"] = pythag_winpct(df["rs_per_game"], df["ra_per_game"])
