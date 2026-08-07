@@ -30,6 +30,10 @@ export default function MatchupPage() {
   // lineup. The engine takes an arbitrary order, so editing just feeds a different array.
   const [homeOrder, setHomeOrder] = useState<number[] | null>(null);
   const [awayOrder, setAwayOrder] = useState<number[] | null>(null);
+  // Chosen starting pitcher (index into team.rotation). null = the rotation's starter for
+  // this series game. The starter is the biggest single lever on a game, so let it be picked.
+  const [homeStarterIdx, setHomeStarterIdx] = useState<number | null>(null);
+  const [awayStarterIdx, setAwayStarterIdx] = useState<number | null>(null);
   const [sim, setSim] = useState<SimResult | null>(null);
   const workerRef = useRef<Worker | null>(null);
 
@@ -42,8 +46,8 @@ export default function MatchupPage() {
 
   // A team's 14-man pool differs per team, so a custom order is only valid for the team it
   // was built on — reset to projected when the team (not the game) changes.
-  useEffect(() => { setHomeOrder(null); }, [homeCode]);
-  useEffect(() => { setAwayOrder(null); }, [awayCode]);
+  useEffect(() => { setHomeOrder(null); setHomeStarterIdx(null); }, [homeCode]);
+  useEffect(() => { setAwayOrder(null); setAwayStarterIdx(null); }, [awayCode]);
 
   // 1,000,000-draw Monte Carlo runs off the main thread; falls back to the exact PMF.
   useEffect(() => {
@@ -63,8 +67,12 @@ export default function MatchupPage() {
     const away = data.teams.find((x) => x.code === awayCode);
     if (!home || !away || home === away) return null;
     const lg = data.league;
-    const hs = starterForGame(home.rotation, game);
-    const as = starterForGame(away.rotation, game);
+    // Effective starter: the user's pick if any, else the rotation's starter for this game.
+    const rotIdx = (rot: Pitcher[], g: number) => ((g % rot.length) + rot.length) % rot.length;
+    const hsIdx = homeStarterIdx ?? rotIdx(home.rotation, game);
+    const asIdx = awayStarterIdx ?? rotIdx(away.rotation, game);
+    const hs = home.rotation[hsIdx] ?? starterForGame(home.rotation, game);
+    const as = away.rotation[asIdx] ?? starterForGame(away.rotation, game);
     // Model each bullpen's availability for THIS game (top arms rest after throwing).
     const homePen = bullpenForGame(home.bullpen_arms, game, home.bullpen);
     const awayPen = bullpenForGame(away.bullpen_arms, game, away.bullpen);
@@ -81,8 +89,8 @@ export default function MatchupPage() {
     // Projected-lineup μ baseline so the badge reads "vs the model's projected lineup".
     const projHmu = muForOrder(home.batters, hProj, as.rates, awayPen.rates, eliteA, as.sp_innings, lg, true, home.mu_calib);
     const projAmu = muForOrder(away.batters, aProj, hs.rates, homePen.rates, eliteH, hs.sp_innings, lg, false, away.mu_calib);
-    return { home, away, lg, hs, as, homePen, awayPen, hProj, aProj, hOrder, aOrder, hOpt, aOpt, res, projHmu, projAmu };
-  }, [data, homeCode, awayCode, game, leverage, homeOrder, awayOrder]);
+    return { home, away, lg, hs, as, hsIdx, asIdx, homePen, awayPen, hProj, aProj, hOrder, aOrder, hOpt, aOpt, res, projHmu, projAmu };
+  }, [data, homeCode, awayCode, game, leverage, homeOrder, awayOrder, homeStarterIdx, awayStarterIdx]);
 
   // Kick the Monte Carlo whenever the μ pair changes (team, game, lineup, leverage).
   useEffect(() => {
@@ -186,13 +194,15 @@ export default function MatchupPage() {
           <section className="mt-10">
             <p className="mb-3 text-sm text-fg-muted">{t("matchup.lineup.editHint")}</p>
             <div className="grid gap-6 md:grid-cols-2">
-              <LineupColumn t={t} locale={locale} team={engine.home} starter={engine.hs} pen={engine.homePen}
+              <LineupColumn t={t} locale={locale} team={engine.home} pen={engine.homePen}
+                rotation={engine.home.rotation} starterIdx={engine.hsIdx} onStarterChange={setHomeStarterIdx}
                 order={engine.hOrder} onOrderChange={setHomeOrder}
                 isCustom={homeOrder !== null} gain={engine.res.muHome - engine.projHmu}
                 optGain={engine.hOpt.mu - engine.projHmu}
                 onOptimal={() => setHomeOrder(engine.hOpt.order.slice())} onReset={() => setHomeOrder(null)}
                 side={t("matchup.home")} />
-              <LineupColumn t={t} locale={locale} team={engine.away} starter={engine.as} pen={engine.awayPen}
+              <LineupColumn t={t} locale={locale} team={engine.away} pen={engine.awayPen}
+                rotation={engine.away.rotation} starterIdx={engine.asIdx} onStarterChange={setAwayStarterIdx}
                 order={engine.aOrder} onOrderChange={setAwayOrder}
                 isCustom={awayOrder !== null} gain={engine.res.muAway - engine.projAmu}
                 optGain={engine.aOpt.mu - engine.projAmu}
@@ -260,8 +270,9 @@ function Stat({ label, value, sub }: { label: string; value: string; sub?: strin
   );
 }
 
-function LineupColumn({ t, locale, team, starter, pen, order, onOrderChange, isCustom, gain, optGain, onOptimal, onReset, side }: {
-  t: ReturnType<typeof useT>; locale: Locale; team: Team; starter: Pitcher; pen: BullpenState;
+function LineupColumn({ t, locale, team, pen, rotation, starterIdx, onStarterChange, order, onOrderChange, isCustom, gain, optGain, onOptimal, onReset, side }: {
+  t: ReturnType<typeof useT>; locale: Locale; team: Team; pen: BullpenState;
+  rotation: Pitcher[]; starterIdx: number; onStarterChange: (i: number) => void;
   order: number[]; onOrderChange: (o: number[]) => void; isCustom: boolean;
   gain: number; optGain: number; onOptimal: () => void; onReset: () => void; side: string;
 }) {
@@ -272,9 +283,16 @@ function LineupColumn({ t, locale, team, starter, pen, order, onOrderChange, isC
         <h3 className="font-display text-base font-semibold text-fg">{teamName(team, locale)}</h3>
         <span className="text-[11px] uppercase tracking-wide text-fg-dim">{side}</span>
       </div>
-      <p className="mt-1 text-xs text-fg-dim">
-        {t("matchup.starter")}: <span className="text-fg-muted">{starter.name}</span> · FIP {starter.fip.toFixed(2)} · {starter.sp_innings.toFixed(1)} IP
-      </p>
+      <div className="mt-2 flex items-center gap-2 text-xs text-fg-dim">
+        <span className="shrink-0">{t("matchup.starter")}</span>
+        <select value={starterIdx} onChange={(e) => onStarterChange(Number(e.target.value))}
+          aria-label={t("matchup.starter")}
+          className="min-w-0 flex-1 truncate rounded border border-line bg-ink-800/60 px-1.5 py-1 text-xs text-fg focus:border-accent focus:outline-none">
+          {rotation.map((p, pi) => (
+            <option key={pi} value={pi}>{p.name} · FIP {p.fip.toFixed(2)} · {p.sp_innings.toFixed(1)} IP</option>
+          ))}
+        </select>
+      </div>
       {pen.available.length + pen.down.length > 0 && (
         <p className="mt-1 text-xs text-fg-dim">
           {t("matchup.bullpen")}: <span className="text-fg-muted">{pen.available.slice(0, 4).map((a) => a.name).join(", ")}</span>
