@@ -40,7 +40,13 @@ export default function KboPage() {
   const [data, setData] = useState<KboData | null>(null);
 
   useEffect(() => {
-    fetch("/kbo.json").then((r) => r.json()).then(setData).catch(() => setData(null));
+    // Live daily sim (Supabase-backed) with a static-file fallback.
+    fetch("/api/kbo/season")
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error("no live"))))
+      .then(setData)
+      .catch(() =>
+        fetch("/kbo.json").then((r) => r.json()).then(setData).catch(() => setData(null)),
+      );
   }, []);
 
   if (!data) {
@@ -154,7 +160,9 @@ export default function KboPage() {
                 <span className="truncate text-fg">{p.name} · <span className="text-fg-dim">{p.franchise_ko}</span></span>
                 <span className="text-right font-mono font-semibold tabular-nums text-fg">{p.war.toFixed(1)}</span>
                 <span className="text-right font-mono tabular-nums text-fg-dim">{p.metric_label} {p.metric}</span>
-                <span className="text-right font-mono tabular-nums text-accent">{p.salary_ok}억</span>
+                <span className="text-right font-mono tabular-nums text-accent">
+                  {p.salary_ok != null ? `${p.salary_ok}억` : "—"}
+                </span>
                 <span className="text-right font-mono tabular-nums text-fg-dim">
                   {p.real_salary_ok != null ? `${p.real_salary_ok}억` : "—"}
                 </span>
