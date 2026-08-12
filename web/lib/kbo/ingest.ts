@@ -28,9 +28,13 @@ import {
   type Constants, type BatLine, type PitLine,
 } from "./sabermetrics";
 import { buildSeasonPayload } from "./season-payload";
+import { ingestBoxScores } from "./boxscore";
+import { buildAndStoreMatchup } from "./matchup";
 
 // Reduced-draw Monte-Carlo count for the in-cron season sim (see season-sim.ts).
 const SIM_DRAWS = 40000;
+// Box-score games fetched per run (bounds the first backfill; daily is ~15 new games).
+const BOX_CAP = 220;
 
 /** Nulls → 0 for counting stats we sum/feed into formulas. */
 const z = (v: number | null | undefined): number => (v == null ? 0 : v);
@@ -288,6 +292,25 @@ export async function runDailyIngest(
     titlePick = payload.title_pick;
   }
 
+  // 5) Full-roster box scores (incremental) + matchup ingredients. Best-effort:
+  // needs migration #2; a failure here must not sink the season refresh above.
+  let boxGamesIngested = 0;
+  let matchupTeams = 0;
+  let matchupError: string | null = null;
+  try {
+    const box = await ingestBoxScores(admin, season, { cap: BOX_CAP });
+    boxGamesIngested = box.gamesIngested;
+    if (constants) {
+      const mm = await buildAndStoreMatchup(admin, season, teamRows, constants, {
+        runId, modelCommit: process.env.VERCEL_GIT_COMMIT_SHA ?? null,
+      });
+      matchupTeams = mm?.teams ?? 0;
+    }
+  } catch (e) {
+    matchupError = e instanceof Error ? e.message : "unknown";
+    console.error("[kbo-daily] box/matchup stage skipped:", e);
+  }
+
   return {
     season,
     gamesUpserted,
@@ -296,13 +319,16 @@ export async function runDailyIngest(
     pitchersUpserted,
     simGenerated,
     detail: {
-      phase: "p3-full",
+      phase: "m3-full",
       trigger: opts.trigger ?? "unknown",
       throughMonth,
       gamesFetched: games.length,
       hittersFetched: hitters.length,
       pitchersFetched: pitchers.length,
       titlePick,
+      boxGamesIngested,
+      matchupTeams,
+      matchupError,
     },
   };
 }

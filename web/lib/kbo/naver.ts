@@ -109,9 +109,50 @@ export interface NaverPitcher {
   isQualified?: boolean;
 }
 
+// Per-game box-score rows (schedule/games/{id}/record → result.recordData).
+export interface NaverBoxBatter {
+  playerCode: string; name?: string; batOrder?: number; pos?: string;
+  ab?: number; hit?: number; hr?: number; bb?: number; kk?: number;
+  sb?: number; run?: number; rbi?: number;
+}
+export interface NaverBoxPitcher {
+  pcode: string; name?: string; inn?: string | number; bf?: number; ab?: number;
+  hit?: number; r?: number; er?: number; hr?: number; bb?: number; bbhp?: number; kk?: number;
+}
+export interface NaverGameRecord {
+  away: { batters: NaverBoxBatter[]; pitchers: NaverBoxPitcher[] };
+  home: { batters: NaverBoxBatter[]; pitchers: NaverBoxPitcher[] };
+}
+
 // --------------------------------------------------------------------------- //
 // Fetchers.                                                                    //
 // --------------------------------------------------------------------------- //
+
+/**
+ * One game's per-player box score. Returns null when the game has no record yet
+ * (unplayed/cancelled). battersBoxscore/pitchersBoxscore split into away/home,
+ * which the caller tags with the game's known away/home franchise.
+ */
+export async function fetchGameRecord(gameId: string): Promise<NaverGameRecord | null> {
+  const url = `${API}/schedule/games/${gameId}/record`;
+  let rd: {
+    battersBoxscore?: { away?: NaverBoxBatter[]; home?: NaverBoxBatter[] };
+    pitchersBoxscore?: { away?: NaverBoxPitcher[]; home?: NaverBoxPitcher[] };
+  };
+  try {
+    const result = await getJson<{ recordData?: typeof rd }>(url);
+    if (!result?.recordData?.battersBoxscore) return null;
+    rd = result.recordData;
+  } catch {
+    return null;
+  }
+  const bb = rd.battersBoxscore ?? {};
+  const pb = rd.pitchersBoxscore ?? {};
+  return {
+    away: { batters: bb.away ?? [], pitchers: pb.away ?? [] },
+    home: { batters: bb.home ?? [], pitchers: pb.home ?? [] },
+  };
+}
 
 /** All KBO games in a [fromDate, toDate] window (one request, size=500). */
 export async function fetchGames(fromDate: string, toDate: string): Promise<NaverGame[]> {

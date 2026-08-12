@@ -18,19 +18,19 @@ export const FRANCHISES = [
 
 export type Franchise = (typeof FRANCHISES)[number];
 
-/** Display names per franchise (from kbo/data/kbo_team_meta.json — codes survive
+/** Display meta per franchise (from kbo/data/kbo_team_meta.json — codes survive
  * sponsor renames: SK=SSG, WO=Kiwoom, HT=KIA). */
-export const TEAM_NAMES: Record<Franchise, { ko: string; en: string }> = {
-  HT: { ko: "KIA", en: "KIA Tigers" },
-  SS: { ko: "삼성", en: "Samsung Lions" },
-  LG: { ko: "LG", en: "LG Twins" },
-  OB: { ko: "두산", en: "Doosan Bears" },
-  KT: { ko: "KT", en: "KT Wiz" },
-  SK: { ko: "SSG", en: "SSG Landers" },
-  LT: { ko: "롯데", en: "Lotte Giants" },
-  HH: { ko: "한화", en: "Hanwha Eagles" },
-  NC: { ko: "NC", en: "NC Dinos" },
-  WO: { ko: "키움", en: "Kiwoom Heroes" },
+export const TEAM_NAMES: Record<Franchise, { ko: string; en: string; park: string }> = {
+  HT: { ko: "KIA", en: "KIA Tigers", park: "광주" },
+  SS: { ko: "삼성", en: "Samsung Lions", park: "대구" },
+  LG: { ko: "LG", en: "LG Twins", park: "잠실" },
+  OB: { ko: "두산", en: "Doosan Bears", park: "잠실" },
+  KT: { ko: "KT", en: "KT Wiz", park: "수원" },
+  SK: { ko: "SSG", en: "SSG Landers", park: "문학" },
+  LT: { ko: "롯데", en: "Lotte Giants", park: "사직" },
+  HH: { ko: "한화", en: "Hanwha Eagles", park: "대전" },
+  NC: { ko: "NC", en: "NC Dinos", park: "창원" },
+  WO: { ko: "키움", en: "Kiwoom Heroes", park: "고척" },
 };
 
 const FRANCHISE_SET = new Set<string>(FRANCHISES);

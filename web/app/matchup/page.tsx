@@ -38,10 +38,17 @@ export default function MatchupPage() {
   const workerRef = useRef<Worker | null>(null);
 
   useEffect(() => {
-    fetch("/kbo-matchup.json").then((r) => r.json()).then((d: MatchupData) => {
+    const apply = (d: MatchupData) => {
       setData(d);
       if (d.teams.length >= 2) { setHomeCode(d.teams[0].code); setAwayCode(d.teams[1].code); }
-    }).catch(() => setData(null));
+    };
+    // Live box-score-built rosters (Supabase-backed) with a static-file fallback.
+    fetch("/api/kbo/matchup")
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error("no live"))))
+      .then(apply)
+      .catch(() =>
+        fetch("/kbo-matchup.json").then((r) => r.json()).then(apply).catch(() => setData(null)),
+      );
   }, []);
 
   // A team's 14-man pool differs per team, so a custom order is only valid for the team it
