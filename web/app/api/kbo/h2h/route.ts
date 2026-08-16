@@ -31,12 +31,13 @@ export async function GET(request: Request) {
       .order("game_date", { ascending: true });
     if (error) throw error;
 
-    const played = (data ?? []).filter(
-      (g) => g.status === "RESULT" && g.home_score != null && g.away_score != null,
-    );
-    // Record from team a's perspective (across both venues).
+    const games = (data ?? []).filter((g) => !!g.game_date);
+    const isPlayed = (g: (typeof games)[number]) =>
+      g.status === "RESULT" && g.home_score != null && g.away_score != null;
+    // Record from team a's perspective (across both venues), over played games only.
     let aw = 0, bw = 0, tie = 0;
-    for (const g of played) {
+    for (const g of games) {
+      if (!isPlayed(g)) continue;
       const aHome = g.home_team === a;
       const as = (aHome ? g.home_score : g.away_score) as number;
       const bs = (aHome ? g.away_score : g.home_score) as number;
@@ -44,7 +45,7 @@ export async function GET(request: Request) {
     }
 
     return NextResponse.json(
-      { a, b, record: { a: aw, b: bw, tie }, played: played.length, games: played },
+      { a, b, record: { a: aw, b: bw, tie }, played: aw + bw + tie, games },
       { headers: { "cache-control": "public, max-age=300" } },
     );
   } catch (e) {

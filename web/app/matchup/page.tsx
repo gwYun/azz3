@@ -16,11 +16,10 @@ const teamName = (t: { en: string; ko: string }, l: Locale) => (l === "ko" ? t.k
 const pct = (v: number) => `${(v * 100).toFixed(1)}%`;
 const fmtDate = (d: string) => d.slice(5).replace("-", "/"); // 'YYYY-MM-DD' → 'MM/DD'
 const HEAD = "grid items-center gap-x-2 border-b border-line bg-ink-850/50 px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-fg-dim";
-const SERIES_GAMES = 5;
 
 type H2HGame = {
   game_id: string; game_date: string; home_team: string; away_team: string;
-  home_score: number; away_score: number; winner: string | null;
+  home_score: number | null; away_score: number | null; winner: string | null; status: string;
 };
 type H2H = { a: string; b: string; record: { a: number; b: number; tie: number } | null; played: number; games: H2HGame[] };
 
@@ -76,6 +75,13 @@ export default function MatchupPage() {
       .catch(() => { if (!cancelled) setH2h(null); });
     return () => { cancelled = true; };
   }, [homeCode, awayCode]);
+
+  // Default the selected match to the next unplayed meeting (else the last one).
+  useEffect(() => {
+    if (!h2h?.games?.length) return;
+    const next = h2h.games.findIndex((g) => g.status !== "RESULT");
+    setGame(next >= 0 ? next : h2h.games.length - 1);
+  }, [h2h]);
 
   // 1,000,000-draw Monte Carlo runs off the main thread; falls back to the exact PMF.
   useEffect(() => {
@@ -154,6 +160,14 @@ export default function MatchupPage() {
   const distHome = engine ? distFrom(sim?.histHome, engine.res.muHome, engine.lg.k) : [];
   const distAway = engine ? distFrom(sim?.histAway, engine.res.muAway, engine.lg.k) : [];
 
+  // The selected head-to-head meeting. Played meetings show the real result;
+  // only unplayed ones get a prediction.
+  const meetings = h2h?.games ?? [];
+  const sel = meetings[game] ?? null;
+  const selPlayed = !!sel && sel.status === "RESULT" && sel.home_score != null && sel.away_score != null;
+  const selHs = sel?.home_score ?? 0; // narrowed numbers (only used when selPlayed)
+  const selAs = sel?.away_score ?? 0;
+
   return (
     <article className="mx-auto max-w-3xl">
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">{t("matchup.eyebrow")}</p>
@@ -171,56 +185,64 @@ export default function MatchupPage() {
           <button onClick={swap} className="btn-secondary mb-0.5 h-9 px-3 text-sm" aria-label={t("matchup.swap")}>⇄</button>
           <TeamPick label={t("matchup.away")} value={awayCode} exclude={homeCode} teams={teams} locale={locale} onChange={setAwayCode} locked={awayLocked} />
         </div>
-        <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-3">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-medium uppercase tracking-wide text-fg-dim">{t("matchup.series")}</span>
-            <div className="flex gap-1">
-              {Array.from({ length: SERIES_GAMES }, (_, i) => (
-                <button key={i} onClick={() => setGame(i)}
-                  className={"h-7 w-7 rounded-md text-sm font-mono transition " + (i === game ? "bg-accent text-white" : "bg-ink-800/60 text-fg-dim hover:text-fg")}>
-                  {i + 1}
-                </button>
-              ))}
+        <div className="mt-4 flex flex-wrap items-start justify-between gap-x-5 gap-y-3">
+          <div className="flex min-w-0 items-start gap-2">
+            <span className="mt-1.5 shrink-0 text-xs font-medium uppercase tracking-wide text-fg-dim">{t("matchup.match")}</span>
+            <div className="flex flex-wrap gap-1">
+              {meetings.length === 0 && <span className="mt-1 text-xs text-fg-dim">—</span>}
+              {meetings.map((g, i) => {
+                const played = g.status === "RESULT" && g.home_score != null;
+                return (
+                  <button key={g.game_id} onClick={() => setGame(i)}
+                    title={`${fmtDate(g.game_date)} · ${nameByCode(g.home_team)} ${played ? `${g.home_score}:${g.away_score}` : "vs"} ${nameByCode(g.away_team)}`}
+                    className={"h-7 min-w-[1.75rem] rounded-md px-1 text-xs font-mono transition " +
+                      (i === game
+                        ? "bg-accent text-white"
+                        : played
+                          ? "bg-ink-800/40 text-fg-dim hover:text-fg"
+                          : "bg-ink-800/70 text-fg-muted ring-1 ring-inset ring-accent/30 hover:text-fg")}>
+                    {i + 1}
+                  </button>
+                );
+              })}
             </div>
           </div>
           <Toggle label={t("matchup.toggle.leverage")} on={leverage} set={setLeverage} />
         </div>
+        {recordLine && (
+          <p className="mt-3 font-mono text-xs text-fg-dim">
+            {t("matchup.h2h.title")} · <span className="text-fg-muted">{recordLine}</span>
+          </p>
+        )}
       </section>
 
-      {/* Actual head-to-head this season — real games, shown as fact (not prediction). */}
-      {h2h && h2h.record && (
-        <section className="mt-6 rounded-2xl border border-line bg-ink-850/40 p-5 sm:p-6">
-          <div className="flex items-baseline justify-between">
-            <h2 className="font-display text-lg font-semibold text-fg">{t("matchup.h2h.title")}</h2>
-            <span className="text-xs text-fg-dim">{t("matchup.h2h.sub")}</span>
+      {/* Played meeting → the real result (fact). Unplayed → the prediction. */}
+      {sel && selPlayed ? (
+        <section className="mt-8 rounded-2xl border border-line bg-ink-850/50 p-5 sm:p-6">
+          <div className="flex items-center gap-2">
+            <span className="rounded-full bg-fg/10 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-fg-muted">
+              {t("matchup.h2h.completed")}
+            </span>
+            <span className="text-xs text-fg-dim">{fmtDate(sel.game_date)} · {t("matchup.h2h.sub")}</span>
           </div>
-          {h2h.played === 0 ? (
-            <p className="mt-2 text-sm text-fg-dim">{t("matchup.h2h.none")}</p>
-          ) : (
-            <>
-              <p className="mt-2 font-mono text-sm text-fg-muted">{recordLine}</p>
-              <ul className="mt-3 divide-y divide-line/60 text-sm">
-                {h2h.games.map((g) => {
-                  const hWin = g.home_score > g.away_score;
-                  const aWin = g.away_score > g.home_score;
-                  return (
-                    <li key={g.game_id} className="grid grid-cols-[3rem_1fr] items-center gap-x-3 py-1.5">
-                      <span className="font-mono text-xs text-fg-dim">{fmtDate(g.game_date)}</span>
-                      <span className="truncate">
-                        <span className={hWin ? "font-semibold text-fg" : "text-fg-muted"}>{nameByCode(g.home_team)}</span>
-                        <span className="mx-2 font-mono tabular-nums text-fg">{g.home_score} : {g.away_score}</span>
-                        <span className={aWin ? "font-semibold text-fg" : "text-fg-muted"}>{nameByCode(g.away_team)}</span>
-                      </span>
-                    </li>
-                  );
-                })}
-              </ul>
-            </>
-          )}
+          <div className="mt-4 flex items-center justify-center gap-4 text-center">
+            <div className="flex-1">
+              <div className={"font-display text-lg font-semibold " + (selHs > selAs ? "text-fg" : "text-fg-dim")}>{nameByCode(sel.home_team)}</div>
+              <div className="text-[11px] uppercase tracking-wide text-fg-dim">{t("matchup.home")}</div>
+            </div>
+            <div className="font-mono text-3xl font-semibold tabular-nums text-fg">{selHs} : {selAs}</div>
+            <div className="flex-1">
+              <div className={"font-display text-lg font-semibold " + (selAs > selHs ? "text-fg" : "text-fg-dim")}>{nameByCode(sel.away_team)}</div>
+              <div className="text-[11px] uppercase tracking-wide text-fg-dim">{t("matchup.away")}</div>
+            </div>
+          </div>
+          <p className="mt-3 text-center text-sm font-medium text-accent">
+            {selHs === selAs
+              ? t("matchup.h2h.tie")
+              : t("matchup.h2h.won", { team: nameByCode(selHs > selAs ? sel.home_team : sel.away_team) })}
+          </p>
         </section>
-      )}
-
-      {engine && (
+      ) : engine ? (
         <KboResultGate home={homeCode} away={awayCode}>
           {/* Win probability */}
           <section className="mt-8">
@@ -243,8 +265,8 @@ export default function MatchupPage() {
                 value={engine.res.homeWin >= engine.res.awayWin ? teamName(engine.home, locale) : teamName(engine.away, locale)}
                 sub={pct(Math.max(engine.res.homeWin, engine.res.awayWin))} />
               <Stat label={t("matchup.expscore")}
-                value={`${modeOf(distHome)} : ${modeOf(distAway)}`}
-                sub={t("matchup.mode")} />
+                value={`${medianOf(distHome)} : ${medianOf(distAway)}`}
+                sub={t("matchup.median")} />
               <Stat label={t("matchup.dist.title")}
                 value={sim ? (1_000_000).toLocaleString() : t("matchup.calc")}
                 sub={sim ? t("matchup.sims", { sims: "" }).trim() : undefined} />
@@ -282,17 +304,7 @@ export default function MatchupPage() {
             <p className="mt-3 text-xs leading-relaxed text-fg-dim">{t("matchup.lineup.note")}</p>
           </section>
         </KboResultGate>
-      )}
-
-      {/* Method */}
-      <section className="mt-12 border-t border-line pt-8">
-        <h2 className="font-display text-base font-semibold tracking-tight text-fg">{t("matchup.method.title")}</h2>
-        <ul className="mt-4 space-y-2 text-sm leading-relaxed text-fg-dim">
-          <li>{t("matchup.method.data")}</li>
-          <li>{t("matchup.method.model")}</li>
-          <li>{t("matchup.method.limits")}</li>
-        </ul>
-      </section>
+      ) : null}
     </article>
   );
 }
@@ -496,9 +508,11 @@ function distFrom(hist: number[] | undefined, mu: number, k: number): number[] {
   return Array.from(negBinomPmf(mu, k, 25));
 }
 
-// The most likely integer run total = argmax of the run distribution.
-function modeOf(dist: number[]): number {
-  let mi = 0, mv = -1;
-  for (let i = 0; i < dist.length; i++) if (dist[i] > mv) { mv = dist[i]; mi = i; }
-  return mi;
+// Median integer run total. The NegBinom is right-skewed, so the *mode* systematically
+// undershoots (e.g. μ≈4.5 → mode 3) and collapses to 0 at low μ; the median is the
+// realistic "typical score" and never degenerates to 0 for a normal offense.
+function medianOf(dist: number[]): number {
+  let c = 0;
+  for (let i = 0; i < dist.length; i++) { c += dist[i]; if (c >= 0.5) return i; }
+  return dist.length ? dist.length - 1 : 0;
 }
