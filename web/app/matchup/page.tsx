@@ -1,13 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useI18n, useT } from "@/lib/i18n-context";
 import type { Locale } from "@/lib/i18n";
 import {
   type MatchupData, type Team, type Pitcher, type Batter, type BullpenState,
-  starterForGame, bullpenForGame, optimizeLineup, muForOrder, evaluateMatchup, negBinomPmf,
+  starterForGame, bullpenForGame, optimizeLineup, muForOrder, evaluateMatchup,
 } from "@/lib/matchup-sim";
-import type { SimResult, SimRequest } from "@/lib/matchup.worker";
 import { KboResultGate } from "@/components/KboResultGate";
 import { useAccount } from "@/lib/useAccount";
 import { isTeamSlotOpen } from "@/lib/credits";
@@ -40,9 +39,7 @@ export default function MatchupPage() {
   // this series game. The starter is the biggest single lever on a game, so let it be picked.
   const [homeStarterIdx, setHomeStarterIdx] = useState<number | null>(null);
   const [awayStarterIdx, setAwayStarterIdx] = useState<number | null>(null);
-  const [sim, setSim] = useState<SimResult | null>(null);
   const [h2h, setH2h] = useState<H2H | null>(null);
-  const workerRef = useRef<Worker | null>(null);
 
   useEffect(() => {
     const apply = (d: MatchupData) => {
@@ -83,18 +80,6 @@ export default function MatchupPage() {
     setGame(next >= 0 ? next : h2h.games.length - 1);
   }, [h2h]);
 
-  // 1,000,000-draw Monte Carlo runs off the main thread; falls back to the exact PMF.
-  useEffect(() => {
-    try {
-      const w = new Worker(new URL("../../lib/matchup.worker.ts", import.meta.url), { type: "module" });
-      w.onmessage = (e: MessageEvent<SimResult>) => setSim(e.data);
-      workerRef.current = w;
-      return () => { w.terminate(); workerRef.current = null; };
-    } catch {
-      workerRef.current = null;
-    }
-  }, []);
-
   const engine = useMemo(() => {
     if (!data || !homeCode || !awayCode) return null;
     const home = data.teams.find((x) => x.code === homeCode);
@@ -126,14 +111,6 @@ export default function MatchupPage() {
     return { home, away, lg, hs, as, hsIdx, asIdx, homePen, awayPen, hProj, aProj, hOrder, aOrder, hOpt, aOpt, res, projHmu, projAmu };
   }, [data, homeCode, awayCode, game, leverage, homeOrder, awayOrder, homeStarterIdx, awayStarterIdx]);
 
-  // Kick the Monte Carlo whenever the μ pair changes (team, game, lineup, leverage).
-  useEffect(() => {
-    if (!engine) return;
-    const req: SimRequest = { muHome: engine.res.muHome, muAway: engine.res.muAway, k: engine.lg.k, n: 1_000_000 };
-    if (workerRef.current) workerRef.current.postMessage(req);
-    else setSim(null);
-  }, [engine]);
-
   if (!data) return <div className="mx-auto max-w-3xl py-20 text-center text-fg-dim">{t("loading")}</div>;
 
   const teams = data.teams;
@@ -154,11 +131,11 @@ export default function MatchupPage() {
   const homeLocked = (code: string) => !isTeamSlotOpen(code, "home", unlocked);
   const awayLocked = (code: string) => !isTeamSlotOpen(code, "away", unlocked);
 
-  // Most-likely (modal) integer score from the run distribution — the single score most
-  // likely to occur, not the fractional expected value. Uses the Monte-Carlo histogram
-  // when ready, else the exact NegBinom PMF; both are indexed by integer run totals.
-  const distHome = engine ? distFrom(sim?.histHome, engine.res.muHome, engine.lg.k) : [];
-  const distAway = engine ? distFrom(sim?.histAway, engine.res.muAway, engine.lg.k) : [];
+  // Exact run distributions from the base-out Markov chain (no NegBinom, no Monte
+  // Carlo). Their shape reflects each team's scoring profile; win prob, ranges, and
+  // the total all read off these directly.
+  const distHome = engine ? engine.res.pmfHome : [];
+  const distAway = engine ? engine.res.pmfAway : [];
 
   // The selected head-to-head meeting. Played meetings show the real result;
   // only unplayed ones get a prediction.
@@ -293,9 +270,7 @@ export default function MatchupPage() {
           {/* Run distribution — the honest output: the full spread, not a scoreline. */}
           <section className="mt-8">
             <h2 className="font-display text-lg font-semibold tracking-tight text-fg">{t("matchup.dist.title")}</h2>
-            <p className="mt-1 text-xs text-fg-dim">
-              {sim ? t("matchup.sims", { sims: (1_000_000).toLocaleString() }) : t("matchup.calc")}
-            </p>
+            <p className="mt-1 text-xs text-fg-dim">{t("matchup.exact")}</p>
             <Histogram
               home={distHome} away={distAway}
               homeLabel={teamName(engine.home, locale)} awayLabel={teamName(engine.away, locale)}
@@ -517,15 +492,6 @@ function Histogram({ home, away, homeLabel, awayLabel }: {
       </div>
     </div>
   );
-}
-
-// Probability-per-run from the worker histogram (counts) or the exact NegBinom PMF.
-function distFrom(hist: number[] | undefined, mu: number, k: number): number[] {
-  if (hist && hist.length) {
-    const total = hist.reduce((a, b) => a + b, 0) || 1;
-    return hist.map((c) => c / total);
-  }
-  return Array.from(negBinomPmf(mu, k, 25));
 }
 
 // Smallest integer run total whose cumulative probability reaches q (a quantile).

@@ -5,9 +5,11 @@
 // and re-run live. Three layers:
 //   1. log5 batter×pitcher matchup → a per-PA outcome multinomial,
 //   2. a base-out (24-state) Markov chain that cycles the 9-batter ORDER across innings →
-//      order-sensitive expected runs μ (this is what makes a "win-max lineup" meaningful),
-//   3. an exact NegBinom score convolution for win probability (the 1,000,000-draw Monte
-//      Carlo in matchup.worker.ts samples the same distributions for the histogram).
+//      order-sensitive expected runs μ (markovExpectedRuns, used by the lineup optimizer),
+//   3. the SAME chain carrying a runs axis → the EXACT single-game run PMF (markovRunPmf),
+//      from which win probability, run ranges, and the total are read directly — no
+//      NegBinom, no Monte Carlo. The PMF's shape reflects each team's scoring profile
+//      (on-base clustering → bigger innings), which a fixed-k NegBinom cannot.
 //
 // `markovExpectedRuns` is a line-for-line port of the Python reference
 // (matchup_export.markov_expected_runs); tests/test_kbo_v2.py pins them to parity.
@@ -76,29 +78,30 @@ export function matchupDist(b: number[], p: number[], lg: number[]): number[] {
   return raw;
 }
 
-// Expected runs over 9 innings for an ordered lineup vs a starter/bullpen pair.
-// Batter for the k-th plate appearance is (k mod 9) — the lineup pointer carries across
-// innings, which is the source of the order effect. Deterministic; ~O(10) calls/matchup.
-export function markovExpectedRuns(
-  order: Rates[], sp: Rates, pen: Rates, lgEvent: Rates,
-  spInnings: number, home: boolean, elite: Rates | null, calib: number, homeFactor: number,
-): number {
-  const lgv = rateVec(lgEvent);
-  const ov = order.map(rateVec);
-  const spv = rateVec(sp), penv = rateVec(pen);
-  const mSp = ov.map((b) => matchupDist(b, spv, lgv));
-  const mPen = ov.map((b) => matchupDist(b, penv, lgv));
-  const mEl = elite ? ov.map((b) => matchupDist(b, rateVec(elite), lgv)) : null;
-  const starterInnings = Math.round(Math.min(Math.max(spInnings, 4), 7));
+// Scale a per-PA event dist's non-out mass by s (OUT absorbs the rest), keeping the
+// scoring PROFILE (HR-heavy vs contact). This is the lever that hits a calibrated mean
+// while letting the run-spread SHAPE come from the event mix — a slugging lineup gets a
+// fatter big-inning tail than a singles lineup at the same mean.
+function scaleDist(m: number[], s: number): number[] {
+  const nonOut = 1 - m[OUT];
+  if (nonOut <= 0) return m.slice();
+  const newOut = Math.min(0.999, Math.max(0, 1 - s * nonOut));
+  const f = (1 - newOut) / nonOut;
+  return [m[0] * f, m[1] * f, m[2] * f, m[3] * f, m[4] * f, newOut];
+}
 
-  // P[inning][state][outs], innings 1..9 (index 0 and 10 are sinks).
-  const mk = () => Array.from({ length: 11 }, () => Array.from({ length: 8 }, () => [0, 0, 0]));
-  let P = mk();
+const mkP = () => Array.from({ length: 11 }, () => Array.from({ length: 8 }, () => [0, 0, 0]));
+
+// Core base-out chain over per-batter matchup dists (mSp/mPen/mEl = 9 entries each,
+// selected by inning). Raw expected runs (no calib/home). The lineup pointer carries
+// across innings (b = k mod 9) — the source of the order effect.
+function chainMean(mSp: number[][], mPen: number[][], mEl: number[][] | null, starterInnings: number): number {
+  let P = mkP();
   P[1][0][0] = 1.0;
   let mu = 0.0;
   for (let k = 0; k < PA_CAP; k++) {
     const b = k % 9;
-    const newP = mk();
+    const newP = mkP();
     let step = 0.0, active = 0.0;
     for (let inning = 1; inning <= 9; inning++) {
       const M = inning <= starterInnings ? mSp[b] : (mEl && inning === 9 ? mEl[b] : mPen[b]);
@@ -112,11 +115,8 @@ export function markovExpectedRuns(
             if (pe === 0.0) continue;
             const mass = p * pe;
             if (e === OUT) {
-              if (outs === 2) {
-                if (inning < 9) newP[inning + 1][0][0] += mass;
-              } else {
-                newP[inning][st][outs + 1] += mass;
-              }
+              if (outs === 2) { if (inning < 9) newP[inning + 1][0][0] += mass; }
+              else newP[inning][st][outs + 1] += mass;
             } else {
               const a = _ADV[st][e];
               step += mass * a.runs;
@@ -130,7 +130,136 @@ export function markovExpectedRuns(
     P = newP;
     if (active < 1e-9) break;
   }
-  return mu * calib * (home ? homeFactor : 1.0);
+  return mu;
+}
+
+// Same chain, but P[inning][state][outs] is a PMF over runs-so-far. Absorbing mass (3rd
+// out of the 9th, or leftover at PA_CAP) accumulates into the game run PMF. This is the
+// EXACT single-game run distribution — no NegBinom assumption — so a big-inning-prone
+// offense shows the fatter right tail natively.
+function chainPmf(mSp: number[][], mPen: number[][], mEl: number[][] | null, starterInnings: number, cap: number): number[] {
+  const R = cap + 1;
+  const mk = () => Array.from({ length: 11 }, () => Array.from({ length: 8 }, () => Array.from({ length: 3 }, () => new Float64Array(R))));
+  let P = mk();
+  P[1][0][0][0] = 1.0;
+  const pmf = new Float64Array(R);
+  for (let k = 0; k < PA_CAP; k++) {
+    const b = k % 9;
+    const newP = mk();
+    let active = 0.0;
+    for (let inning = 1; inning <= 9; inning++) {
+      const M = inning <= starterInnings ? mSp[b] : (mEl && inning === 9 ? mEl[b] : mPen[b]);
+      for (let st = 0; st < 8; st++) {
+        for (let outs = 0; outs < 3; outs++) {
+          const vec = P[inning][st][outs];
+          for (let r = 0; r < R; r++) {
+            const p = vec[r];
+            if (p === 0.0) continue;
+            active += p;
+            for (let e = 0; e < 6; e++) {
+              const pe = M[e];
+              if (pe === 0.0) continue;
+              const mass = p * pe;
+              if (e === OUT) {
+                if (outs === 2) {
+                  if (inning < 9) newP[inning + 1][0][0][r] += mass;
+                  else pmf[r] += mass;               // 3rd out of the 9th → game over
+                } else newP[inning][st][outs + 1][r] += mass;
+              } else {
+                const a = _ADV[st][e];
+                const nr = r + a.runs < cap ? r + a.runs : cap;
+                newP[inning][a.ns][outs][nr] += mass;
+              }
+            }
+          }
+        }
+      }
+    }
+    P = newP;
+    if (active < 1e-9) break;
+  }
+  // Capture any mass still in play after PA_CAP (rare) at its run total.
+  for (let inning = 1; inning <= 9; inning++)
+    for (let st = 0; st < 8; st++)
+      for (let outs = 0; outs < 3; outs++) {
+        const vec = P[inning][st][outs];
+        for (let r = 0; r < R; r++) if (vec[r]) pmf[r] += vec[r];
+      }
+  return Array.from(pmf);
+}
+
+// Secant root-find for the offense scale s where chainMean == target (monotone in s).
+function solveScale(meanAt: (s: number) => number, target: number, baseMean: number): number {
+  let s0 = 1, f0 = baseMean - target;
+  let s1 = Math.min(3, Math.max(0.1, target / (baseMean || 1)));
+  let f1 = meanAt(s1) - target;
+  for (let i = 0; i < 12 && Math.abs(f1) > 0.005; i++) {
+    const denom = f1 - f0 || 1e-9;
+    let s2 = s1 - (f1 * (s1 - s0)) / denom;
+    if (!isFinite(s2)) break;
+    s2 = Math.min(3, Math.max(0.05, s2));
+    s0 = s1; f0 = f1; s1 = s2; f1 = meanAt(s2) - target;
+  }
+  return s1;
+}
+
+// Expected runs over 9 innings for an ordered lineup vs a starter/bullpen pair.
+// Deterministic; used by the lineup optimizer (compares relative μ).
+export function markovExpectedRuns(
+  order: Rates[], sp: Rates, pen: Rates, lgEvent: Rates,
+  spInnings: number, home: boolean, elite: Rates | null, calib: number, homeFactor: number,
+): number {
+  const lgv = rateVec(lgEvent);
+  const ov = order.map(rateVec);
+  const mSp = ov.map((b) => matchupDist(b, rateVec(sp), lgv));
+  const mPen = ov.map((b) => matchupDist(b, rateVec(pen), lgv));
+  const mEl = elite ? ov.map((b) => matchupDist(b, rateVec(elite), lgv)) : null;
+  const starterInnings = Math.round(Math.min(Math.max(spInnings, 4), 7));
+  return chainMean(mSp, mPen, mEl, starterInnings) * calib * (home ? homeFactor : 1.0);
+}
+
+// EXACT single-game run PMF for an ordered lineup vs a starter/bullpen pair — the same
+// model as markovExpectedRuns, but the whole distribution. calib + homeFactor scale the
+// mean, realized by scaling the lineup's offensive event mass (root-find) so the PMF's
+// mean hits the calibrated target while its shape stays profile-driven.
+export function markovRunPmf(
+  order: Rates[], sp: Rates, pen: Rates, lgEvent: Rates,
+  spInnings: number, home: boolean, elite: Rates | null, calib: number, homeFactor: number,
+  cap = 25,
+): number[] {
+  const lgv = rateVec(lgEvent);
+  const ov = order.map(rateVec);
+  const mSp0 = ov.map((b) => matchupDist(b, rateVec(sp), lgv));
+  const mPen0 = ov.map((b) => matchupDist(b, rateVec(pen), lgv));
+  const mEl0 = elite ? ov.map((b) => matchupDist(b, rateVec(elite), lgv)) : null;
+  const starterInnings = Math.round(Math.min(Math.max(spInnings, 4), 7));
+  const scaleArr = (arr: number[][], s: number) => arr.map((m) => scaleDist(m, s));
+  const meanAt = (s: number) =>
+    chainMean(scaleArr(mSp0, s), scaleArr(mPen0, s), mEl0 ? scaleArr(mEl0, s) : null, starterInnings);
+
+  const baseMean = meanAt(1);
+  const mult = calib * (home ? homeFactor : 1.0);
+  const target = baseMean * mult;
+  let s = 1;
+  if (baseMean > 1e-6 && Math.abs(mult - 1) > 1e-4) s = solveScale(meanAt, target, baseMean);
+  return chainPmf(scaleArr(mSp0, s), scaleArr(mPen0, s), mEl0 ? scaleArr(mEl0, s) : null, starterInnings, cap);
+}
+
+// Exact P(home win) from two independent run PMFs (ties broken by run-rate share, the
+// same convention as winProbExact).
+export function winProbFromPmf(pmfHome: number[], pmfAway: number[]): number {
+  let muH = 0, muA = 0;
+  for (let r = 0; r < pmfHome.length; r++) muH += r * pmfHome[r];
+  for (let r = 0; r < pmfAway.length; r++) muA += r * pmfAway[r];
+  let win = 0, tie = 0;
+  for (let rh = 0; rh < pmfHome.length; rh++) {
+    const ph = pmfHome[rh]; if (!ph) continue;
+    for (let ra = 0; ra < pmfAway.length; ra++) {
+      const m = ph * pmfAway[ra];
+      if (rh > ra) win += m; else if (rh === ra) tie += m;
+    }
+  }
+  return win + tie * (muH + muA > 0 ? muH / (muH + muA) : 0.5);
 }
 
 // Negative-Binomial score PMF over 0..cap runs (mean mu, dispersion k), tail folded in.
@@ -177,6 +306,15 @@ export function muForOrder(
 ): number {
   return markovExpectedRuns(orderRates(pool, idx), oppSp, oppPen, lg.event,
     spInnings, home, oppElite, calib, lg.home_factor);
+}
+
+// Exact run PMF for a chosen order (the distribution counterpart of muForOrder).
+export function pmfForOrder(
+  pool: Batter[], idx: number[], oppSp: Rates, oppPen: Rates, oppElite: Rates | null,
+  spInnings: number, lg: League, home: boolean, calib: number, cap = 25,
+): number[] {
+  return markovRunPmf(orderRates(pool, idx), oppSp, oppPen, lg.event,
+    spInnings, home, oppElite, calib, lg.home_factor, cap);
 }
 
 // For a fixed opponent, P(win) is strictly increasing in the team's own μ, so the
@@ -266,18 +404,23 @@ export type MatchupResult = {
   muHome: number; muAway: number;
   homeWin: number; awayWin: number;
   expHome: number; expAway: number;
+  pmfHome: number[]; pmfAway: number[];
 };
 
-/** One matchup's μ + exact win prob for chosen lineups, starters, and per-game bullpens. */
+/** One matchup's exact run PMFs + win prob for chosen lineups, starters, and per-game
+ * bullpens. Win prob and the run distributions come straight from the base-out Markov
+ * chain (no NegBinom, no Monte Carlo) — the shape reflects each team's scoring profile. */
 export function evaluateMatchup(
   lg: League, home: Team, away: Team, homeOrder: number[], awayOrder: number[],
   homeStarter: Pitcher, awayStarter: Pitcher, homePen: BullpenState, awayPen: BullpenState,
   useElite: boolean,
 ): MatchupResult {
-  const muHome = muForOrder(home.batters, homeOrder, awayStarter.rates, awayPen.rates,
+  const pmfHome = pmfForOrder(home.batters, homeOrder, awayStarter.rates, awayPen.rates,
     useElite ? awayPen.eliteRates : null, awayStarter.sp_innings, lg, true, home.mu_calib);
-  const muAway = muForOrder(away.batters, awayOrder, homeStarter.rates, homePen.rates,
+  const pmfAway = pmfForOrder(away.batters, awayOrder, homeStarter.rates, homePen.rates,
     useElite ? homePen.eliteRates : null, homeStarter.sp_innings, lg, false, away.mu_calib);
-  const homeWin = winProbExact(muHome, muAway, lg.k);
-  return { muHome, muAway, homeWin, awayWin: 1 - homeWin, expHome: muHome, expAway: muAway };
+  const muHome = pmfHome.reduce((a, p, r) => a + r * p, 0);
+  const muAway = pmfAway.reduce((a, p, r) => a + r * p, 0);
+  const homeWin = winProbFromPmf(pmfHome, pmfAway);
+  return { muHome, muAway, homeWin, awayWin: 1 - homeWin, expHome: muHome, expAway: muAway, pmfHome, pmfAway };
 }
