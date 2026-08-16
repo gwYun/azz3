@@ -14,8 +14,15 @@ import { isTeamSlotOpen } from "@/lib/credits";
 
 const teamName = (t: { en: string; ko: string }, l: Locale) => (l === "ko" ? t.ko : t.en);
 const pct = (v: number) => `${(v * 100).toFixed(1)}%`;
+const fmtDate = (d: string) => d.slice(5).replace("-", "/"); // 'YYYY-MM-DD' → 'MM/DD'
 const HEAD = "grid items-center gap-x-2 border-b border-line bg-ink-850/50 px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-fg-dim";
 const SERIES_GAMES = 5;
+
+type H2HGame = {
+  game_id: string; game_date: string; home_team: string; away_team: string;
+  home_score: number; away_score: number; winner: string | null;
+};
+type H2H = { a: string; b: string; record: { a: number; b: number; tie: number } | null; played: number; games: H2HGame[] };
 
 export default function MatchupPage() {
   const t = useT();
@@ -35,6 +42,7 @@ export default function MatchupPage() {
   const [homeStarterIdx, setHomeStarterIdx] = useState<number | null>(null);
   const [awayStarterIdx, setAwayStarterIdx] = useState<number | null>(null);
   const [sim, setSim] = useState<SimResult | null>(null);
+  const [h2h, setH2h] = useState<H2H | null>(null);
   const workerRef = useRef<Worker | null>(null);
 
   useEffect(() => {
@@ -55,6 +63,19 @@ export default function MatchupPage() {
   // was built on — reset to projected when the team (not the game) changes.
   useEffect(() => { setHomeOrder(null); setHomeStarterIdx(null); }, [homeCode]);
   useEffect(() => { setAwayOrder(null); setAwayStarterIdx(null); }, [awayCode]);
+
+  // Actual head-to-head results this season for the picked pair (real games, not a
+  // prediction). Reloads whenever either team changes.
+  useEffect(() => {
+    if (!homeCode || !awayCode || homeCode === awayCode) { setH2h(null); return; }
+    let cancelled = false;
+    setH2h(null);
+    fetch(`/api/kbo/h2h?a=${homeCode}&b=${awayCode}`)
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error("h2h"))))
+      .then((d: H2H) => { if (!cancelled) setH2h(d); })
+      .catch(() => { if (!cancelled) setH2h(null); });
+    return () => { cancelled = true; };
+  }, [homeCode, awayCode]);
 
   // 1,000,000-draw Monte Carlo runs off the main thread; falls back to the exact PMF.
   useEffect(() => {
@@ -111,6 +132,15 @@ export default function MatchupPage() {
 
   const teams = data.teams;
   const swap = () => { setHomeCode(awayCode); setAwayCode(homeCode); };
+  const nameByCode = (code: string) => {
+    const tm = teams.find((x) => x.code === code);
+    return tm ? teamName(tm, locale) : code;
+  };
+  const recordLine = h2h?.record
+    ? locale === "ko"
+      ? `${nameByCode(h2h.a)} ${h2h.record.a}승 ${h2h.record.b}패${h2h.record.tie ? ` ${h2h.record.tie}무` : ""}`
+      : `${nameByCode(h2h.a)} ${h2h.record.a}W ${h2h.record.b}L${h2h.record.tie ? ` ${h2h.record.tie}T` : ""}`
+    : "";
 
   // Lock indicator per team option. Unlocks are per team per slot, so the home
   // picker scores each team as a home pick and the away picker as an away pick
@@ -156,6 +186,39 @@ export default function MatchupPage() {
           <Toggle label={t("matchup.toggle.leverage")} on={leverage} set={setLeverage} />
         </div>
       </section>
+
+      {/* Actual head-to-head this season — real games, shown as fact (not prediction). */}
+      {h2h && h2h.record && (
+        <section className="mt-6 rounded-2xl border border-line bg-ink-850/40 p-5 sm:p-6">
+          <div className="flex items-baseline justify-between">
+            <h2 className="font-display text-lg font-semibold text-fg">{t("matchup.h2h.title")}</h2>
+            <span className="text-xs text-fg-dim">{t("matchup.h2h.sub")}</span>
+          </div>
+          {h2h.played === 0 ? (
+            <p className="mt-2 text-sm text-fg-dim">{t("matchup.h2h.none")}</p>
+          ) : (
+            <>
+              <p className="mt-2 font-mono text-sm text-fg-muted">{recordLine}</p>
+              <ul className="mt-3 divide-y divide-line/60 text-sm">
+                {h2h.games.map((g) => {
+                  const hWin = g.home_score > g.away_score;
+                  const aWin = g.away_score > g.home_score;
+                  return (
+                    <li key={g.game_id} className="grid grid-cols-[3rem_1fr] items-center gap-x-3 py-1.5">
+                      <span className="font-mono text-xs text-fg-dim">{fmtDate(g.game_date)}</span>
+                      <span className="truncate">
+                        <span className={hWin ? "font-semibold text-fg" : "text-fg-muted"}>{nameByCode(g.home_team)}</span>
+                        <span className="mx-2 font-mono tabular-nums text-fg">{g.home_score} : {g.away_score}</span>
+                        <span className={aWin ? "font-semibold text-fg" : "text-fg-muted"}>{nameByCode(g.away_team)}</span>
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </>
+          )}
+        </section>
+      )}
 
       {engine && (
         <KboResultGate home={homeCode} away={awayCode}>
