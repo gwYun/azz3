@@ -168,6 +168,19 @@ export default function MatchupPage() {
   const selHs = sel?.home_score ?? 0; // narrowed numbers (only used when selPlayed)
   const selAs = sel?.away_score ?? 0;
 
+  // Distribution summary for the prediction: per-team run interval (P25–P75) + the
+  // game total, instead of a single misleading scoreline.
+  const dist = engine
+    ? (() => {
+        const total = convolve(distHome, distAway);
+        return {
+          h25: quantile(distHome, 0.25), h50: quantile(distHome, 0.5), h75: quantile(distHome, 0.75),
+          a25: quantile(distAway, 0.25), a50: quantile(distAway, 0.5), a75: quantile(distAway, 0.75),
+          t25: quantile(total, 0.25), t50: quantile(total, 0.5), t75: quantile(total, 0.75),
+        };
+      })()
+    : null;
+
   return (
     <article className="mx-auto max-w-3xl">
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">{t("matchup.eyebrow")}</p>
@@ -264,18 +277,25 @@ export default function MatchupPage() {
               <Stat label={t("matchup.winprob")}
                 value={engine.res.homeWin >= engine.res.awayWin ? teamName(engine.home, locale) : teamName(engine.away, locale)}
                 sub={pct(Math.max(engine.res.homeWin, engine.res.awayWin))} />
-              <Stat label={t("matchup.expscore")}
-                value={`${medianOf(distHome)} : ${medianOf(distAway)}`}
-                sub={t("matchup.median")} />
-              <Stat label={t("matchup.dist.title")}
-                value={sim ? (1_000_000).toLocaleString() : t("matchup.calc")}
-                sub={sim ? t("matchup.sims", { sims: "" }).trim() : undefined} />
+              {dist && (
+                <Stat label={t("matchup.runrange")}
+                  value={`${dist.h25}–${dist.h75} : ${dist.a25}–${dist.a75}`}
+                  sub={`${t("matchup.median")} ${dist.h50} : ${dist.a50}`} />
+              )}
+              {dist && (
+                <Stat label={t("matchup.total")}
+                  value={`${dist.t50}`}
+                  sub={`${dist.t25}–${dist.t75} ${t("matchup.iqr")}`} />
+              )}
             </div>
           </section>
 
-          {/* Run distribution */}
+          {/* Run distribution — the honest output: the full spread, not a scoreline. */}
           <section className="mt-8">
             <h2 className="font-display text-lg font-semibold tracking-tight text-fg">{t("matchup.dist.title")}</h2>
+            <p className="mt-1 text-xs text-fg-dim">
+              {sim ? t("matchup.sims", { sims: (1_000_000).toLocaleString() }) : t("matchup.calc")}
+            </p>
             <Histogram
               home={distHome} away={distAway}
               homeLabel={teamName(engine.home, locale)} awayLabel={teamName(engine.away, locale)}
@@ -508,11 +528,21 @@ function distFrom(hist: number[] | undefined, mu: number, k: number): number[] {
   return Array.from(negBinomPmf(mu, k, 25));
 }
 
-// Median integer run total. The NegBinom is right-skewed, so the *mode* systematically
-// undershoots (e.g. μ≈4.5 → mode 3) and collapses to 0 at low μ; the median is the
-// realistic "typical score" and never degenerates to 0 for a normal offense.
-function medianOf(dist: number[]): number {
+// Smallest integer run total whose cumulative probability reaches q (a quantile).
+// The NegBinom is right-skewed, so a single point (mode/mean) misleads; quantiles
+// give an honest interval. q=0.5 is the median (never degenerates to 0 for a normal
+// offense, unlike the mode).
+function quantile(pmf: number[], q: number): number {
   let c = 0;
-  for (let i = 0; i < dist.length; i++) { c += dist[i]; if (c >= 0.5) return i; }
-  return dist.length ? dist.length - 1 : 0;
+  for (let i = 0; i < pmf.length; i++) { c += pmf[i]; if (c >= q) return i; }
+  return pmf.length ? pmf.length - 1 : 0;
+}
+
+// PMF of the sum of two independent run distributions (the game total). The model
+// already treats the two teams' runs as independent, so this convolution is exact.
+function convolve(a: number[], b: number[]): number[] {
+  if (!a.length || !b.length) return [];
+  const out = new Array(a.length + b.length - 1).fill(0);
+  for (let i = 0; i < a.length; i++) if (a[i]) for (let j = 0; j < b.length; j++) out[i + j] += a[i] * b[j];
+  return out;
 }
