@@ -14,6 +14,10 @@ import { isTeamSlotOpen } from "@/lib/credits";
 const teamName = (t: { en: string; ko: string }, l: Locale) => (l === "ko" ? t.ko : t.en);
 const pct = (v: number) => `${(v * 100).toFixed(1)}%`;
 const fmtDate = (d: string) => d.slice(5).replace("-", "/"); // 'YYYY-MM-DD' → 'MM/DD'
+// KBO plays 8 home games vs each opponent — a fixed slate per orientation. Played games
+// fill their slots with real results; the rest are predictions (robust to the live
+// schedule being incomplete/lopsided from rain-out makeups and unplaced late games).
+const HOME_SLATE = 8;
 const HEAD = "grid items-center gap-x-2 border-b border-line bg-ink-850/50 px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-fg-dim";
 
 type H2HGame = {
@@ -73,12 +77,12 @@ export default function MatchupPage() {
     return () => { cancelled = true; };
   }, [homeCode, awayCode]);
 
-  // Default the selected match to the next unplayed home-orientation meeting (else last).
+  // Default to the first PREDICTION slot (= after the played home games), else the last.
   useEffect(() => {
-    const m = (h2h?.games ?? []).filter((g) => g.home_team === homeCode && g.away_team === awayCode);
-    if (!m.length) { setGame(0); return; }
-    const next = m.findIndex((g) => g.status !== "RESULT");
-    setGame(next >= 0 ? next : m.length - 1);
+    const orient = (h2h?.games ?? []).filter((g) => g.home_team === homeCode && g.away_team === awayCode);
+    const played = orient.filter((g) => g.status === "RESULT" && g.home_score != null).length;
+    const total = Math.max(HOME_SLATE, played);
+    setGame(Math.min(played, total - 1));
   }, [h2h, homeCode, awayCode]);
 
   const engine = useMemo(() => {
@@ -120,11 +124,6 @@ export default function MatchupPage() {
     const tm = teams.find((x) => x.code === code);
     return tm ? teamName(tm, locale) : code;
   };
-  const recordLine = h2h?.record
-    ? locale === "ko"
-      ? `${nameByCode(h2h.a)} ${h2h.record.a}승 ${h2h.record.b}패${h2h.record.tie ? ` ${h2h.record.tie}무` : ""}`
-      : `${nameByCode(h2h.a)} ${h2h.record.a}W ${h2h.record.b}L${h2h.record.tie ? ` ${h2h.record.tie}T` : ""}`
-    : "";
 
   // Lock indicator per team option. Unlocks are per team per slot, so the home
   // picker scores each team as a home pick and the away picker as an away pick
@@ -138,14 +137,28 @@ export default function MatchupPage() {
   const distHome = engine ? engine.res.pmfHome : [];
   const distAway = engine ? engine.res.pmfAway : [];
 
-  // Head-to-head meetings for the PICKED orientation (home team hosting the away team) —
-  // KBO plays ~8 games per pair at each park, so this is the home team's home slate vs the
-  // opponent, not all ~16 meetings. Cancelled/postponed slots are already dropped upstream.
-  const meetings = (h2h?.games ?? []).filter((g) => g.home_team === homeCode && g.away_team === awayCode);
-  const sel = meetings[game] ?? null;
-  const selPlayed = !!sel && sel.status === "RESULT" && sel.home_score != null && sel.away_score != null;
-  const selHs = sel?.home_score ?? 0; // narrowed numbers (only used when selPlayed)
-  const selAs = sel?.away_score ?? 0;
+  // Fixed 8-game home slate for the picked orientation (home team hosting the away team).
+  // Played games fill their slots with real results; the remaining slots are predictions,
+  // so the view is always a full 8-game series regardless of the schedule's gaps/skew.
+  const orient = (h2h?.games ?? []).filter((g) => g.home_team === homeCode && g.away_team === awayCode);
+  const playedG = orient.filter((g) => g.status === "RESULT" && g.home_score != null && g.away_score != null);
+  const upcomingG = orient.filter((g) => !(g.status === "RESULT" && g.home_score != null));
+  const slots: { played: boolean; game: H2HGame | null }[] = playedG.map((g) => ({ played: true, game: g }));
+  for (let u = 0; slots.length < Math.max(HOME_SLATE, playedG.length); u++) {
+    slots.push({ played: false, game: upcomingG[u] ?? null });
+  }
+  const sel = slots[game] ?? null;
+  const selPlayed = !!sel?.played;
+  const selGame = sel?.game ?? null;
+  const selHs = selGame?.home_score ?? 0; // narrowed numbers (only used when selPlayed)
+  const selAs = selGame?.away_score ?? 0;
+
+  // Home-orientation record (this park only), matching the shown slate.
+  const hw = playedG.filter((g) => (g.home_score ?? 0) > (g.away_score ?? 0)).length;
+  const hl = playedG.filter((g) => (g.home_score ?? 0) < (g.away_score ?? 0)).length;
+  const recordLine = playedG.length
+    ? locale === "ko" ? `${nameByCode(homeCode)} 홈 ${hw}승 ${hl}패` : `${nameByCode(homeCode)} home ${hw}W ${hl}L`
+    : "";
 
   // Distribution summary for the prediction: per-team run interval (P25–P75) + the
   // game total, instead of a single misleading scoreline.
@@ -181,16 +194,16 @@ export default function MatchupPage() {
           <div className="flex min-w-0 items-start gap-2">
             <span className="mt-1.5 shrink-0 text-xs font-medium uppercase tracking-wide text-fg-dim">{t("matchup.homeGames", { team: nameByCode(homeCode) })}</span>
             <div className="flex flex-wrap gap-1">
-              {meetings.length === 0 && <span className="mt-1 text-xs text-fg-dim">—</span>}
-              {meetings.map((g, i) => {
-                const played = g.status === "RESULT" && g.home_score != null;
+              {slots.map((s, i) => {
+                const title = s.game
+                  ? `${fmtDate(s.game.game_date)} · ${nameByCode(homeCode)} ${s.played ? `${s.game.home_score}:${s.game.away_score}` : "vs"} ${nameByCode(awayCode)}`
+                  : t("matchup.predicted");
                 return (
-                  <button key={g.game_id} onClick={() => setGame(i)}
-                    title={`${fmtDate(g.game_date)} · ${nameByCode(g.home_team)} ${played ? `${g.home_score}:${g.away_score}` : "vs"} ${nameByCode(g.away_team)}`}
+                  <button key={i} onClick={() => setGame(i)} title={title}
                     className={"h-7 min-w-[1.75rem] rounded-md px-1 text-xs font-mono transition " +
                       (i === game
                         ? "bg-accent text-white"
-                        : played
+                        : s.played
                           ? "bg-ink-800/40 text-fg-dim hover:text-fg"
                           : "bg-ink-800/70 text-fg-muted ring-1 ring-inset ring-accent/30 hover:text-fg")}>
                     {i + 1}
@@ -208,36 +221,44 @@ export default function MatchupPage() {
         )}
       </section>
 
-      {/* Played meeting → the real result (fact). Unplayed → the prediction. */}
-      {sel && selPlayed ? (
+      {/* Played slot → the real result (fact). Otherwise → the prediction. */}
+      {selPlayed && selGame ? (
         <section className="mt-8 rounded-2xl border border-line bg-ink-850/50 p-5 sm:p-6">
           <div className="flex items-center gap-2">
             <span className="rounded-full bg-fg/10 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-fg-muted">
               {t("matchup.h2h.completed")}
             </span>
-            <span className="text-xs text-fg-dim">{fmtDate(sel.game_date)} · {t("matchup.h2h.sub")}</span>
+            <span className="text-xs text-fg-dim">{fmtDate(selGame.game_date)} · {t("matchup.h2h.sub")}</span>
           </div>
           <div className="mt-4 flex items-center justify-center gap-4 text-center">
             <div className="flex-1">
-              <div className={"font-display text-lg font-semibold " + (selHs > selAs ? "text-fg" : "text-fg-dim")}>{nameByCode(sel.home_team)}</div>
+              <div className={"font-display text-lg font-semibold " + (selHs > selAs ? "text-fg" : "text-fg-dim")}>{nameByCode(selGame.home_team)}</div>
               <div className="text-[11px] uppercase tracking-wide text-fg-dim">{t("matchup.home")}</div>
             </div>
             <div className="font-mono text-3xl font-semibold tabular-nums text-fg">{selHs} : {selAs}</div>
             <div className="flex-1">
-              <div className={"font-display text-lg font-semibold " + (selAs > selHs ? "text-fg" : "text-fg-dim")}>{nameByCode(sel.away_team)}</div>
+              <div className={"font-display text-lg font-semibold " + (selAs > selHs ? "text-fg" : "text-fg-dim")}>{nameByCode(selGame.away_team)}</div>
               <div className="text-[11px] uppercase tracking-wide text-fg-dim">{t("matchup.away")}</div>
             </div>
           </div>
           <p className="mt-3 text-center text-sm font-medium text-accent">
             {selHs === selAs
               ? t("matchup.h2h.tie")
-              : t("matchup.h2h.won", { team: nameByCode(selHs > selAs ? sel.home_team : sel.away_team) })}
+              : t("matchup.h2h.won", { team: nameByCode(selHs > selAs ? selGame.home_team : selGame.away_team) })}
           </p>
         </section>
       ) : engine ? (
         <KboResultGate home={homeCode} away={awayCode}>
+          <div className="mt-8 flex items-center gap-2">
+            <span className="rounded-full bg-accent/15 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-accent">
+              {t("matchup.predicted")}
+            </span>
+            <span className="text-xs text-fg-dim">
+              {selGame ? fmtDate(selGame.game_date) : t("matchup.tbd")}
+            </span>
+          </div>
           {/* Win probability */}
-          <section className="mt-8">
+          <section className="mt-4">
             <div className="flex items-baseline justify-between text-sm">
               <span className="font-display text-lg font-semibold text-fg">{teamName(engine.home, locale)} <span className="text-xs font-normal text-fg-dim">({t("matchup.home")})</span></span>
               <span className="font-display text-lg font-semibold text-fg">{teamName(engine.away, locale)} <span className="text-xs font-normal text-fg-dim">({t("matchup.away")})</span></span>

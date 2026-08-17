@@ -249,9 +249,10 @@ export async function runDailyIngest(
   opts: { season?: number; trigger?: string; throughMonth?: number } = {},
 ): Promise<IngestResult> {
   const season = opts.season ?? CURRENT_SEASON;
-  // Default to the current KBO month so daily runs cover the whole season so far
-  // (idempotent upserts; unplayed months are cheap misses). Overridable in tests.
-  const throughMonth = opts.throughMonth ?? new Date().getUTCMonth() + 1;
+  // Fetch the FULL KBO window (Mar–Nov) so future-scheduled games are ingested too, not
+  // just months up to now — the matchup upcoming slates and any remaining-schedule use
+  // need them. Unplayed months just return scheduled (BEFORE) rows; empty ones are cheap.
+  const throughMonth = opts.throughMonth ?? 11;
 
   // 1) Games (매치·득점).
   const games = await fetchSeasonGames(season, throughMonth);
