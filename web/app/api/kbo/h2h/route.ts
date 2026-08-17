@@ -25,13 +25,15 @@ export async function GET(request: Request) {
     const admin = createAdminClient();
     const { data, error } = await admin
       .from("kbo_games")
-      .select("game_id, game_date, home_team, away_team, home_score, away_score, winner, status")
+      .select("game_id, game_date, home_team, away_team, home_score, away_score, winner, status, cancel")
       .eq("season", SEASON)
+      .eq("cancel", false)
       .or(`and(home_team.eq.${a},away_team.eq.${b}),and(home_team.eq.${b},away_team.eq.${a})`)
       .order("game_date", { ascending: true });
     if (error) throw error;
 
-    const games = (data ?? []).filter((g) => !!g.game_date);
+    // Drop phantom slots (rain-outs / postponements) — a cancelled game is not a match.
+    const games = (data ?? []).filter((g) => !!g.game_date && !g.cancel && g.status !== "CANCEL");
     const isPlayed = (g: (typeof games)[number]) =>
       g.status === "RESULT" && g.home_score != null && g.away_score != null;
     // Record from team a's perspective (across both venues), over played games only.

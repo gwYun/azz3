@@ -73,12 +73,13 @@ export default function MatchupPage() {
     return () => { cancelled = true; };
   }, [homeCode, awayCode]);
 
-  // Default the selected match to the next unplayed meeting (else the last one).
+  // Default the selected match to the next unplayed home-orientation meeting (else last).
   useEffect(() => {
-    if (!h2h?.games?.length) return;
-    const next = h2h.games.findIndex((g) => g.status !== "RESULT");
-    setGame(next >= 0 ? next : h2h.games.length - 1);
-  }, [h2h]);
+    const m = (h2h?.games ?? []).filter((g) => g.home_team === homeCode && g.away_team === awayCode);
+    if (!m.length) { setGame(0); return; }
+    const next = m.findIndex((g) => g.status !== "RESULT");
+    setGame(next >= 0 ? next : m.length - 1);
+  }, [h2h, homeCode, awayCode]);
 
   const engine = useMemo(() => {
     if (!data || !homeCode || !awayCode) return null;
@@ -137,9 +138,10 @@ export default function MatchupPage() {
   const distHome = engine ? engine.res.pmfHome : [];
   const distAway = engine ? engine.res.pmfAway : [];
 
-  // The selected head-to-head meeting. Played meetings show the real result;
-  // only unplayed ones get a prediction.
-  const meetings = h2h?.games ?? [];
+  // Head-to-head meetings for the PICKED orientation (home team hosting the away team) —
+  // KBO plays ~8 games per pair at each park, so this is the home team's home slate vs the
+  // opponent, not all ~16 meetings. Cancelled/postponed slots are already dropped upstream.
+  const meetings = (h2h?.games ?? []).filter((g) => g.home_team === homeCode && g.away_team === awayCode);
   const sel = meetings[game] ?? null;
   const selPlayed = !!sel && sel.status === "RESULT" && sel.home_score != null && sel.away_score != null;
   const selHs = sel?.home_score ?? 0; // narrowed numbers (only used when selPlayed)
@@ -177,7 +179,7 @@ export default function MatchupPage() {
         </div>
         <div className="mt-4 flex flex-wrap items-start justify-between gap-x-5 gap-y-3">
           <div className="flex min-w-0 items-start gap-2">
-            <span className="mt-1.5 shrink-0 text-xs font-medium uppercase tracking-wide text-fg-dim">{t("matchup.match")}</span>
+            <span className="mt-1.5 shrink-0 text-xs font-medium uppercase tracking-wide text-fg-dim">{t("matchup.homeGames", { team: nameByCode(homeCode) })}</span>
             <div className="flex flex-wrap gap-1">
               {meetings.length === 0 && <span className="mt-1 text-xs text-fg-dim">—</span>}
               {meetings.map((g, i) => {
