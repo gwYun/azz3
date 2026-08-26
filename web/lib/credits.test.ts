@@ -1,5 +1,15 @@
 import { describe, it, expect } from "vitest";
-import { CREDIT_PACKS, getPack, kboProduct, isFreeTeam, isTeamSlotOpen } from "./credits";
+import {
+  CREDIT_PACKS,
+  getPack,
+  kboProduct,
+  isFreeTeam,
+  isTeamSlotOpen,
+  kboArticleProduct,
+  isArticleLockedByRank,
+  isArticleOpen,
+  ARTICLE_LOCK_WINDOW,
+} from "./credits";
 
 describe("credits config", () => {
   it("getPack returns the pack for a valid id", () => {
@@ -44,5 +54,29 @@ describe("credits config", () => {
     expect(isTeamSlotOpen("LG", "home", [])).toBe(false);
     expect(isTeamSlotOpen("LG", "home", ["kbo:LG:home"])).toBe(true);
     expect(isTeamSlotOpen("LG", "away", ["kbo:LG:home"])).toBe(false);
+  });
+});
+
+describe("article time-lock", () => {
+  it("kboArticleProduct builds a team + date key", () => {
+    expect(kboArticleProduct("HH", "2026-08-27")).toBe("kbo:article:HH:2026-08-27");
+  });
+
+  it("isArticleLockedByRank: locked within the newest window, free beyond it", () => {
+    for (let r = 0; r < ARTICLE_LOCK_WINDOW; r++) expect(isArticleLockedByRank(r)).toBe(true);
+    expect(isArticleLockedByRank(ARTICLE_LOCK_WINDOW)).toBe(false);
+    expect(isArticleLockedByRank(ARTICLE_LOCK_WINDOW + 5)).toBe(false);
+    expect(isArticleLockedByRank(-1)).toBe(false); // guard: unknown position isn't "locked"
+  });
+
+  it("isArticleOpen: free-by-age OR owned", () => {
+    const owned = ["kbo:article:HH:2026-08-27"];
+    // rank 0 (today) — locked unless owned
+    expect(isArticleOpen("HH", "2026-08-27", 0, [])).toBe(false);
+    expect(isArticleOpen("HH", "2026-08-27", 0, owned)).toBe(true);
+    // rank beyond the window — free for everyone
+    expect(isArticleOpen("HH", "2026-08-20", ARTICLE_LOCK_WINDOW, [])).toBe(true);
+    // owning a different date doesn't open this one
+    expect(isArticleOpen("LG", "2026-08-27", 0, owned)).toBe(false);
   });
 });

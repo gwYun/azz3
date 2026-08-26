@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>한화 가을야구 빙고 (8/26) — 매직넘버 24 · 진출 확률 0.9%</title>
+<style>
+  :root{
+    --bg:#faf9f7; --surface:#ffffff; --ink:#1a1a18; --ink2:#4a4a45; --muted:#8a8a82;
+    --line:#e6e3dd; --line2:#efece7; --accent:#e35205; --accent-soft:#fbe9dd;
+    --cut:#b8b3a8; --win:#2f8f5b; --win-soft:#e4f1e9; --toss:#8a8a82; --toss-soft:#f0efe9;
+    --tough:#c14b4b; --tough-soft:#f7e6e4; --shadow:0 1px 2px rgba(0,0,0,.04);
+    --serif:"Iowan Old Style","Apple SD Gothic Neo",Georgia,"Noto Serif KR",serif;
+    --sans:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Segoe UI",sans-serif;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{--bg:#151513;--surface:#1e1e1b;--ink:#f2efe9;--ink2:#c4c0b7;--muted:#8f8b81;
+      --line:#33322d;--line2:#2a2926;--accent:#ff6a2b;--accent-soft:#3a2213;--cut:#57544c;
+      --win:#4fb37e;--win-soft:#173026;--toss:#8f8b81;--toss-soft:#26251f;--tough:#e0716f;--tough-soft:#331c1b;--shadow:none;}
+  }
+  :root[data-theme="light"]{--bg:#faf9f7;--surface:#fff;--ink:#1a1a18;--ink2:#4a4a45;--muted:#8a8a82;--line:#e6e3dd;--line2:#efece7;--accent:#e35205;--accent-soft:#fbe9dd;--cut:#b8b3a8;--win:#2f8f5b;--win-soft:#e4f1e9;--toss:#8a8a82;--toss-soft:#f0efe9;--tough:#c14b4b;--tough-soft:#f7e6e4;--shadow:0 1px 2px rgba(0,0,0,.04);}
+  :root[data-theme="dark"]{--bg:#151513;--surface:#1e1e1b;--ink:#f2efe9;--ink2:#c4c0b7;--muted:#8f8b81;--line:#33322d;--line2:#2a2926;--accent:#ff6a2b;--accent-soft:#3a2213;--cut:#57544c;--win:#4fb37e;--win-soft:#173026;--toss:#8f8b81;--toss-soft:#26251f;--tough:#e0716f;--tough-soft:#331c1b;--shadow:none;}
+
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.68;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:740px;margin:0 auto;padding:40px 22px 80px;}
+  .brand{display:flex;align-items:center;gap:9px;font-size:12.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:26px;}
+  .brand .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);}
+  .brand .sep{color:var(--line);font-weight:400}
+  .brand .kicker{color:var(--muted);letter-spacing:.1em}
+  h1{font-family:var(--serif);font-weight:700;font-size:33px;line-height:1.22;letter-spacing:-.01em;margin:0 0 14px;}
+  .sub{font-size:17px;color:var(--ink2);margin:0 0 20px;line-height:1.55}
+  .byline{font-size:13px;color:var(--muted);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:11px 0;margin:0 0 26px;display:flex;flex-wrap:wrap;gap:6px 16px}
+  .byline b{color:var(--ink2);font-weight:600}
+  p{margin:0 0 18px;font-size:16.5px;color:var(--ink)}
+  .lede{font-size:18px}
+  strong{font-weight:700}
+  .today{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 24px;font-size:13px}
+  .today .chip{background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px 11px;color:var(--ink2);font-variant-numeric:tabular-nums}
+  .today .chip b{color:var(--ink)}
+  .today .chip.loss b{color:var(--tough)}
+  .hero{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:24px 26px;margin:6px 0 30px;box-shadow:var(--shadow);display:flex;align-items:center;gap:24px;flex-wrap:wrap}
+  .hero .big{font-family:var(--serif);font-size:58px;font-weight:700;color:var(--accent);line-height:1;letter-spacing:-.02em}
+  .hero .big span{font-size:28px;margin-left:2px}
+  .hero .arw{font-size:13px;color:var(--muted);margin-top:6px}
+  .hero .arw s{color:var(--muted)}
+  .hero .htxt{flex:1;min-width:210px}
+  .hero .htxt .t{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:5px}
+  .hero .htxt .d{font-size:15px;color:var(--ink2);line-height:1.5}
+  h2{font-family:var(--sans);font-size:14px;font-weight:800;letter-spacing:.02em;color:var(--accent);margin:40px 0 6px;text-transform:uppercase;}
+  h2 .n{color:var(--muted);margin-right:8px;font-variant-numeric:tabular-nums}
+  .h2title{font-family:var(--serif);font-size:22px;font-weight:700;color:var(--ink);margin:0 0 14px;letter-spacing:-.01em;line-height:1.3}
+  .tablecard{border:1px solid var(--line);border-radius:12px;overflow:hidden;margin:6px 0 12px;background:var(--surface);box-shadow:var(--shadow)}
+  table{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+  thead th{background:var(--line2);color:var(--muted);font-weight:700;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;text-align:right;padding:9px 10px}
+  thead th:first-child,thead th:nth-child(2){text-align:left}
+  tbody td{padding:9px 10px;text-align:right;border-top:1px solid var(--line2);color:var(--ink2)}
+  tbody td:nth-child(2){text-align:left;color:var(--ink);font-weight:600}
+  tbody td:first-child{text-align:left;color:var(--muted);width:26px}
+  tbody tr.hanwha td{background:var(--accent-soft)}
+  tbody tr.hanwha td:nth-child(2){color:var(--accent)}
+  tbody tr.hanwha td:first-child{color:var(--accent);font-weight:700}
+  .pct{font-weight:700;color:var(--ink)}
+  .po{font-weight:700}
+  .po.hi{color:var(--win)} .po.lo{color:var(--muted)} .po.mid{color:var(--accent)}
+  tr.cutline td{padding:0;border:0}
+  .cut{display:flex;align-items:center;gap:10px;padding:6px 10px;background:var(--bg);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--cut)}
+  .cut .l{flex:1;height:1px;background:repeating-linear-gradient(90deg,var(--cut) 0 6px,transparent 6px 11px)}
+  .cap{font-size:12.5px;color:var(--muted);margin:0 2px 26px;line-height:1.5}
+  .sched{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin:6px 0 12px}
+  @media(max-width:520px){.sched{grid-template-columns:1fr}}
+  .swk{border:1px solid var(--line);border-radius:11px;padding:12px 14px;background:var(--surface);box-shadow:var(--shadow)}
+  .swk.hot{border-color:color-mix(in srgb,var(--tough) 34%,var(--line))}
+  .swk .d{font-size:11.5px;color:var(--muted);font-weight:700;letter-spacing:.04em;margin-bottom:3px}
+  .swk .m{font-size:15px;font-weight:700;color:var(--ink)}
+  .swk .m .ha{font-size:11px;font-weight:700;color:#fff;background:var(--accent);border-radius:4px;padding:1px 5px;margin-right:6px;vertical-align:1px}
+  .swk .m .ha.away{background:var(--muted)}
+  .swk .g{font-size:12px;color:var(--muted);margin-top:2px}
+  .swk .g b{color:var(--tough)}
+  .magic{display:flex;align-items:center;gap:22px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px 26px;margin:8px 0 8px;box-shadow:var(--shadow);flex-wrap:wrap}
+  .magic .mn{font-family:var(--serif);font-size:66px;font-weight:700;color:var(--accent);line-height:.9}
+  .magic .mtxt{flex:1;min-width:220px}
+  .magic .mtxt .t{font-size:13px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:4px}
+  .magic .mtxt .d{font-size:15.5px;color:var(--ink2);line-height:1.5}
+  .magic .mtxt b{color:var(--ink)}
+  .bingo{margin:16px 0 10px}
+  .bkey{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin:0 2px 12px}
+  .bkey span{display:inline-flex;align-items:center;gap:6px}
+  .bkey i{width:11px;height:11px;border-radius:3px;display:inline-block}
+  .grid{display:grid;grid-template-columns:repeat(6,1fr);gap:7px}
+  @media(max-width:560px){.grid{grid-template-columns:repeat(4,1fr)}}
+  .cell{border:1px solid var(--line);border-radius:9px;padding:9px 4px 8px;text-align:center;background:var(--surface);position:relative;box-shadow:var(--shadow)}
+  .cell .op{font-size:13.5px;font-weight:700;color:var(--ink);line-height:1.1}
+  .cell .wp{font-size:10.5px;color:var(--muted);margin-top:3px;font-variant-numeric:tabular-nums}
+  .cell.win{background:var(--win-soft);border-color:color-mix(in srgb,var(--win) 30%,var(--line))}
+  .cell.win .op{color:var(--win)}
+  .cell.tough{background:var(--tough-soft);border-color:color-mix(in srgb,var(--tough) 26%,var(--line))}
+  .cell.tough .op{color:var(--tough)}
+  .cell.toss{background:var(--toss-soft)}
+  .cell .star{position:absolute;top:3px;right:5px;font-size:9px;color:var(--accent);font-weight:800}
+  .bnote{font-size:12.5px;color:var(--muted);margin:12px 2px 0;line-height:1.55}
+  .bnote b{color:var(--ink2)}
+  .meter{margin:10px 0 6px}
+  .mrow{display:grid;grid-template-columns:64px 1fr 52px;align-items:center;gap:12px;padding:5px 0;font-size:13.5px;font-variant-numeric:tabular-nums}
+  .mrow .w{color:var(--ink2);font-weight:600}
+  .mrow.hl .w{color:var(--accent);font-weight:800}
+  .mtrack{height:18px;background:var(--line2);border-radius:5px;overflow:hidden}
+  .mbar{height:100%;border-radius:5px;background:var(--cut)}
+  .mrow.hl .mbar{background:var(--accent)}
+  .mrow .v{text-align:right;color:var(--ink2);font-weight:700}
+  .mrow.hl .v{color:var(--accent)}
+  .midline{border-top:1px dashed var(--cut);margin:2px 0 2px 76px;position:relative}
+  .midline span{position:absolute;right:0;top:-9px;font-size:10px;color:var(--cut);background:var(--bg);padding:0 5px;font-weight:700}
+  .callout{border-left:3px solid var(--accent);background:var(--surface);padding:14px 18px;border-radius:0 10px 10px 0;margin:20px 0;box-shadow:var(--shadow)}
+  .callout p{margin:0;font-size:15.5px;color:var(--ink2)}
+  .callout b{color:var(--ink)}
+  .split{display:flex;gap:14px;margin:18px 0;flex-wrap:wrap}
+  .split .c{flex:1;min-width:150px;border:1px solid var(--line);border-radius:12px;padding:16px 18px;background:var(--surface);box-shadow:var(--shadow)}
+  .split .c .num{font-family:var(--serif);font-size:34px;font-weight:700;line-height:1}
+  .split .c.talent .num{color:var(--ink)} .split .c.reality .num{color:var(--accent)}
+  .split .c .lab{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-top:8px}
+  .split .c .sub2{font-size:13px;color:var(--ink2);margin-top:6px;line-height:1.45}
+  .dist{margin:8px 0 4px}
+  .drow{display:grid;grid-template-columns:74px 1fr 46px;align-items:center;gap:12px;padding:5px 0;font-size:13.5px;font-variant-numeric:tabular-nums}
+  .drow .rk{color:var(--ink2);font-weight:600}
+  .drow .rk.hl{color:var(--accent);font-weight:700}
+  .bartrack{height:16px;background:var(--line2);border-radius:5px;overflow:hidden}
+  .bar{height:100%;border-radius:5px;background:var(--cut)}
+  .bar.hl{background:var(--accent)}
+  .drow .v{text-align:right;color:var(--ink2);font-weight:600}
+  .drow .v.hl{color:var(--accent);font-weight:700}
+  hr{border:0;border-top:1px solid var(--line);margin:34px 0}
+  .method{font-size:12.5px;color:var(--muted);line-height:1.62}
+  .method b{color:var(--ink2);font-weight:700}
+  .foot{margin-top:30px;font-size:12px;color:var(--muted);border-top:1px solid var(--line);padding-top:16px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="brand">
+    <span class="dot"></span>밸류트랙<span class="sep">·</span>
+    <span class="kicker">VALUETRACK 시뮬레이션 리포트</span>
+  </div>
+
+  <h1>한화의 가을야구 빙고 — 진출 확률 0.9%, 1% 벽마저 깨졌다</h1>
+  <p class="sub">SSG전 2연패로 진출 확률이 한 자릿수 소수점까지 내려왔다. 5위와 9경기차, 남은 33경기 중 매직넘버 24는 시즌 최고 페이스를 넘어서야 하는 숫자다.</p>
+  <div class="byline">
+    <span><b>밸류트랙 데이터룸</b></span>
+    <span>2026년 8월 26일</span>
+    <span>데이터 기준 · 8/26 정규시즌 종료 (개막 3/28)</span>
+  </div>
+
+  <div class="today">
+    <span class="chip loss">8/26 · 한화 1–6 SSG <b>패</b> (문학)</span>
+    <span class="chip">순위 <b>7위</b> · 49승 59패 3무</span>
+    <span class="chip">5위 두산과 <b>9.0G</b></span>
+  </div>
+
+  <p class="lede">한화 이글스의 가을야구 확률이 마침내 <strong>1% 아래</strong>로 내려왔다. 8월 26일 SSG 원정에서 <strong>1-6으로 다시 완패</strong>하며 이 시리즈 2연패. 5위 두산도 졌지만 격차는 <strong>9경기</strong> 그대로다. 순위는 <strong>7위(49승 59패 3무·.454)</strong>. 밸류트랙이 8월 26일까지 반영해 남은 33경기를 40만 번 시뮬레이션한 결과, 포스트시즌(5위 이내) 진출 확률은 <strong>0.9%</strong>로 하루 만에 1.6%에서 반토막 났다.</p>
+
+  <div class="hero">
+    <div>
+      <div class="big">0.9<span>%</span></div>
+      <div class="arw">추이 10%(8/18) → 3.5 → 1.6 → <b style="color:var(--accent)">0.9%</b></div>
+    </div>
+    <div class="htxt">
+      <div class="t">한화 가을야구 진출 확률</div>
+      <div class="d">현재 순위를 고정하고 남은 33경기를 반영한 조건부 시뮬레이션(40만 회). 5위 이내 = 가을야구.</div>
+    </div>
+  </div>
+
+  <h2><span class="n">01</span>순위표</h2>
+  <div class="h2title">7위지만 진출 확률은 바닥권 1위 — 롯데·NC보다 높다</div>
+  <div class="tablecard">
+    <table>
+      <thead><tr><th>#</th><th>팀</th><th>승</th><th>패</th><th>무</th><th>승률</th><th>잔여</th><th>가을%</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>KT</td><td>65</td><td>42</td><td>3</td><td class="pct">.607</td><td>34</td><td class="po hi">100</td></tr>
+        <tr><td>2</td><td>삼성</td><td>66</td><td>44</td><td>3</td><td class="pct">.600</td><td>31</td><td class="po hi">100</td></tr>
+        <tr><td>3</td><td>LG</td><td>63</td><td>50</td><td>1</td><td class="pct">.558</td><td>30</td><td class="po hi">99.5</td></tr>
+        <tr><td>4</td><td>KIA</td><td>62</td><td>50</td><td>2</td><td class="pct">.554</td><td>30</td><td class="po hi">99.8</td></tr>
+        <tr><td>5</td><td>두산</td><td>59</td><td>51</td><td>4</td><td class="pct">.536</td><td>30</td><td class="po hi">98.9</td></tr>
+        <tr class="cutline"><td colspan="8"><div class="cut"><span>가을야구 커트라인 (5위)</span><span class="l"></span></div></td></tr>
+        <tr><td>6</td><td>롯데</td><td>50</td><td>60</td><td>2</td><td class="pct">.455</td><td>32</td><td class="po lo">0.3</td></tr>
+        <tr class="hanwha"><td>7</td><td>한화</td><td>49</td><td>59</td><td>3</td><td class="pct">.454</td><td>33</td><td class="po mid">0.9</td></tr>
+        <tr><td>8</td><td>NC</td><td>48</td><td>58</td><td>2</td><td class="pct">.453</td><td>36</td><td class="po lo">0.7</td></tr>
+        <tr><td>9</td><td>SSG</td><td>47</td><td>64</td><td>5</td><td class="pct">.423</td><td>28</td><td class="po lo">0.0</td></tr>
+        <tr><td>10</td><td>키움</td><td>42</td><td>73</td><td>3</td><td class="pct">.365</td><td>26</td><td class="po lo">0.0</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="cap">6·7·8위(롯데·한화·NC)가 승률 .453~.455로 반 경기 안에 몰려 있다. 순위는 7위지만 <strong>한화의 진출 확률(0.9%)이 롯데(0.3%)·NC(0.7%)보다 높은데</strong>, 남은 경기 기대 승률이 그만큼 높다는 뜻 — 성적이 아니라 전력이 만든 차이다.</p>
+
+  <h2><span class="n">02</span>잔여 일정</h2>
+  <div class="h2title">전 일정 확정 — 10월 7일 최종전, 막판 삼성·키움 험로</div>
+  <p>네이버 기준 <strong>잔여 33경기가 모두 편성 완료</strong>됐다(우천취소분 포함, 최종전 <strong>10월 7일 원정 키움</strong>). 당장은 SSG전 잔여 1경기(8/27) 뒤 <strong>순위 맞대결 NC 3연전(8/28~30)</strong>이 사실상 마지막 생존 분기점이다. 마지막 3주엔 <strong>삼성 3연전(9/29~10/1)</strong>·<strong>키움 3연전(10/3~5)</strong>이 몰려 있다.</p>
+  <div class="sched">
+    <div class="swk"><div class="d">8월 27</div><div class="m"><span class="ha away">원정</span>vs SSG</div><div class="g">문학 · 1경기</div></div>
+    <div class="swk hot"><div class="d">8월 28–30</div><div class="m"><span class="ha">홈</span>vs NC</div><div class="g"><b>대전 · 3연전 · 순위 직접 대결</b></div></div>
+    <div class="swk"><div class="d">9월 1–3</div><div class="m"><span class="ha away">원정</span>vs KT</div><div class="g">수원 · 3경기</div></div>
+    <div class="swk"><div class="d">9월 4–6</div><div class="m"><span class="ha away">원정</span>vs 롯데</div><div class="g">사직 · 3경기 · 순위 대결</div></div>
+    <div class="swk hot"><div class="d">9월 29 – 10월 1</div><div class="m"><span class="ha away">원정</span>vs 삼성</div><div class="g"><b>대구 · 3연전 (최대 험로)</b></div></div>
+    <div class="swk hot"><div class="d">10월 3–5</div><div class="m"><span class="ha">홈</span>vs 키움</div><div class="g"><b>대전 · 3연전 · 반드시 스윕</b></div></div>
+  </div>
+  <p class="cap">잔여 33경기 상대별: NC 6 · 롯데 6 · KT 5 · 삼성 4 · 키움 4 · LG 3 · SSG 3 · KIA 1 · 두산 1. 순위 경쟁 상대 <strong>NC(6경기)·롯데(6경기)</strong> 맞대결 12경기에서 확실히 앞서지 못하면 반등의 발판 자체가 사라진다.</p>
+
+  <h2><span class="n">03</span>가을야구 빙고판</h2>
+  <div class="h2title">남은 33칸 중 24칸을 채워라 — 매직넘버는 ‘24’</div>
+
+  <div class="magic">
+    <div class="mn">24</div>
+    <div class="mtxt">
+      <div class="t">진출 확률 과반을 넘기는 승수</div>
+      <div class="d">남은 <b>33경기 중 24승(승률 .727)</b>을 거둬야 진출 확률이 <b>55%</b>로 과반을 넘는다. 모델이 보는 한화의 잔여 기대 승수는 <b>약 15승</b> — 매직넘버는 실력 기대치보다 <b>9승 위</b>, 사실상 시즌 최고 페이스를 요구한다.</div>
+    </div>
+  </div>
+
+  <p>아래는 한화의 남은 <strong>33경기</strong>를 상대별로 펼친 빙고판이다. 이기면 한 칸씩 채운다. 초록은 모델상 해볼 만한 경기(승률 &gt;.53), 회색은 반반, 빨강은 버거운 상대다. ★는 5위 자리를 두고 직접 추격하는 <strong>두산·LG·KIA와의 맞대결</strong>이다. 이제 확실히 우세한 경기가 <strong>키움·SSG 7경기</strong>뿐이라는 게 뼈아프다.</p>
+
+  <div class="bingo">
+    <div class="bkey">
+      <span><i style="background:var(--win)"></i>해볼 만 (&gt;.53)</span>
+      <span><i style="background:var(--toss)"></i>반반 (.47–.53)</span>
+      <span><i style="background:var(--tough)"></i>버겁 (&lt;.47)</span>
+      <span><b style="color:var(--accent)">★</b> 5위 직접 경쟁</span>
+    </div>
+    <div class="grid">
+      <!-- win (7): 키움4, SSG3 -->
+      <div class="cell win"><div class="op">키움</div><div class="wp">.60</div></div>
+      <div class="cell win"><div class="op">키움</div><div class="wp">.60</div></div>
+      <div class="cell win"><div class="op">키움</div><div class="wp">.60</div></div>
+      <div class="cell win"><div class="op">키움</div><div class="wp">.60</div></div>
+      <div class="cell win"><div class="op">SSG</div><div class="wp">.57</div></div>
+      <div class="cell win"><div class="op">SSG</div><div class="wp">.57</div></div>
+      <div class="cell win"><div class="op">SSG</div><div class="wp">.57</div></div>
+      <!-- toss (21): NC6, 롯데6, 두산1★, LG3★, KT5 -->
+      <div class="cell toss"><div class="op">NC</div><div class="wp">.53</div></div>
+      <div class="cell toss"><div class="op">NC</div><div class="wp">.53</div></div>
+      <div class="cell toss"><div class="op">NC</div><div class="wp">.53</div></div>
+      <div class="cell toss"><div class="op">NC</div><div class="wp">.53</div></div>
+      <div class="cell toss"><div class="op">NC</div><div class="wp">.53</div></div>
+      <div class="cell toss"><div class="op">NC</div><div class="wp">.53</div></div>
+      <div class="cell toss"><div class="op">롯데</div><div class="wp">.52</div></div>
+      <div class="cell toss"><div class="op">롯데</div><div class="wp">.52</div></div>
+      <div class="cell toss"><div class="op">롯데</div><div class="wp">.52</div></div>
+      <div class="cell toss"><div class="op">롯데</div><div class="wp">.52</div></div>
+      <div class="cell toss"><div class="op">롯데</div><div class="wp">.52</div></div>
+      <div class="cell toss"><div class="op">롯데</div><div class="wp">.52</div></div>
+      <div class="cell toss"><span class="star">★</span><div class="op">두산</div><div class="wp">.52</div></div>
+      <div class="cell toss"><span class="star">★</span><div class="op">LG</div><div class="wp">.48</div></div>
+      <div class="cell toss"><span class="star">★</span><div class="op">LG</div><div class="wp">.48</div></div>
+      <div class="cell toss"><span class="star">★</span><div class="op">LG</div><div class="wp">.48</div></div>
+      <div class="cell toss"><div class="op">KT</div><div class="wp">.47</div></div>
+      <div class="cell toss"><div class="op">KT</div><div class="wp">.47</div></div>
+      <div class="cell toss"><div class="op">KT</div><div class="wp">.47</div></div>
+      <div class="cell toss"><div class="op">KT</div><div class="wp">.47</div></div>
+      <div class="cell toss"><div class="op">KT</div><div class="wp">.47</div></div>
+      <!-- tough (5): 삼성4, KIA1★ -->
+      <div class="cell tough"><div class="op">삼성</div><div class="wp">.45</div></div>
+      <div class="cell tough"><div class="op">삼성</div><div class="wp">.45</div></div>
+      <div class="cell tough"><div class="op">삼성</div><div class="wp">.45</div></div>
+      <div class="cell tough"><div class="op">삼성</div><div class="wp">.45</div></div>
+      <div class="cell tough"><span class="star">★</span><div class="op">KIA</div><div class="wp">.44</div></div>
+    </div>
+    <p class="bnote"><b>구성:</b> 해볼 만한 경기(초록) 7 · 반반(회색) 21 · 버거운 경기(빨강) 5. 24승은 <b>초록 7경기 전승 + 반반·강팀 26경기 중 17승</b>이 필요하다 — 반반 구간에서 압도적으로 이겨야만 가능한 숫자다.</p>
+  </div>
+
+  <div class="h2title" style="font-size:17px;margin:26px 0 6px">채운 칸 수 → 진출 확률 (매직라인)</div>
+  <div class="meter">
+    <div class="mrow"><span class="w">20승</span><span class="mtrack"><span class="mbar" style="width:9%"></span></span><span class="v">9%</span></div>
+    <div class="mrow"><span class="w">21승</span><span class="mtrack"><span class="mbar" style="width:15%"></span></span><span class="v">15%</span></div>
+    <div class="mrow"><span class="w">22승</span><span class="mtrack"><span class="mbar" style="width:23%"></span></span><span class="v">23%</span></div>
+    <div class="mrow"><span class="w">23승</span><span class="mtrack"><span class="mbar" style="width:36%"></span></span><span class="v">36%</span></div>
+    <div class="midline"><span>과반 50%</span></div>
+    <div class="mrow hl"><span class="w">24승 ◆</span><span class="mtrack"><span class="mbar" style="width:55%"></span></span><span class="v">55%</span></div>
+    <div class="mrow"><span class="w">25승</span><span class="mtrack"><span class="mbar" style="width:69%"></span></span><span class="v">69%</span></div>
+    <div class="mrow"><span class="w">26승+</span><span class="mtrack"><span class="mbar" style="width:85%"></span></span><span class="v">85%+</span></div>
+  </div>
+  <p class="cap">‘m승’ = 남은 33경기 중 최소 m승 이상일 때의 진출 확률(잔여 시뮬 조건부). 24승이 과반을 넘는 최소선이다. 모델 기대치(약 15승) 언저리면 확률은 2~3% 수준에 그친다.</p>
+
+  <h2><span class="n">04</span>라이벌 방정식</h2>
+  <div class="h2title">내 승수만으론 부족하다 — 위 세 팀이 무너져야 열린다</div>
+  <p>매직넘버 24는 <strong>한화 자신의 승수</strong> 이야기다. 하지만 5위 이내로 들어가려면 결국 위에 있는 <strong>두산(5위)·KIA(4위)·LG(3위) 중 최소 한 팀을 추월</strong>해야 한다. 5위 두산과 9경기차라 각 팀을 넘을 확률은 1% 미만이다.</p>
+
+  <div class="tablecard">
+    <table>
+      <thead><tr><th>추월 대상</th><th>현재</th><th>잔여</th><th>한화가 추월할 확률</th></tr></thead>
+      <tbody>
+        <tr><td>두산 <span style="color:var(--muted);font-weight:400">5위</span></td><td style="text-align:right">59-51</td><td style="text-align:right">30</td><td style="text-align:right"><b style="color:var(--accent)">0.6%</b></td></tr>
+        <tr><td>LG <span style="color:var(--muted);font-weight:400">3위</span></td><td style="text-align:right">63-50</td><td style="text-align:right">30</td><td style="text-align:right"><b style="color:var(--accent)">0.3%</b></td></tr>
+        <tr><td>KIA <span style="color:var(--muted);font-weight:400">4위</span></td><td style="text-align:right">62-50</td><td style="text-align:right">30</td><td style="text-align:right"><b style="color:var(--accent)">0.1%</b></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="cap">한화가 가을야구에 성공한 시뮬 시나리오에서 이 세 팀의 최종 성적 중앙값은 <strong>두산 70승·LG 75승·KIA 77승</strong> — 즉 남은 일정에서 각각 승률 .37~.50으로 <strong>완전히 붕괴</strong>해야 한화에게 자리가 난다.</p>
+
+  <div class="h2title" style="font-size:17px;margin:26px 0 6px">역전 방정식 — 한화 ↔ 두산(5위 직접 경쟁)</div>
+  <p>가장 가까운 5위 두산이 남은 30경기에서 <strong>많이 이길수록</strong>, 한화가 따라잡는 데 필요한 승수는 가파르게 올라간다. 핵심은 하나 — <strong>한화는 두산보다 남은 경기에서 ‘+11승’을 더 해야 한다.</strong></p>
+  <div class="tablecard">
+    <table>
+      <thead><tr><th>두산 잔여 성적</th><th>두산 승률</th><th>→ 한화 필요 승수</th><th>한화 승률</th></tr></thead>
+      <tbody>
+        <tr><td>10승 20패 <span style="color:var(--muted);font-weight:400">(대붕괴)</span></td><td style="text-align:right">.33</td><td style="text-align:right"><b>21승</b></td><td style="text-align:right">.64</td></tr>
+        <tr><td>12승 18패</td><td style="text-align:right">.40</td><td style="text-align:right"><b>23승</b></td><td style="text-align:right">.70</td></tr>
+        <tr class="hanwha"><td>14승 16패 <span style="color:var(--muted);font-weight:400">(부진)</span></td><td style="text-align:right">.47</td><td style="text-align:right"><b>25승</b></td><td style="text-align:right">.76</td></tr>
+        <tr><td>16승 14패</td><td style="text-align:right">.53</td><td style="text-align:right"><b>27승</b></td><td style="text-align:right">.82</td></tr>
+        <tr><td>18승 12패 <span style="color:var(--muted);font-weight:400">(평년)</span></td><td style="text-align:right">.60</td><td style="text-align:right"><b>29승</b></td><td style="text-align:right">.88</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="cap">한화가 두산을 승률로 추월하는 최소 조건(49+한화승 vs 59+두산승). 두산이 5할 근처만 유지해도 한화는 27승(.82)을 쓸어야 해 사실상 불가능 — 두산이 <strong>.47 이하로 처지고 한화가 .76 이상</strong>으로 달릴 때만 그림이 나온다. LG·KIA에도 같은 논리가 적용된다.</p>
+
+  <h2><span class="n">05</span>밸류트랙 관점</h2>
+  <div class="h2title">전력은 가을야구감인데, 성적표가 못 따라왔다</div>
+  <p>밸류트랙의 시선은 여기서 갈린다. 팀 <strong>순수 전력만 보면 한화는 리그 최고 수준 공격력</strong>이다(경기당 득점 5.55로 리그 1위권). 페라자(wRC+ 172), 강백호, 문현빈까지 방망이는 상위권 그 자체다. 그래서 “지금 로스터로 시즌을 0-0부터 다시 치른다면”을 가정한 <strong>전력 시뮬에선 가을야구 확률이 56%</strong>에 이른다.</p>
+
+  <div class="split">
+    <div class="c talent">
+      <div class="num">56%</div>
+      <div class="lab">전력 시뮬 (0-0 재출발)</div>
+      <div class="sub2">현재 로스터 전력만으로 144경기를 다시 치른다면</div>
+    </div>
+    <div class="c reality">
+      <div class="num">0.9%</div>
+      <div class="lab">조건부 시뮬 (현 순위 반영)</div>
+      <div class="sub2">이미 벌어진 성적 위에 남은 33경기만 시뮬</div>
+    </div>
+  </div>
+
+  <p>이 <strong>56% vs 0.9%의 간극</strong>이 한화의 2026년을 요약한다. 7위에 있으면서도 진출 확률이 6·8위보다 높은 것도 같은 이유 — 전력은 분명 가을야구 레벨이지만, 상반기에 벌어진 승패 격차(5위와 9경기)를 <strong>남은 33경기로 메우기엔 시간이 거의 없다</strong>. 실점(경기당 5.41, 리그 하위권 방어)이 화력을 갉아먹은 것이 성적과 전력의 괴리를 만든 주범이다. 예상 최종 순위 분포도 <strong>6위(약 44%)</strong>에 봉우리가 서 있고, 5위 안착은 0.8%에 그친다.</p>
+
+  <div class="dist">
+    <div class="drow"><span class="rk">4위</span><span class="bartrack"><span class="bar" style="width:0.2%"></span></span><span class="v">0.1%</span></div>
+    <div class="drow"><span class="rk hl">5위 ▸ 가을</span><span class="bartrack"><span class="bar hl" style="width:1.8%"></span></span><span class="v hl">0.8%</span></div>
+    <div class="drow"><span class="rk">6위</span><span class="bartrack"><span class="bar" style="width:100%"></span></span><span class="v">44.3%</span></div>
+    <div class="drow"><span class="rk">7위</span><span class="bartrack"><span class="bar" style="width:65.7%"></span></span><span class="v">29.1%</span></div>
+    <div class="drow"><span class="rk">8위</span><span class="bartrack"><span class="bar" style="width:46.7%"></span></span><span class="v">20.7%</span></div>
+  </div>
+
+  <div class="callout">
+    <p><b>결론.</b> 산술적으로 문은 아직 닫히지 않았지만, 남은 33경기서 <b>24승(7할 3푼 페이스)</b> + <b>두산·KIA·LG 중 한 팀의 완전 붕괴</b>가 동시에 필요해 기적의 영역이다. <b>8월 말 NC 3연전</b>을 스윕하지 못하면 9월 초 산소호흡기를 떼야 한다. 반등의 열쇠는 방망이가 아니라 <b>실점을 줄이는 마운드</b>다.</p>
+  </div>
+
+  <hr />
+  <p class="method"><b>방법론.</b> 데이터는 Naver Sports 정규시즌 경기(개막 2026-03-28, 시범경기 제외 · 8/26 종료)와 프로젝트 DB(Supabase <b>kbo_sim_snapshots</b> 8/25 크론 전력 스냅샷)에서 조회했다. 현재 순위는 실제 정규시즌 결과(한화 49승 59패 3무·7위)로 계산했다. 잔여 33경기는 전부 네이버에 편성 완료(최종전 10/7). 경기 승률은 밸류트랙 KBO 엔진과 동일한 음이항 득점분포(k=3.70)·홈 팩터 1.086·전력 수축 0.70을 사용했고, 조건부 몬테카를로 40만 회로 5위 이내 진출 빈도·승수별 진출 확률·라이벌 추월 확률을 집계했다. 확률은 모델 추정치이며 부상·트레이드 등은 반영하지 않는다.</p>
+  <div class="foot">밸류트랙(ValueTrack) · KBO 시뮬레이션 엔진 · 몸값 · 시너지 · 시뮬레이션 · 2026-08-26</div>
+
+</div>
+</body>
+</html>

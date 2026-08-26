@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { runDailyIngest, CURRENT_SEASON } from "@/lib/kbo/ingest";
+import { generateDailyArticles } from "@/lib/kbo/articles";
 
 /**
  * Nightly KBO refresh — triggered by Vercel Cron (see web/vercel.json).
@@ -50,6 +51,20 @@ export async function GET(request: Request) {
   try {
     const result = await runDailyIngest(admin, { trigger });
 
+    // Daily team articles — from the fresh snapshot the ingest just wrote. Best
+    // effort: a failure here is logged into the run detail but never fails the
+    // data refresh above (the site still updates even if prose generation breaks).
+    let articles: Awaited<ReturnType<typeof generateDailyArticles>> | null = null;
+    let articlesError: string | null = null;
+    try {
+      articles = await generateDailyArticles(admin, CURRENT_SEASON, {
+        runId: new Date().toISOString(),
+      });
+    } catch (e) {
+      articlesError = e instanceof Error ? e.message : "unknown";
+      console.error("[kbo-daily] article generation failed:", e);
+    }
+
     if (runId != null) {
       await admin
         .from("kbo_ingest_runs")
@@ -59,12 +74,17 @@ export async function GET(request: Request) {
           games_upserted: result.gamesUpserted,
           hitters_upserted: result.hittersUpserted,
           pitchers_upserted: result.pitchersUpserted,
-          detail: result.detail,
+          detail: {
+            ...result.detail,
+            articlesUpserted: articles?.articlesUpserted ?? 0,
+            articleModels: articles?.models ?? null,
+            articlesError,
+          },
         })
         .eq("id", runId);
     }
 
-    return NextResponse.json({ ok: true, ...result });
+    return NextResponse.json({ ok: true, ...result, articles, articlesError });
   } catch (err) {
     const message = err instanceof Error ? err.message : "unknown error";
     if (runId != null) {

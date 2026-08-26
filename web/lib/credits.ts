@@ -49,3 +49,41 @@ export function isFreeTeam(team: string): boolean {
 export function isTeamSlotOpen(team: string, slot: Slot, unlocked: string[]): boolean {
   return isFreeTeam(team) || unlocked.includes(kboProduct(team, slot));
 }
+
+// --------------------------------------------------------------------------- //
+// Daily articles — a TIME-BASED paywall (distinct from the per-team matchup    //
+// gate above). Each team publishes one dated column a day; the N most-recent   //
+// per team are paid, everything older is free automatically. Paying grants a   //
+// permanent entitlement to that one dated article.                             //
+// --------------------------------------------------------------------------- //
+
+/** How many of a team's most-recent articles stay locked. Older → free. */
+export const ARTICLE_LOCK_WINDOW = 3;
+
+/**
+ * Entitlement product key for one dated article, e.g.
+ * "kbo:article:HH:2026-08-27". One credit unlocks one team-day, forever.
+ */
+export function kboArticleProduct(team: string, date: string): string {
+  return `kbo:article:${team}:${date}`;
+}
+
+/**
+ * Is an article locked purely by recency? `rankFromNewest` is its 0-based
+ * position among that team's articles ordered newest-first (0 = today's).
+ * Locked iff it's within the newest ARTICLE_LOCK_WINDOW. The server computes
+ * the rank (it needs every date); this stays a trivial, testable predicate.
+ */
+export function isArticleLockedByRank(rankFromNewest: number): boolean {
+  return rankFromNewest >= 0 && rankFromNewest < ARTICLE_LOCK_WINDOW;
+}
+
+/** True if the reader may see the full body: not locked by age, or owns it. */
+export function isArticleOpen(
+  team: string,
+  date: string,
+  rankFromNewest: number,
+  unlocked: string[],
+): boolean {
+  return !isArticleLockedByRank(rankFromNewest) || unlocked.includes(kboArticleProduct(team, date));
+}

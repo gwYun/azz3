@@ -531,6 +531,19 @@ const en = {
   "credits.paySuccess": "Payment complete. Credits added!",
   "credits.payCanceled": "Payment canceled.",
   "credits.payFailed": "Payment failed. Please try again.",
+
+  // KBO Daily articles (뉴스)
+  "news.title": "KBO Daily",
+  "news.subtitle": "A 가을야구 report for all 10 clubs, every morning.",
+  "news.paidNote": "The 3 most recent reports per team are paid; older ones open up free.",
+  "news.badge.paid": "Latest · Paid",
+  "news.badge.free": "Free",
+  "news.read": "Read report",
+  "news.heroLocked": "가을야구 odds · today's win probability · day-over-day trend",
+  "news.empty": "No reports published yet.",
+  "news.back": "← KBO Daily",
+  "news.remaining": "{n} games left",
+  "news.rank": "#{n}",
 } as const;
 
 const ko: Record<keyof typeof en, string> = {
@@ -1045,6 +1058,19 @@ const ko: Record<keyof typeof en, string> = {
   "credits.paySuccess": "결제 완료. 크레딧이 충전됐습니다!",
   "credits.payCanceled": "결제가 취소되었습니다.",
   "credits.payFailed": "결제에 실패했습니다. 다시 시도해 주세요.",
+
+  // KBO 데일리 기사 (뉴스)
+  "news.title": "KBO 데일리",
+  "news.subtitle": "매일 아침, 10개 구단 가을야구 리포트.",
+  "news.paidNote": "구단별 최근 3개 리포트는 유료이며, 그 이전 리포트는 무료로 공개됩니다.",
+  "news.badge.paid": "최신 · 유료",
+  "news.badge.free": "무료",
+  "news.read": "리포트 보기",
+  "news.heroLocked": "가을야구 진출 확률 · 오늘 승부예측 · 전일 대비 추세",
+  "news.empty": "아직 발행된 리포트가 없습니다.",
+  "news.back": "← KBO 데일리",
+  "news.remaining": "잔여 {n}경기",
+  "news.rank": "{n}위",
 };
 
 export const dict = { en, ko } as const;
