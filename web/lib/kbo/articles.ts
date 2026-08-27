@@ -75,15 +75,21 @@ const idx = (code: string): number => FRANCHISES.indexOf(code as Franchise);
 /**
  * Regular-season standings + a played-home matrix, from RESULT games only.
  * Applies the 시범경기 filter (game_date >= opener) documented in PROJECT_KNOWLEDGE §7.
+ *
+ * `beforeDate` (the article's own date) excludes games on/after it, so standings
+ * reflect the morning the column publishes — through the previous day. For the
+ * live 05:00 run this is a no-op (that day's games aren't RESULT yet); it's what
+ * makes a *backfill* historically accurate instead of stamping today's numbers
+ * on every past day.
  */
-function computeStandings(games: GameRow[], season: number) {
+function computeStandings(games: GameRow[], season: number, beforeDate: string) {
   const n = FRANCHISES.length;
   const base = FRANCHISES.map(() => ({ w: 0, l: 0, d: 0, rf: 0, ra: 0, gp: 0 }));
   const playedHome: number[][] = Array.from({ length: n }, () => new Array(n).fill(0));
   const start = regularSeasonStart(season);
 
   for (const g of games) {
-    if (!g.game_date || g.game_date < start) continue;
+    if (!g.game_date || g.game_date < start || g.game_date >= beforeDate) continue;
     if (g.cancel || g.suspended || g.status !== "RESULT") continue;
     if (g.home_score == null || g.away_score == null) continue;
     const hi = idx(g.home_team ?? "");
@@ -280,7 +286,7 @@ export async function generateDailyArticles(
   if (gamesErr) throw new Error(`articles: read games: ${gamesErr.message}`);
   const games = (gamesData ?? []) as GameRow[];
 
-  const { standings, playedHome, lgRg, gb, leader, cut } = computeStandings(games, season);
+  const { standings, playedHome, lgRg, gb, leader, cut } = computeStandings(games, season, today);
   const remainingHome = remainingSchedule(playedHome);
 
   // 2) Conditional 가을야구 odds — one sim for all teams.
@@ -310,7 +316,10 @@ export async function generateDailyArticles(
     .from("kbo_articles")
     .select("team, brief")
     .eq("season", season)
-    .lt("article_date", today);
+    .lt("article_date", today)
+    .order("article_date", { ascending: false });
+  // Ordered newest-first, so the FIRST row seen per team is the most recent prior
+  // article — the correct baseline for the day-over-day trend.
   const prevPlayoff = new Map<string, number>();
   for (const row of (prev ?? []) as { team: string; brief: { playoffPct?: number } | null }[]) {
     const v = row.brief?.playoffPct;
