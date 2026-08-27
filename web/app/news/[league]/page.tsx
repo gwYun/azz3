@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { notFound, useParams } from "next/navigation";
 import { useI18n, useT } from "@/lib/i18n-context";
 import { getNewsLeague } from "@/lib/news/leagues";
@@ -14,6 +15,14 @@ import { FRANCHISES, TEAM_NAMES } from "@/lib/kbo/franchise";
  * the browsing structure is real before content lands.
  */
 type ClubOption = { code: string; ko: string; en: string };
+type NewsCard = {
+  team: string;
+  ko: string;
+  article_date: string;
+  title: string;
+  dek: string;
+  locked: boolean;
+};
 
 // The club roster for a live league. KBO (and its playoff view) use the 10
 // franchises; soccer rosters arrive with each league's launch.
@@ -42,6 +51,30 @@ export default function NewsLeaguePage() {
     if (!q) return clubs;
     return clubs.filter((c) => c.ko.toLowerCase().includes(q) || c.en.toLowerCase().includes(q));
   }, [clubs, query]);
+
+  // Article feed — for the live KBO league, pull the real daily articles: the
+  // latest per club (all-clubs view) or a single club's archive when filtered.
+  const [posts, setPosts] = useState<NewsCard[] | null>(null);
+  useEffect(() => {
+    if (!league?.live || leagueId !== "kbo") {
+      setPosts([]);
+      return;
+    }
+    setPosts(null);
+    let active = true;
+    const q = team ? `?team=${team}` : "";
+    fetch(`/api/kbo/articles${q}`, { cache: "no-store" })
+      .then((r) => r.json())
+      .then((j) => {
+        if (active) setPosts((j.cards ?? j.items ?? []) as NewsCard[]);
+      })
+      .catch(() => {
+        if (active) setPosts([]);
+      });
+    return () => {
+      active = false;
+    };
+  }, [league, leagueId, team]);
 
   if (!league) notFound();
 
@@ -107,16 +140,47 @@ export default function NewsLeaguePage() {
             )}
           </div>
 
-          {/* Article feed */}
+          {/* Article feed — the real daily columns from /api/kbo/articles */}
           <section className="mt-8">
             <h2 className="text-sm font-semibold uppercase tracking-wide text-fg-dim">{t("newshub.articles")}</h2>
-            <div className="mt-3 rounded-2xl border border-line bg-fg/5 p-10 text-center">
-              <p className="text-sm text-fg-muted">
-                {team == null
-                  ? t("newshub.feedEmpty")
-                  : t("newshub.teamEmpty", { team: name(TEAM_NAMES[team as keyof typeof TEAM_NAMES]) })}
-              </p>
-            </div>
+            {posts == null ? (
+              <div className="mt-3 py-10 text-center text-fg-dim">{t("loading")}</div>
+            ) : posts.length === 0 ? (
+              <div className="mt-3 rounded-2xl border border-line bg-fg/5 p-10 text-center">
+                <p className="text-sm text-fg-muted">
+                  {team == null
+                    ? t("newshub.feedEmpty")
+                    : t("newshub.teamEmpty", { team: name(TEAM_NAMES[team as keyof typeof TEAM_NAMES]) })}
+                </p>
+              </div>
+            ) : (
+              <div className="mt-3 grid gap-4 sm:grid-cols-2">
+                {posts.map((c) => (
+                  <Link
+                    key={`${c.team}-${c.article_date}`}
+                    href={`/kbo/news/${c.team}/${c.article_date}`}
+                    className="block rounded-2xl border border-line bg-fg/5 p-5 transition hover:border-accent"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-display text-base font-bold text-fg">{c.ko}</span>
+                      <span
+                        className={
+                          "rounded-full px-2 py-0.5 text-xs font-semibold " +
+                          (c.locked ? "bg-accent/15 text-accent" : "bg-fg/10 text-fg-muted")
+                        }
+                      >
+                        {c.locked ? t("news.badge.paid") : t("news.badge.free")}
+                      </span>
+                    </div>
+                    <p className="mt-2 text-sm font-medium text-fg">{c.title}</p>
+                    <p className="mt-1 line-clamp-2 text-xs text-fg-muted">{c.dek}</p>
+                    <div className="mt-3 text-xs font-semibold text-accent">
+                      {c.article_date} · {t("news.read")} →
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
           </section>
         </>
       )}
