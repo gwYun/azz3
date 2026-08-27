@@ -544,6 +544,24 @@ const en = {
   "news.back": "← KBO Daily",
   "news.remaining": "{n} games left",
   "news.rank": "#{n}",
+
+  // News hub (top-level 뉴스 tab) — multi-league posts explorer
+  "nav.news": "News",
+  "newshub.title": "News",
+  "newshub.subtitle": "Daily columns and match reports across leagues. Pick a club to explore.",
+  "newshub.live": "Live",
+  "newshub.soon": "Soon",
+  "newshub.pickLeague": "League",
+  "newshub.pickTeam": "Select a club",
+  "newshub.leagueSoon": "Launching next month",
+  "newshub.leagueSoonNote": "{league} columns arrive with the new season's coverage.",
+  "newshub.teamPrompt": "Choose a club above to see its posts.",
+  "newshub.teamEmpty": "No posts yet — {team}'s daily column starts soon.",
+  "newshub.searchTeams": "Search clubs",
+  "newshub.allTeams": "All clubs",
+  "newshub.noTeamMatch": "No clubs match your search.",
+  "newshub.articles": "Articles",
+  "newshub.feedEmpty": "No articles published yet. Daily columns begin soon.",
 } as const;
 
 const ko: Record<keyof typeof en, string> = {
@@ -1071,6 +1089,24 @@ const ko: Record<keyof typeof en, string> = {
   "news.back": "← KBO 데일리",
   "news.remaining": "잔여 {n}경기",
   "news.rank": "{n}위",
+
+  // 뉴스 허브 (최상위 뉴스 탭) — 리그별 게시물 탐색
+  "nav.news": "뉴스",
+  "newshub.title": "뉴스",
+  "newshub.subtitle": "리그별 데일리 칼럼과 경기 리포트. 구단을 선택해 둘러보세요.",
+  "newshub.live": "운영 중",
+  "newshub.soon": "곧",
+  "newshub.pickLeague": "리그",
+  "newshub.pickTeam": "구단 선택",
+  "newshub.leagueSoon": "다음 달 공개 예정",
+  "newshub.leagueSoonNote": "{league} 칼럼은 새 시즌 커버리지와 함께 공개됩니다.",
+  "newshub.teamPrompt": "위에서 구단을 선택하면 게시물이 표시됩니다.",
+  "newshub.teamEmpty": "아직 게시물이 없습니다 — {team} 데일리 칼럼이 곧 시작됩니다.",
+  "newshub.searchTeams": "구단 검색",
+  "newshub.allTeams": "전체 구단",
+  "newshub.noTeamMatch": "검색과 일치하는 구단이 없습니다.",
+  "newshub.articles": "기사",
+  "newshub.feedEmpty": "아직 발행된 기사가 없습니다. 데일리 칼럼이 곧 시작됩니다.",
 };
 
 export const dict = { en, ko } as const;

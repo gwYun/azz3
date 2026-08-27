@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useT } from "@/lib/i18n-context";
+import { useI18n, useT } from "@/lib/i18n-context";
+import { NEWS_LEAGUES } from "@/lib/news/leagues";
 import { LangToggle } from "./LangToggle";
 import { AuthButton } from "./AuthButton";
 import { Logo } from "./Logo";
@@ -17,22 +18,33 @@ type NavItem = { href: string; label: string; activePaths?: string[] };
 // 가상 선수빌드 active, and is reached via the in-page toggle, not a top-level tab.
 const MARKET_PATHS = ["/transfers", "/salary", "/build", "/saved", "/worldcup-stars"];
 const MATCH_PATHS = ["/worldcup", "/kbo", "/matchup"];
+const NEWS_PATHS = ["/news"];
 
 export function Nav() {
   const t = useT();
+  const { locale } = useI18n();
   const path = usePathname();
 
   const matches = (href: string) => path === href || path.startsWith(href + "/");
   const inMarket = MARKET_PATHS.some(matches);
   const inMatch = MATCH_PATHS.some(matches);
+  const inNews = NEWS_PATHS.some(matches);
 
+  // The News section's parent tab points at its first (live) sub-tab.
   const items: NavItem[] = [
+    { href: "/news/kbo", label: t("nav.news"), activePaths: NEWS_PATHS },
     { href: "/glossary", label: t("nav.glossary") },
     { href: "/transfers", label: t("nav.market"), activePaths: MARKET_PATHS },
     { href: "/worldcup", label: t("nav.match"), activePaths: MATCH_PATHS },
     { href: "/credits", label: t("nav.credits") },
     { href: "/contact", label: t("nav.contact") },
   ];
+
+  // News sub-tabs (하단 탭): one per league; labels are locale-picked proper nouns.
+  const newsSubItems: NavItem[] = NEWS_LEAGUES.map((l) => ({
+    href: `/news/${l.id}`,
+    label: locale === "ko" ? l.ko : l.en,
+  }));
 
   const marketSubItems: NavItem[] = [
     { href: "/transfers", label: t("nav.sub.soccer") },
@@ -110,16 +122,16 @@ export function Nav() {
         {items.map(renderItem)}
       </nav>
       {/* Section sub-tabs (하단 탭) — shown only while inside that section */}
-      {(inMarket || inMatch) && (
+      {(inMarket || inMatch || inNews) && (
         <div className="border-t border-line/70 bg-ink-900/40">
           <nav
-            aria-label={inMarket ? "transfer-market" : "match-forecast"}
+            aria-label={inMarket ? "transfer-market" : inNews ? "news" : "match-forecast"}
             className="mx-auto flex max-w-6xl items-center gap-1 overflow-x-auto px-3 py-2 sm:px-6 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
             <span className="mr-1.5 hidden shrink-0 text-[11px] font-semibold uppercase tracking-wide text-fg-dim sm:inline">
-              {t(inMarket ? "nav.market" : "nav.match")}
+              {t(inMarket ? "nav.market" : inNews ? "nav.news" : "nav.match")}
             </span>
-            {(inMarket ? marketSubItems : matchSubItems).map(renderSubItem)}
+            {(inMarket ? marketSubItems : inNews ? newsSubItems : matchSubItems).map(renderSubItem)}
           </nav>
         </div>
       )}
