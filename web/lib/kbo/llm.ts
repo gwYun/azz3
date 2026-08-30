@@ -29,11 +29,21 @@ const SYSTEM = [
   "규칙:",
   "1) 숫자(확률·점수·순위·게임차 등)는 본문에서 반복하지 마세요. 수치는 기사 레이아웃이 별도로 표시합니다.",
   "2) 브리프에 없는 사실·선수·경기를 지어내지 마세요.",
-  "3) 담백하고 신뢰감 있는 스포츠 기사 문체. 과장·감탄사 자제.",
-  "4) 각 문단 2~4문장.",
+  "3) 브리프에 없는 선수 이름·구체적 장면(적시타·홈런 등)을 지어내지 마세요. 브리프의 사실만 일반적으로 서술합니다.",
+  "4) 담백하고 신뢰감 있는 스포츠 기사 문체. 과장·감탄사 자제. 각 문단 2~4문장.",
   '5) 반드시 JSON 객체로만 답하세요: {"lede","recap","preview","outlook"}.',
   "   lede=오늘 기사의 핵심 훅, recap=어제 경기, preview=오늘 경기 관전포인트, outlook=가을야구 레이스 전망.",
+  "6) 인사말·설명·사과·코드블록(```) 없이 JSON 객체 하나만 출력하세요.",
 ].join("\n");
+
+/** Pull a JSON object out of a completion that may be fenced or prefaced. */
+function extractJsonObject(s: string): string | null {
+  const fence = s.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  const body = fence ? fence[1] : s;
+  const start = body.indexOf("{");
+  const end = body.lastIndexOf("}");
+  return start >= 0 && end > start ? body.slice(start, end + 1) : null;
+}
 
 function userPrompt(brief: ArticleBrief): string {
   return [
@@ -92,8 +102,9 @@ export async function writeArticleProse(
       choices?: { message?: { content?: string } }[];
     };
     const content = data.choices?.[0]?.message?.content;
-    if (!content) throw new Error("empty completion");
-    const prose = asProse(JSON.parse(content));
+    const jsonStr = content ? extractJsonObject(content) : null;
+    if (!jsonStr) throw new Error("no json object in completion");
+    const prose = asProse(JSON.parse(jsonStr));
     if (!prose) throw new Error("malformed prose json");
     return { prose, model: MODEL };
   } catch (err) {
