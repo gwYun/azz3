@@ -27,6 +27,7 @@ import type {
   ArticleTopPlayer,
   ArticleYesterday,
   ArticleToday,
+  RaceTeam,
 } from "./article-types";
 
 const GAMES_PER_SEASON = 144;
@@ -329,6 +330,30 @@ export async function generateDailyArticles(
   const leaderSt = standings[leader];
   const cutSt = cut ? standings[cut] : null;
 
+  // League-wide 가을야구 race context (same for every article that day): each team's
+  // record, distance to the cut, conditional odds, and yesterday's result — the
+  // material for analyzing how OTHER games moved the picture.
+  const yesterdayByTeam = new Map<string, ArticleYesterday | null>();
+  for (const code of FRANCHISES) {
+    yesterdayByTeam.set(code, buildYesterday(findGameFor(games, yesterday, code), code));
+  }
+  const raceContext: RaceTeam[] = FRANCHISES.map((code) => {
+    const st = standings[code];
+    const y = yesterdayByTeam.get(code) ?? null;
+    return {
+      rank: st.rank,
+      code,
+      ko: TEAM_NAMES[code].ko,
+      win: st.w,
+      lose: st.l,
+      draw: st.d,
+      gbCut: cutSt ? Number(gb(st, cutSt).toFixed(1)) : 0,
+      playoffPct: cond.get(code)!.playoff,
+      inPlayoffSpot: st.rank <= 5,
+      yesterday: y ? { opp: y.opp, result: y.result, teamScore: y.teamScore, oppScore: y.oppScore } : null,
+    };
+  }).sort((a, b) => a.rank - b.rank);
+
   // 5) Per team: brief → prose → render.
   const built = await Promise.all(
     FRANCHISES.map(async (code) => {
@@ -361,7 +386,7 @@ export async function generateDailyArticles(
           en: meta.en,
           park: meta.park,
           standings: standingsBrief,
-          yesterday: buildYesterday(findGameFor(games, yesterday, code), code),
+          yesterday: yesterdayByTeam.get(code) ?? null,
           today: buildToday(findGameFor(games, today, code), code, standings, lgRg),
           playoffPct: c.playoff,
           firstPct: c.first,
@@ -370,6 +395,7 @@ export async function generateDailyArticles(
           offRating: st.offRating,
           defRating: st.defRating,
           topPlayer: topPlayerFor(meta.ko, snapPlayers),
+          raceContext,
         };
 
         const { prose, model } = await writeArticleProse(brief);

@@ -42,7 +42,7 @@ export default function NewsIndexPage() {
       ) : cards.length === 0 ? (
         <div className="py-20 text-center text-fg-dim">{t("news.empty")}</div>
       ) : (
-        <div className="mt-6 grid gap-4 sm:grid-cols-2">
+        <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
           {cards.map((c) => (
             <Link
               key={c.team}

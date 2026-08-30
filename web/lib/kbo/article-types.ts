@@ -70,16 +70,37 @@ export interface ArticleBrief {
   offRating: number | null; // 100 = league average
   defRating: number | null; // 100 = league average (higher = fewer runs allowed)
   topPlayer: ArticleTopPlayer | null;
+  /**
+   * League-wide 가을야구 race context (all 10 teams, sorted by rank) — so the
+   * article can analyze how OTHER teams' results moved this team's odds, not
+   * just its own game. Same for every team's article that day.
+   */
+  raceContext: RaceTeam[];
+}
+
+/** One team's line in the 가을야구 race table. */
+export interface RaceTeam {
+  rank: number;
+  code: string;
+  ko: string;
+  win: number;
+  lose: number;
+  draw: number;
+  gbCut: number; // games behind the 5th seed (<0 = cushion inside the cut)
+  playoffPct: number; // conditional 가을야구 odds
+  inPlayoffSpot: boolean; // rank <= 5
+  yesterday: { opp: string; result: "W" | "L" | "T"; teamScore: number; oppScore: number } | null;
 }
 
 export interface ArticleProse {
-  lede: string; // 1–2 sentence hook
-  recap: string; // yesterday's result
-  preview: string; // today's game
-  outlook: string; // playoff race / outlook
+  lede: string; // headline hook (2–3 sentences)
+  recap: string; // yesterday's game, in depth (3–5 sentences)
+  preview: string; // today's matchup analysis (3–5 sentences)
+  race: string; // how the rest of the league's results moved the PO picture (4–6 sentences)
+  outlook: string; // remaining-schedule outlook (3–5 sentences)
 }
 
-export const PROSE_KEYS: (keyof ArticleProse)[] = ["lede", "recap", "preview", "outlook"];
+export const PROSE_KEYS: (keyof ArticleProse)[] = ["lede", "recap", "preview", "race", "outlook"];
 
 /**
  * The PUBLIC above-the-fold preview (stored in kbo_articles.teaser, safe to

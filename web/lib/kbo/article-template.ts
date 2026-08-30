@@ -1,12 +1,16 @@
 /**
  * Renders a data brief + narrative prose into a newspaper-style article.
  *
- * Generalizes the hand-made kbo/outputs/hanwha-fall-baseball-*.html to all 10
- * teams. Output is a SELF-CONTAINED, SCOPED fragment: a `<style>` block scoped
- * under `.kbo-article` travels with the markup, so the React article page can
- * inject it with dangerouslySetInnerHTML and the gate can blur it, without a
- * full document or leaking styles into the app. Colors follow the same design
- * tokens as the Hanwha report and adapt to light/dark.
+ * Output is a SELF-CONTAINED, SCOPED fragment: a `<style>` block scoped under
+ * `.kbo-article` travels with the markup, so the React article page can inject
+ * it with dangerouslySetInnerHTML and the gate can blur it, without a full
+ * document or leaking styles into the app.
+ *
+ * The host app (`web/`) is a permanently DARK UI (navy gradient, no light mode),
+ * so the palette here is unconditionally dark — light text on translucent
+ * surfaces that blend with the app background. (Earlier this used a light default
+ * + `prefers-color-scheme` media query, which rendered dark-on-dark when the OS
+ * was in light mode.)
  *
  * INVARIANT: every authoritative number is printed here from the BRIEF. The
  * PROSE (LLM or fallback) only fills the narrative paragraphs, and is
@@ -83,9 +87,9 @@ function heroSection(b: ArticleBrief): string {
   const power =
     b.powerPlayoffPct == null
       ? ""
-      : `<div class="d">전력만 반영한 ‘0-0 재출발’ 시뮬은 ${pct1(
+      : `<div class="d">참고로 현재 순위를 무시한 ‘0-0 재출발’ 전력 시뮬은 ${pct1(
           b.powerPlayoffPct,
-        )}%. 현재 순위를 고정한 조건부 확률과는 크게 다르다.</div>`;
+        )}%. 순위를 고정한 조건부 확률과 크게 다르다.</div>`;
   return `
   <div class="hero">
     <div>
@@ -93,8 +97,8 @@ function heroSection(b: ArticleBrief): string {
       ${trend}
     </div>
     <div class="htxt">
-      <div class="t">가을야구(top 5) 진출 확률</div>
-      <div class="d">현재 ${b.standings.rank}위 · ${esc(recordText(b))} · 잔여 ${b.standings.gamesRemaining}경기 기준 조건부 시뮬레이션.</div>
+      <div class="t">가을야구(top 5) 진출 확률 · 조건부 시뮬레이션</div>
+      <div class="d">현재 ${b.standings.rank}위 · ${esc(recordText(b))} · 잔여 ${b.standings.gamesRemaining}경기를 반영한 4만 회 몬테카를로 추정값.</div>
       ${power}
     </div>
   </div>`;
@@ -114,6 +118,32 @@ function todayChips(b: ArticleBrief): string {
   </div>`;
 }
 
+/** Full league 가을야구 race table — every team's record, cut margin, yesterday's
+ *  result, and conditional PO%. This is the raw material for the race analysis. */
+function raceTable(b: ArticleBrief): string {
+  const rows = b.raceContext
+    .map((t) => {
+      const cls = [t.inPlayoffSpot ? "cut" : "", t.code === b.team ? "me" : ""].filter(Boolean).join(" ");
+      const y = t.yesterday
+        ? `${t.yesterday.result === "W" ? "○" : t.yesterday.result === "L" ? "●" : "△"} ${t.yesterday.teamScore}-${t.yesterday.oppScore} ${esc(t.yesterday.opp)}`
+        : "휴식";
+      const gb = t.rank === 5 ? "—" : t.gbCut < 0 ? `+${Math.abs(t.gbCut).toFixed(1)}` : t.gbCut.toFixed(1);
+      return `<tr class="${cls}">
+        <td class="c">${t.rank}</td>
+        <td class="l">${esc(t.ko)}</td>
+        <td>${t.win}-${t.lose}${t.draw ? `-${t.draw}` : ""}</td>
+        <td>${gb}</td>
+        <td class="l small">${y}</td>
+        <td class="accent">${pct1(t.playoffPct)}%</td>
+      </tr>`;
+    })
+    .join("");
+  return `<div class="tablecard"><table class="race">
+    <thead><tr><th class="c">#</th><th class="l">팀</th><th>전적</th><th>5위차</th><th class="l">어제</th><th>PO%</th></tr></thead>
+    <tbody>${rows}</tbody></table></div>
+    <p class="fine">○ 승 · ● 패 · △ 무 · 5위차: +는 커트 안쪽 여유, 진하게 표시된 행이 ${esc(b.ko)}.</p>`;
+}
+
 function standingsTable(b: ArticleBrief): string {
   const s = b.standings;
   const rows: [string, string][] = [
@@ -122,22 +152,12 @@ function standingsTable(b: ArticleBrief): string {
     ["1위와 승차", `${s.gbLeader.toFixed(1)}G`],
     ["5위 컷과 승차", s.inPlayoffSpot ? `+${Math.abs(s.gbCut).toFixed(1)}G (여유)` : `${s.gbCut.toFixed(1)}G`],
     ["잔여 경기", `${s.gamesRemaining}경기`],
-    ["최근 5경기", s.lastFive ?? "—"],
-    ["연속", s.streak ?? "—"],
+    ["공격/수비 지표", b.offRating != null && b.defRating != null ? `${b.offRating.toFixed(0)} / ${b.defRating.toFixed(0)} (100=평균)` : "—"],
   ];
   const body = rows
     .map(([k, v]) => `<tr><td>${esc(k)}</td><td class="r">${esc(v)}</td></tr>`)
     .join("");
   return `<div class="tablecard"><table><tbody>${body}</tbody></table></div>`;
-}
-
-function ratingLine(b: ArticleBrief): string {
-  if (b.offRating == null || b.defRating == null) return "";
-  return `<div class="today">
-    <span class="chip">공격 <b>${b.offRating.toFixed(0)}</b></span>
-    <span class="chip">수비 <b>${b.defRating.toFixed(0)}</b></span>
-    <span class="chip">(100 = 리그 평균)</span>
-  </div>`;
 }
 
 function topPlayerLine(b: ArticleBrief): string {
@@ -150,45 +170,54 @@ function topPlayerLine(b: ArticleBrief): string {
 
 const STYLE = `<style>
 .kbo-article{
-  --bg:#faf9f7;--surface:#fff;--ink:#1a1a18;--ink2:#4a4a45;--muted:#8a8a82;
-  --line:#e6e3dd;--line2:#efece7;--accent:#e35205;--win:#2f8f5b;--tough:#c14b4b;
-  --serif:"Iowan Old Style","Apple SD Gothic Neo",Georgia,"Noto Serif KR",serif;
+  --ink:#eef2f7;--ink2:#c3ccd8;--muted:#8a95a5;
+  --line:rgba(148,163,184,0.16);--line2:rgba(148,163,184,0.10);
+  --surface:rgba(255,255,255,0.035);--surface2:rgba(255,255,255,0.06);
+  --accent:#ff7a3c;--win:#4fb37e;--tough:#e0716f;
+  --serif:"Iowan Old Style",Georgia,"Apple SD Gothic Neo","Noto Serif KR",serif;
   --sans:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Segoe UI",sans-serif;
-  color:var(--ink);font-family:var(--sans);line-height:1.68;max-width:720px;
+  color:var(--ink);font-family:var(--sans);line-height:1.72;max-width:720px;
 }
-@media (prefers-color-scheme:dark){.kbo-article{
-  --bg:#151513;--surface:#1e1e1b;--ink:#f2efe9;--ink2:#c4c0b7;--muted:#8f8b81;
-  --line:#33322d;--line2:#2a2926;--accent:#ff6a2b;--win:#4fb37e;--tough:#e0716f;}}
 .kbo-article *{box-sizing:border-box}
 .kbo-article .brand{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:18px}
-.kbo-article h1{font-family:var(--serif);font-weight:700;font-size:30px;line-height:1.24;letter-spacing:-.01em;margin:0 0 12px}
-.kbo-article .sub{font-size:16px;color:var(--ink2);margin:0 0 18px;line-height:1.55}
+.kbo-article h1{font-family:var(--serif);font-weight:700;font-size:30px;line-height:1.26;letter-spacing:-.01em;margin:0 0 12px;color:var(--ink)}
+.kbo-article .sub{font-size:17px;color:var(--ink2);margin:0 0 18px;line-height:1.6}
 .kbo-article .byline{font-size:12.5px;color:var(--muted);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:10px 0;margin:0 0 22px;display:flex;flex-wrap:wrap;gap:6px 16px}
 .kbo-article .byline b{color:var(--ink2);font-weight:600}
-.kbo-article p{margin:0 0 16px;font-size:16px;color:var(--ink)}
+.kbo-article p{margin:0 0 16px;font-size:16px;color:var(--ink);line-height:1.75}
 .kbo-article p.lede{font-size:18px}
-.kbo-article p.fine{font-size:13.5px;color:var(--muted)}
-.kbo-article strong{font-weight:700}
-.kbo-article .today{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 20px;font-size:13px}
+.kbo-article p.fine{font-size:13px;color:var(--muted);line-height:1.6}
+.kbo-article strong{font-weight:700;color:var(--ink)}
+.kbo-article .today{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 18px;font-size:13px}
 .kbo-article .chip{background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px 11px;color:var(--ink2);font-variant-numeric:tabular-nums}
 .kbo-article .chip b{color:var(--ink)}
 .kbo-article .hero{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px 24px;margin:6px 0 26px;display:flex;align-items:center;gap:22px;flex-wrap:wrap}
-.kbo-article .hero .big{font-family:var(--serif);font-size:54px;font-weight:700;color:var(--accent);line-height:1;letter-spacing:-.02em}
+.kbo-article .hero .big{font-family:var(--serif);font-size:56px;font-weight:700;color:var(--accent);line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
 .kbo-article .hero .big span{font-size:26px;margin-left:2px}
 .kbo-article .hero .arw{font-size:12.5px;color:var(--muted);margin-top:6px}
 .kbo-article .hero .arw b.up{color:var(--win)}
 .kbo-article .hero .arw b.dn{color:var(--tough)}
 .kbo-article .hero .htxt{flex:1;min-width:220px}
-.kbo-article .hero .htxt .t{font-size:12.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:5px}
-.kbo-article .hero .htxt .d{font-size:14.5px;color:var(--ink2);line-height:1.5;margin-top:4px}
-.kbo-article h2{font-family:var(--sans);font-size:13px;font-weight:800;letter-spacing:.02em;color:var(--accent);margin:32px 0 6px;text-transform:uppercase}
-.kbo-article .h2title{font-family:var(--serif);font-size:20px;font-weight:700;color:var(--ink);margin:0 0 12px;letter-spacing:-.01em}
-.kbo-article .tablecard{border:1px solid var(--line);border-radius:12px;overflow:hidden;margin:6px 0 18px;background:var(--surface)}
+.kbo-article .hero .htxt .t{font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:5px}
+.kbo-article .hero .htxt .d{font-size:14.5px;color:var(--ink2);line-height:1.55;margin-top:4px}
+.kbo-article h2{font-family:var(--sans);font-size:12.5px;font-weight:800;letter-spacing:.06em;color:var(--accent);margin:34px 0 6px;text-transform:uppercase}
+.kbo-article .h2title{font-family:var(--serif);font-size:21px;font-weight:700;color:var(--ink);margin:0 0 12px;letter-spacing:-.01em}
+.kbo-article .tablecard{border:1px solid var(--line);border-radius:12px;overflow:hidden;margin:6px 0 14px;background:var(--surface)}
 .kbo-article table{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
 .kbo-article td{padding:9px 12px;border-top:1px solid var(--line2);color:var(--ink2)}
 .kbo-article tr:first-child td{border-top:0}
 .kbo-article td.r{text-align:right;color:var(--ink);font-weight:600}
-.kbo-article .foot{margin-top:30px;padding-top:14px;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted);line-height:1.6}
+.kbo-article table.race{font-size:13px}
+.kbo-article table.race thead th{background:var(--surface2);color:var(--muted);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;text-align:right;padding:8px 10px;border:0}
+.kbo-article table.race th.l,.kbo-article table.race td.l{text-align:left}
+.kbo-article table.race th.c,.kbo-article table.race td.c{text-align:center}
+.kbo-article table.race td{padding:8px 10px;text-align:right;color:var(--ink2)}
+.kbo-article table.race td.small{font-size:12px;color:var(--muted)}
+.kbo-article table.race td.accent{color:var(--accent);font-weight:700}
+.kbo-article table.race tr.cut td{background:rgba(79,179,126,0.07)}
+.kbo-article table.race tr.me td{background:var(--surface2);color:var(--ink);font-weight:600}
+.kbo-article .foot{margin-top:32px;padding-top:14px;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted);line-height:1.7}
+.kbo-article .foot b{color:var(--ink2)}
 </style>`;
 
 /**
@@ -200,6 +229,10 @@ export function renderArticle(brief: ArticleBrief, prose: ArticleProse): Rendere
   const dek = buildDek(brief);
   const teaser = buildTeaser(brief);
 
+  const yBadge = brief.yesterday
+    ? `<div class="today"><span class="chip">${esc(brief.yesterday.home ? "홈" : "원정")} vs <b>${esc(brief.yesterday.opp)}</b> · <b>${brief.yesterday.teamScore}–${brief.yesterday.oppScore}</b> ${brief.yesterday.result === "W" ? "승" : brief.yesterday.result === "L" ? "패" : "무"}</span></div>`
+    : "";
+
   const bodyHtml = `${STYLE}
 <article class="kbo-article">
   <div class="brand">Blinkers · KBO 데일리</div>
@@ -209,27 +242,34 @@ export function renderArticle(brief: ArticleBrief, prose: ArticleProse): Rendere
 
   ${heroSection(brief)}
 
-  <h2>어제</h2>
-  <div class="h2title">전날 결과</div>
-  ${brief.yesterday ? `<div class="today"><span class="chip ${brief.yesterday.result === "W" ? "" : ""}">${esc(brief.yesterday.home ? "홈" : "원정")} vs <b>${esc(brief.yesterday.opp)}</b> · <b>${brief.yesterday.teamScore}–${brief.yesterday.oppScore}</b> ${brief.yesterday.result === "W" ? "승" : brief.yesterday.result === "L" ? "패" : "무"}</span></div>` : ""}
+  <h2>Recap · 어제</h2>
+  <div class="h2title">전날 경기</div>
+  ${yBadge}
   <p>${esc(prose.recap)}</p>
 
-  <h2>오늘</h2>
+  <h2>Preview · 오늘</h2>
   <div class="h2title">오늘 경기 관전 포인트</div>
   ${todayChips(brief)}
   <p>${esc(prose.preview)}</p>
 
-  <h2>순위표</h2>
-  <div class="h2title">가을야구 레이스</div>
+  <h2>Race · 가을야구 경쟁 구도</h2>
+  <div class="h2title">5위 커트라인 레이스</div>
+  ${raceTable(brief)}
+  <p>${esc(prose.race)}</p>
+
+  <h2>Outlook · 전망</h2>
+  <div class="h2title">남은 과제</div>
   ${standingsTable(brief)}
-  ${ratingLine(brief)}
   <p>${esc(prose.outlook)}</p>
   ${topPlayerLine(brief)}
 
   <div class="foot">
-    방법론: 네이버 스포츠(로봇 허용 게이트웨이)의 경기·기록을 인하우스 세이버메트릭스로 재계산하고,
-    잔여 일정을 균형 라운드로빈으로 재구성해 현재 순위를 고정한 조건부 몬테카를로로 가을야구 확률을 산출한다.
-    수치는 시뮬레이션 추정치이며 실제 결과를 보장하지 않는다. 생성 ${esc(brief.date)}.
+    <b>방법론 — 시뮬레이션 기반 예측.</b> 이 리포트의 모든 확률은 실제 경기 결과가 아니라 시뮬레이션 산출값이다.
+    각 팀의 시즌 득점·실점력을 리그 평균으로 수축(shrink) 보정한 뒤, 음이항(Negative Binomial) 득점 분포로
+    경기별 승·무·패 확률을 계산한다. 현재 순위와 전적을 그대로 고정한 채 남은 일정을 팀 간 균형 라운드로빈으로
+    재구성하고, 정규시즌 종료까지 <b>4만 회 몬테카를로</b>로 반복 시뮬레이션하여 각 팀이 5위 이내(가을야구)에 드는
+    빈도로 진출 확률을 추정한다. 홈 이점과 경기별 득점 변동성(과산포)을 반영했다. ‘전일 대비’ 추세는 어제까지의
+    결과가 새로 반영되며 확률이 움직인 폭이다. 수치는 추정치이며 실제 결과를 보장하지 않는다. 생성 ${esc(brief.date)}.
   </div>
 </article>`;
 

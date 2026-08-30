@@ -154,7 +154,7 @@ export default function NewsLeaguePage() {
                 </p>
               </div>
             ) : (
-              <div className="mt-3 grid gap-4 sm:grid-cols-2">
+              <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-3">
                 {posts.map((c) => (
                   <Link
                     key={`${c.team}-${c.article_date}`}

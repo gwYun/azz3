@@ -34,6 +34,11 @@ function brief(over: Partial<ArticleBrief> = {}): ArticleBrief {
     offRating: 109.8,
     defRating: 95.9,
     topPlayer: { name: "문동주", kind: "pit", war: 3.2, metric: 3.45, metricLabel: "ERA" },
+    raceContext: [
+      { rank: 5, code: "OB", ko: "두산", win: 59, lose: 51, draw: 4, gbCut: 0, playoffPct: 62.0, inPlayoffSpot: true, yesterday: { opp: "LG", result: "W", teamScore: 5, oppScore: 3 } },
+      { rank: 6, code: "LT", ko: "롯데", win: 50, lose: 60, draw: 2, gbCut: 4.5, playoffPct: 0.3, inPlayoffSpot: false, yesterday: { opp: "KT", result: "L", teamScore: 2, oppScore: 7 } },
+      { rank: 7, code: "HH", ko: "한화", win: 49, lose: 59, draw: 3, gbCut: 4.0, playoffPct: 0.9, inPlayoffSpot: false, yesterday: { opp: "SSG", result: "L", teamScore: 1, oppScore: 6 } },
+    ],
     ...over,
   };
 }
@@ -58,7 +63,8 @@ describe("article template", () => {
       lede: "<script>alert(1)</script>",
       recap: "x",
       preview: "y",
-      outlook: "z",
+      race: "z",
+      outlook: "w",
     });
     expect(r.bodyHtml).not.toContain("<script>");
     expect(r.bodyHtml).toContain("&lt;script&gt;");
@@ -70,11 +76,18 @@ describe("article template", () => {
     expect(r.bodyHtml).toContain("오늘 경기 없음");
   });
 
-  it("fallbackProse returns four non-empty paragraphs", () => {
+  it("fallbackProse returns five non-empty paragraphs incl. the race analysis", () => {
     const p = fallbackProse(brief());
-    for (const k of ["lede", "recap", "preview", "outlook"] as const) {
+    for (const k of ["lede", "recap", "preview", "race", "outlook"] as const) {
       expect(typeof p[k]).toBe("string");
       expect(p[k].length).toBeGreaterThan(0);
     }
+  });
+
+  it("race table lists every team with its yesterday result + PO%", () => {
+    const r = renderArticle(brief(), fallbackProse(brief()));
+    expect(r.bodyHtml).toContain("두산");
+    expect(r.bodyHtml).toContain("롯데");
+    expect(r.bodyHtml).toContain('class="race"');
   });
 });
