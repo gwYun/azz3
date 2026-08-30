@@ -544,6 +544,7 @@ const en = {
   "news.back": "← KBO Daily",
   "news.remaining": "{n} games left",
   "news.rank": "#{n}",
+  "news.freeDivider": "Free from here",
 
   // News hub (top-level 뉴스 tab) — multi-league posts explorer
   "nav.news": "News",
@@ -1089,6 +1090,7 @@ const ko: Record<keyof typeof en, string> = {
   "news.back": "← KBO 데일리",
   "news.remaining": "잔여 {n}경기",
   "news.rank": "{n}위",
+  "news.freeDivider": "여기부터 무료 공개",
 
   // 뉴스 허브 (최상위 뉴스 탭) — 리그별 게시물 탐색
   "nav.news": "뉴스",

@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import Link from "next/link";
 import { useT } from "@/lib/i18n-context";
+import { PaidFreeDivider } from "@/components/PaidFreeDivider";
 import type { ArticleTeaser } from "@/lib/kbo/article-types";
 
 /**
@@ -30,6 +31,9 @@ export default function NewsIndexPage() {
       .catch(() => setCards([]));
   }, []);
 
+  // Index of the first free (older) card — the paid→free boundary for the divider.
+  const firstFreeIdx = cards ? cards.findIndex((c) => !c.locked) : -1;
+
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
       <div className="text-xs font-semibold uppercase tracking-wider text-accent">ValueTrack · KBO</div>
@@ -43,12 +47,15 @@ export default function NewsIndexPage() {
         <div className="py-20 text-center text-fg-dim">{t("news.empty")}</div>
       ) : (
         <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-          {cards.map((c) => (
-            <Link
-              key={c.team}
-              href={`/kbo/news/${c.team}/${c.article_date}`}
-              className="block rounded-2xl border border-line bg-fg/5 p-5 transition hover:border-accent"
-            >
+          {cards.map((c, i) => (
+            <Fragment key={c.team}>
+              {i === firstFreeIdx && firstFreeIdx > 0 && (
+                <PaidFreeDivider label={t("news.freeDivider")} />
+              )}
+              <Link
+                href={`/kbo/news/${c.team}/${c.article_date}`}
+                className="block rounded-2xl border border-line bg-fg/5 p-5 transition hover:border-accent"
+              >
               <div className="flex items-center justify-between">
                 <span className="font-display text-lg font-bold text-fg">{c.ko}</span>
                 <span
@@ -72,7 +79,8 @@ export default function NewsIndexPage() {
                 </div>
               )}
               <div className="mt-3 text-xs font-semibold text-accent">{t("news.read")} →</div>
-            </Link>
+              </Link>
+            </Fragment>
           ))}
         </div>
       )}

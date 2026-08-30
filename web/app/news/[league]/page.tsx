@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { notFound, useParams } from "next/navigation";
 import { useI18n, useT } from "@/lib/i18n-context";
 import { getNewsLeague } from "@/lib/news/leagues";
 import { FRANCHISES, TEAM_NAMES } from "@/lib/kbo/franchise";
+import { PaidFreeDivider } from "@/components/PaidFreeDivider";
 
 /**
  * News sub-tab page — one per league (/news/kbo, /news/epl, …). The live league
@@ -75,6 +76,9 @@ export default function NewsLeaguePage() {
       active = false;
     };
   }, [league, leagueId, team]);
+
+  // Index of the first free (older) article — the paid→free boundary for the divider.
+  const firstFreeIdx = posts ? posts.findIndex((p) => !p.locked) : -1;
 
   if (!league) notFound();
 
@@ -155,12 +159,15 @@ export default function NewsLeaguePage() {
               </div>
             ) : (
               <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-3">
-                {posts.map((c) => (
-                  <Link
-                    key={`${c.team}-${c.article_date}`}
-                    href={`/kbo/news/${c.team}/${c.article_date}`}
-                    className="block rounded-2xl border border-line bg-fg/5 p-5 transition hover:border-accent"
-                  >
+                {posts.map((c, i) => (
+                  <Fragment key={`${c.team}-${c.article_date}`}>
+                    {i === firstFreeIdx && firstFreeIdx > 0 && (
+                      <PaidFreeDivider label={t("news.freeDivider")} />
+                    )}
+                    <Link
+                      href={`/kbo/news/${c.team}/${c.article_date}`}
+                      className="block rounded-2xl border border-line bg-fg/5 p-5 transition hover:border-accent"
+                    >
                     <div className="flex items-center justify-between">
                       <span className="font-display text-base font-bold text-fg">{c.ko}</span>
                       <span
@@ -177,7 +184,8 @@ export default function NewsLeaguePage() {
                     <div className="mt-3 text-xs font-semibold text-accent">
                       {c.article_date} · {t("news.read")} →
                     </div>
-                  </Link>
+                    </Link>
+                  </Fragment>
                 ))}
               </div>
             )}
