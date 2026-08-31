@@ -5,6 +5,7 @@ import * as repo from "@/lib/pay-repo";
 import { kboProduct, kboArticleProduct, isFreeTeam, type Slot } from "@/lib/credits";
 import { FRANCHISES } from "@/lib/kbo/franchise";
 import { isArticleLocked } from "@/lib/kbo/article-access";
+import { isAdminUser } from "@/lib/admin-access";
 
 /**
  * Spend 1 credit to unlock content. Auth required. Two shapes:
@@ -39,6 +40,11 @@ export async function POST(request: Request) {
   } = await supabase.auth.getUser();
   if (!user) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  }
+
+  // Staff bypass: admins get everything free, so short-circuit before any spend.
+  if (await isAdminUser(createAdminClient(), user.id)) {
+    return NextResponse.json({ status: "unlocked", admin: true });
   }
 
   const body = (await request.json().catch(() => null)) as

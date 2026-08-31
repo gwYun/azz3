@@ -28,14 +28,14 @@ export function KboResultGate({
 }) {
   const t = useT();
   const { show } = useToast();
-  const { credits, unlocked, loading, signedIn, refresh } = useAccount();
+  const { credits, unlocked, isAdmin, loading, signedIn, refresh } = useAccount();
   const [busy, setBusy] = useState(false);
 
   const homeOpen = isTeamSlotOpen(home, "home", unlocked);
   const awayOpen = isTeamSlotOpen(away, "away", unlocked);
 
   if (loading) return <div className="mt-8 h-40" aria-hidden />;
-  if (homeOpen && awayOpen) return <>{children}</>;
+  if (isAdmin || (homeOpen && awayOpen)) return <>{children}</>;
 
   const missing: { team: string; slot: Slot }[] = [
     ...(homeOpen ? [] : [{ team: home, slot: "home" as Slot }]),

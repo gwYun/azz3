@@ -4,6 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { FRANCHISES, TEAM_NAMES, type Franchise } from "@/lib/kbo/franchise";
 import { kboArticleProduct } from "@/lib/credits";
 import { isArticleLocked } from "@/lib/kbo/article-access";
+import { isAdminUser } from "@/lib/admin-access";
 
 /**
  * One article, with the HARD paywall enforced. The body is service-role-only in
@@ -67,13 +68,17 @@ export async function GET(
   } = await supabase.auth.getUser();
   let owned = false;
   if (user) {
-    const { data: ent } = await admin
-      .from("entitlements")
-      .select("product")
-      .eq("user_id", user.id)
-      .eq("product", kboArticleProduct(team, date))
-      .maybeSingle();
-    owned = !!ent;
+    if (await isAdminUser(admin, user.id)) {
+      owned = true; // Staff: full access, no entitlement needed.
+    } else {
+      const { data: ent } = await admin
+        .from("entitlements")
+        .select("product")
+        .eq("user_id", user.id)
+        .eq("product", kboArticleProduct(team, date))
+        .maybeSingle();
+      owned = !!ent;
+    }
   }
 
   return NextResponse.json({

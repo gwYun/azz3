@@ -16,13 +16,15 @@ export type Account = {
   credits: number;
   /** Entitlement product keys the user owns (e.g. "kbo:LG:home"). */
   unlocked: string[];
+  /** Staff account — bypasses every paywall (server enforces this too). */
+  isAdmin: boolean;
   loading: boolean;
   signedIn: boolean;
   /** Re-read balance + unlocks (call after a purchase or unlock). */
   refresh: () => void;
 };
 
-const EMPTY = { credits: 0, unlocked: [] as string[] };
+const EMPTY = { credits: 0, unlocked: [] as string[], isAdmin: false };
 const AccountContext = createContext<Account | null>(null);
 
 /**
@@ -54,13 +56,15 @@ export function AccountProvider({ children }: { children: ReactNode }) {
         return;
       }
       const [{ data: profile }, { data: ents }] = await Promise.all([
-        supabase.from("profiles").select("credits").eq("id", user.id).maybeSingle(),
+        supabase.from("profiles").select("credits, is_admin").eq("id", user.id).maybeSingle(),
         supabase.from("entitlements").select("product").eq("user_id", user.id),
       ]);
       if (active) {
+        const p = profile as { credits?: number; is_admin?: boolean } | null;
         setState({
-          credits: (profile as { credits?: number } | null)?.credits ?? 0,
+          credits: p?.credits ?? 0,
           unlocked: ((ents ?? []) as { product: string }[]).map((e) => e.product),
+          isAdmin: !!p?.is_admin,
           loading: false,
           signedIn: true,
         });
