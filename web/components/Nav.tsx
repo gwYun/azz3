@@ -8,7 +8,7 @@ import { LangToggle } from "./LangToggle";
 import { AuthButton } from "./AuthButton";
 import { Logo } from "./Logo";
 
-type NavItem = { href: string; label: string; activePaths?: string[] };
+type NavItem = { href: string; label: string; activePaths?: string[]; active?: boolean };
 
 // Two parent sections, each with forecasts in a secondary sub-tab row (하단 탭)
 // shown only while inside that section:
@@ -18,7 +18,9 @@ type NavItem = { href: string; label: string; activePaths?: string[] };
 // 가상 선수빌드 active, and is reached via the in-page toggle, not a top-level tab.
 const MARKET_PATHS = ["/transfers", "/salary", "/build", "/saved", "/worldcup-stars"];
 const MATCH_PATHS = ["/worldcup", "/kbo", "/matchup"];
-const NEWS_PATHS = ["/news"];
+// News spans two roots: the hub (/news/*) AND the daily articles (/kbo/news/*).
+// The latter is a sub-path of /kbo, so News must win over Match for those paths.
+const NEWS_PATHS = ["/news", "/kbo/news"];
 
 export function Nav() {
   const t = useT();
@@ -26,24 +28,28 @@ export function Nav() {
   const path = usePathname();
 
   const matches = (href: string) => path === href || path.startsWith(href + "/");
-  const inMarket = MARKET_PATHS.some(matches);
-  const inMatch = MATCH_PATHS.some(matches);
+  // News takes precedence — /kbo/news/* also matches /kbo (Match), so exclude News
+  // paths from Match/Market to keep exactly one section active.
   const inNews = NEWS_PATHS.some(matches);
+  const inMarket = !inNews && MARKET_PATHS.some(matches);
+  const inMatch = !inNews && MATCH_PATHS.some(matches);
 
   // The News section's parent tab points at its first (live) sub-tab.
   const items: NavItem[] = [
-    { href: "/news/kbo", label: t("nav.news"), activePaths: NEWS_PATHS },
+    { href: "/news/kbo", label: t("nav.news"), active: inNews },
     { href: "/glossary", label: t("nav.glossary") },
-    { href: "/transfers", label: t("nav.market"), activePaths: MARKET_PATHS },
-    { href: "/worldcup", label: t("nav.match"), activePaths: MATCH_PATHS },
+    { href: "/transfers", label: t("nav.market"), active: inMarket },
+    { href: "/worldcup", label: t("nav.match"), active: inMatch },
     { href: "/credits", label: t("nav.credits") },
     { href: "/contact", label: t("nav.contact") },
   ];
 
   // News sub-tabs (하단 탭): one per league; labels are locale-picked proper nouns.
+  // The KBO sub-tab also owns the daily-article pages under /kbo/news.
   const newsSubItems: NavItem[] = NEWS_LEAGUES.map((l) => ({
     href: `/news/${l.id}`,
     label: locale === "ko" ? l.ko : l.en,
+    activePaths: l.id === "kbo" ? ["/news/kbo", "/kbo/news"] : undefined,
   }));
 
   const marketSubItems: NavItem[] = [
@@ -60,7 +66,11 @@ export function Nav() {
   ];
 
   const isActive = (item: NavItem) =>
-    item.activePaths ? item.activePaths.some(matches) : matches(item.href);
+    item.active !== undefined
+      ? item.active
+      : item.activePaths
+        ? item.activePaths.some(matches)
+        : matches(item.href);
 
   const renderItem = (item: NavItem) => {
     const active = isActive(item);
