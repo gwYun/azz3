@@ -135,7 +135,7 @@ export function Nav() {
       {(inMarket || inMatch || inNews) && (
         <div className="border-t border-line/70 bg-ink-900/40">
           <nav
-            aria-label={inMarket ? "transfer-market" : inNews ? "news" : "match-forecast"}
+            aria-label={inMarket ? "transfer-market" : inNews ? "report" : "match-forecast"}
             className="mx-auto flex max-w-6xl items-center gap-1 overflow-x-auto px-3 py-2 sm:px-6 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
             <span className="mr-1.5 hidden shrink-0 text-[11px] font-semibold uppercase tracking-wide text-fg-dim sm:inline">

@@ -547,8 +547,8 @@ const en = {
   "news.freeDivider": "Free from here",
 
   // News hub (top-level 뉴스 tab) — multi-league posts explorer
-  "nav.news": "News",
-  "newshub.title": "News",
+  "nav.news": "Report",
+  "newshub.title": "Report",
   "newshub.subtitle": "Daily columns and match reports across leagues. Pick a club to explore.",
   "newshub.live": "Live",
   "newshub.soon": "Soon",
@@ -1093,8 +1093,8 @@ const ko: Record<keyof typeof en, string> = {
   "news.freeDivider": "여기부터 무료 공개",
 
   // 뉴스 허브 (최상위 뉴스 탭) — 리그별 게시물 탐색
-  "nav.news": "뉴스",
-  "newshub.title": "뉴스",
+  "nav.news": "리포트",
+  "newshub.title": "리포트",
   "newshub.subtitle": "리그별 데일리 칼럼과 경기 리포트. 구단을 선택해 둘러보세요.",
   "newshub.live": "운영 중",
   "newshub.soon": "곧",
