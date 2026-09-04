@@ -1,6 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-const h = vi.hoisted(() => ({ user: { id: "user-1" } as { id: string } | null }));
+const h = vi.hoisted(() => ({
+  user: { id: "user-1" } as { id: string } | null,
+  isAdmin: false,
+}));
 
 vi.mock("@/lib/supabase/server", () => ({
   createClient: () => ({
@@ -8,6 +11,7 @@ vi.mock("@/lib/supabase/server", () => ({
   }),
 }));
 vi.mock("@/lib/supabase/admin", () => ({ createAdminClient: () => ({}) }));
+vi.mock("@/lib/admin-access", () => ({ isAdminUser: async () => h.isAdmin }));
 vi.mock("@/lib/pay-repo", () => ({ spendCreditForUnlock: vi.fn() }));
 
 import * as repo from "@/lib/pay-repo";
@@ -22,6 +26,7 @@ const req = (body: unknown) =>
 
 beforeEach(() => {
   h.user = { id: "user-1" };
+  h.isAdmin = false;
   vi.clearAllMocks();
 });
 
@@ -68,5 +73,13 @@ describe("unlock route", () => {
     h.user = null;
     const res = await POST(req({ team: "LG", slot: "home" }));
     expect(res.status).toBe(401);
+  });
+
+  it("admin bypass: unlocks without spending a credit", async () => {
+    h.isAdmin = true;
+    const res = await POST(req({ team: "LG", slot: "home" }));
+    expect(repo.spendCreditForUnlock).not.toHaveBeenCalled();
+    expect(res.status).toBe(200);
+    expect(await res.json()).toMatchObject({ status: "unlocked", admin: true });
   });
 });
