@@ -29,3 +29,37 @@ export async function isArticleLocked(
 ): Promise<boolean> {
   return (await newerArticleCount(admin, team, date)) < ARTICLE_LOCK_WINDOW;
 }
+
+/**
+ * The set of `${team}|${date}` keys that are locked (each team's newest
+ * ARTICLE_LOCK_WINDOW), across the given teams. Lets a multi-article response
+ * label `locked` correctly in ONE query, instead of a per-row count — needed
+ * once a list spans several teams or a date range, where a row's index is no
+ * longer its rank within its own team.
+ */
+export async function lockedDateSet(
+  admin: SupabaseClient,
+  season: number,
+  teams: string[],
+): Promise<Set<string>> {
+  const locked = new Set<string>();
+  if (teams.length === 0) return locked;
+
+  const { data } = await admin
+    .from("kbo_articles")
+    .select("team, article_date")
+    .eq("season", season)
+    .in("team", teams)
+    .order("team", { ascending: true })
+    .order("article_date", { ascending: false });
+
+  const seen = new Map<string, number>();
+  for (const r of (data ?? []) as { team: string; article_date: string }[]) {
+    const n = seen.get(r.team) ?? 0;
+    if (n < ARTICLE_LOCK_WINDOW) {
+      locked.add(`${r.team}|${r.article_date}`);
+      seen.set(r.team, n + 1);
+    }
+  }
+  return locked;
+}

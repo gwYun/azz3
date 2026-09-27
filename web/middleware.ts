@@ -12,8 +12,9 @@ import {
  * session consumer so it was intentionally omitted.
  *
  * The matcher below excludes the auth-free hot paths (/api/predict = Python
- * inference, /api/fx = FX rate) and static assets, so this never adds latency
- * there. It DOES run on /api/pay/* and pages, which need a live session.
+ * inference, /api/fx = FX rate, /api/v1/* = bearer-token Open API) and static
+ * assets, so this never adds latency there. It DOES run on /api/pay/* and
+ * pages, which need a live session.
  */
 export async function middleware(request: NextRequest) {
   if (!isSupabaseConfigured) return NextResponse.next();
@@ -46,7 +47,8 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     // Everything EXCEPT static assets, image files, and the auth-free API
-    // hot paths (/api/predict, /api/fx).
-    "/((?!_next/static|_next/image|favicon.ico|api/predict|api/fx|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
+    // hot paths (/api/predict, /api/fx, /api/v1 — Open API uses bearer tokens,
+    // not the session cookie).
+    "/((?!_next/static|_next/image|favicon.ico|api/predict|api/fx|api/v1|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
   ],
 };
