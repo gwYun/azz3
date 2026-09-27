@@ -8,8 +8,8 @@ import { ApiError, compare, loadModelInfo } from "@/lib/api";
 import { deleteBuild, isStale, listBuilds } from "@/lib/storage";
 import type { CompareResponse, ModelInfo, SavedBuild } from "@/lib/types";
 import { dateLabel, euro } from "@/lib/format";
-import { CompareView } from "@/components/CompareView";
-import { BuildTabs } from "@/components/BuildTabs";
+import { CompareView } from "@/components/build/CompareView";
+import { BuildTabs } from "@/components/build/BuildTabs";
 
 export default function SavedPage() {
   const t = useT();

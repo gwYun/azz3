@@ -12,7 +12,7 @@
  * categorical draws — so a reduced-draw Monte-Carlo runs comfortably in a serverless
  * function.
  */
-import { negBinomPmf, winProbExact } from "../matchup-sim";
+import { negBinomPmf, winProbExact } from "./matchup-sim";
 
 // Calibrated game constants (kbo/src/game_model.py — pooled 2015-2019 + 2026).
 export const DISPERSION_K = 3.7;

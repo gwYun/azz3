@@ -6,8 +6,8 @@ import type { Locale } from "@/lib/i18n";
 import {
   type MatchupData, type Team, type Pitcher, type Batter, type BullpenState,
   starterForGame, bullpenForGame, optimizeLineup, muForOrder, evaluateMatchup,
-} from "@/lib/matchup-sim";
-import { KboResultGate } from "@/components/KboResultGate";
+} from "@/lib/kbo/matchup-sim";
+import { KboResultGate } from "@/components/kbo/KboResultGate";
 import { useAccount } from "@/lib/useAccount";
 import { isTeamSlotOpen } from "@/lib/credits";
 

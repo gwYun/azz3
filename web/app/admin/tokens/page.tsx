@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isAdminUser } from "@/lib/admin-access";
-import { AdminTokensView } from "@/components/AdminTokensView";
+import { AdminTokensView } from "@/components/admin/AdminTokensView";
 
 /**
  * Admin-only API token console. Gated server-side: signed-out → /login, signed-in

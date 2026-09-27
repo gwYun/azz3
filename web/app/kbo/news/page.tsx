@@ -3,7 +3,7 @@
 import { Fragment, useEffect, useState } from "react";
 import Link from "next/link";
 import { useT } from "@/lib/i18n-context";
-import { PaidFreeDivider } from "@/components/PaidFreeDivider";
+import { PaidFreeDivider } from "@/components/kbo/PaidFreeDivider";
 import type { ArticleTeaser } from "@/lib/kbo/article-types";
 
 /**

@@ -6,7 +6,7 @@ import { notFound, useParams } from "next/navigation";
 import { useI18n, useT } from "@/lib/i18n-context";
 import { getNewsLeague } from "@/lib/news/leagues";
 import { FRANCHISES, TEAM_NAMES } from "@/lib/kbo/franchise";
-import { PaidFreeDivider } from "@/components/PaidFreeDivider";
+import { PaidFreeDivider } from "@/components/kbo/PaidFreeDivider";
 
 /**
  * News sub-tab page — one per league (/news/kbo, /news/epl, …). The live league

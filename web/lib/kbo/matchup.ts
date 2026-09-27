@@ -12,7 +12,7 @@
  * mu_calib is computed against the exact model the client runs.
  */
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { markovExpectedRuns, type Rates, type Segment, type MatchupData } from "../matchup-sim";
+import { markovExpectedRuns, type Rates, type Segment, type MatchupData } from "./matchup-sim";
 import { DISPERSION_K, HOME_FACTOR, DEFAULT_SHRINK } from "./season-sim";
 import { fip as fipFn, pitchingWar, wrcPlus, battingWar, type Constants, type BatLine, type PitLine } from "./sabermetrics";
 import { TEAM_NAMES, FRANCHISES, type Franchise } from "./franchise";

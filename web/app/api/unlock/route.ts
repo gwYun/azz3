@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import * as repo from "@/lib/pay-repo";
+import * as repo from "@/lib/pay/pay-repo";
 import { kboProduct, kboArticleProduct, isFreeTeam, type Slot } from "@/lib/credits";
 import { FRANCHISES } from "@/lib/kbo/franchise";
 import { isArticleLocked } from "@/lib/kbo/article-access";

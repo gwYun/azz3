@@ -1,7 +1,7 @@
 "use client";
 
 import { useT } from "@/lib/i18n-context";
-import { KboSalaryPanel } from "@/components/KboSalaryPanel";
+import { KboSalaryPanel } from "@/components/kbo/KboSalaryPanel";
 
 export default function SalaryPage() {
   const t = useT();

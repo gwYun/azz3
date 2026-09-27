@@ -17,7 +17,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { FRANCHISES, TEAM_NAMES, resolveFranchise, type Franchise } from "./franchise";
 import { expectedRuns, DISPERSION_K, DEFAULT_SHRINK } from "./season-sim";
-import { winProbExact } from "../matchup-sim";
+import { winProbExact } from "./matchup-sim";
 import { simulateRemaining, type CondTeam } from "./conditional-sim";
 import { writeArticleProse } from "./llm";
 import { renderArticle } from "./article-template";

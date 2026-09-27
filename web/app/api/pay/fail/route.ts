@@ -1,4 +1,4 @@
-import { handleTerminal } from "@/lib/pay-terminal";
+import { handleTerminal } from "@/lib/pay/pay-terminal";
 
 /** Kakao Pay fail_url redirect. */
 export function GET(request: Request) {

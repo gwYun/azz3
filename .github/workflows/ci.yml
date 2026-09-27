@@ -1,0 +1,44 @@
+name: CI
+
+# Secret-free checks that run on every push/PR to main. Deliberately excludes
+# `yarn build` and `supabase db push` (they need env/secrets); run those locally
+# or add them in a separate secret-gated job.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  python:
+    name: Python (pytest)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+      - name: Install package (editable, with dev extras)
+        run: pip install -e "python/[dev]"
+      - name: Run tests
+        run: python -m pytest python/tests -v
+
+  web:
+    name: Web (typecheck + test)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Enable Corepack (Yarn 4)
+        run: corepack enable
+      - name: Install dependencies
+        run: yarn install --immutable
+      - name: Typecheck
+        run: yarn typecheck
+      - name: Test
+        run: yarn test

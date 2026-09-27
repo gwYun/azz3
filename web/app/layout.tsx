@@ -5,9 +5,9 @@ import "./globals.css";
 import { I18nProvider } from "@/lib/i18n-context";
 import { ToastProvider } from "@/lib/toast-context";
 import { AccountProvider } from "@/lib/useAccount";
-import { Nav } from "@/components/Nav";
-import { AuthNotice } from "@/components/AuthNotice";
-import { Footer } from "@/components/Footer";
+import { Nav } from "@/components/shared/Nav";
+import { AuthNotice } from "@/components/auth/AuthNotice";
+import { Footer } from "@/components/shared/Footer";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 const interTight = Inter_Tight({

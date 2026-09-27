@@ -12,9 +12,9 @@ vi.mock("@/lib/supabase/server", () => ({
 }));
 vi.mock("@/lib/supabase/admin", () => ({ createAdminClient: () => ({}) }));
 vi.mock("@/lib/admin-access", () => ({ isAdminUser: async () => h.isAdmin }));
-vi.mock("@/lib/pay-repo", () => ({ spendCreditForUnlock: vi.fn() }));
+vi.mock("@/lib/pay/pay-repo", () => ({ spendCreditForUnlock: vi.fn() }));
 
-import * as repo from "@/lib/pay-repo";
+import * as repo from "@/lib/pay/pay-repo";
 import { POST } from "./route";
 
 const req = (body: unknown) =>

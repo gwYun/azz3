@@ -10,7 +10,7 @@
  * the NegBinom PMF (matchup-sim.ts). Rates passed in are ALREADY shrunk (they
  * come from the season snapshot), so we do not shrink again.
  */
-import { negBinomPmf } from "../matchup-sim";
+import { negBinomPmf } from "./matchup-sim";
 import { expectedRuns, DISPERSION_K } from "./season-sim";
 
 export interface CondTeam {

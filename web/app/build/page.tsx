@@ -18,11 +18,11 @@ import type {
   RealPlayer,
 } from "@/lib/types";
 import { useFxRate } from "@/lib/useFxRate";
-import { StatSlider } from "@/components/StatSlider";
-import { FeeDisplay } from "@/components/FeeDisplay";
-import { CounterfactualList } from "@/components/CounterfactualList";
-import { SaveBuildButton } from "@/components/SaveBuildButton";
-import { BuildTabs } from "@/components/BuildTabs";
+import { StatSlider } from "@/components/build/StatSlider";
+import { FeeDisplay } from "@/components/build/FeeDisplay";
+import { CounterfactualList } from "@/components/build/CounterfactualList";
+import { SaveBuildButton } from "@/components/build/SaveBuildButton";
+import { BuildTabs } from "@/components/build/BuildTabs";
 
 const NUISANCE: ReadonlySet<string> = new Set([
   "MP_Playing", "Min_Playing", "CrdR", "Ast", "PK",

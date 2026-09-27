@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { useT } from "@/lib/i18n-context";
-import { ArticleGate } from "@/components/ArticleGate";
+import { ArticleGate } from "@/components/kbo/ArticleGate";
 import type { ArticleTeaser } from "@/lib/kbo/article-types";
 
 type Article = {

@@ -20,25 +20,25 @@ dist/
 !web/app/build/**
 
 # soccerdata cache + raw pulls
-data/cache/
-data/raw/
-data/interim/
+python/data/cache/
+python/data/raw/
+python/data/interim/
 
 # kbo module data caches (raw game CSVs + normalized parquet); keep team meta tracked
-kbo/data/raw/
-kbo/data/interim/
+python/kbo/data/raw/
+python/kbo/data/interim/
+
+# kbo one-off HTML report dumps (accumulating snapshots, not source)
+python/kbo/outputs/*.html
 
 # Manual review artifacts (player ID match queue) - keep schema, ignore content
-data/review_queue/*.csv
+python/data/review_queue/*.csv
 
 # Trained models
-data/models/*.pkl
-data/models/*.json
+python/data/models/*.pkl
+python/data/models/*.json
 
-# predictions/ artifacts ARE checked in (small, useful as repo demo)
-
-# Notebook outputs
-notebooks/*.ipynb_checkpoints/
+# python/predictions/ artifacts ARE checked in (small, useful as repo demo)
 
 # Vercel local state (org/project IDs, pulled env). IDs go into GitHub Actions
 # secrets, not into the repo. .env.local is environment-specific and never committed.

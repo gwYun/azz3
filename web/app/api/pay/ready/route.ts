@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import * as repo from "@/lib/pay-repo";
-import * as kakao from "@/lib/kakaopay";
+import * as repo from "@/lib/pay/pay-repo";
+import * as kakao from "@/lib/pay/kakaopay";
 import { getPack } from "@/lib/credits";
 
 /**

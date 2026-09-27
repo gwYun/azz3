@@ -9,7 +9,7 @@ vi.mock("@/lib/supabase/server", () => ({
   }),
 }));
 vi.mock("@/lib/supabase/admin", () => ({ createAdminClient: () => ({}) }));
-vi.mock("@/lib/pay-repo", () => ({
+vi.mock("@/lib/pay/pay-repo", () => ({
   getOrder: vi.fn(),
   getPaymentByOrder: vi.fn(),
   markPaymentApproved: vi.fn(),
@@ -17,10 +17,10 @@ vi.mock("@/lib/pay-repo", () => ({
   setPaymentStatusByOrder: vi.fn(),
   addCredits: vi.fn(),
 }));
-vi.mock("@/lib/kakaopay", () => ({ approve: vi.fn() }));
+vi.mock("@/lib/pay/kakaopay", () => ({ approve: vi.fn() }));
 
-import * as repo from "@/lib/pay-repo";
-import * as kakao from "@/lib/kakaopay";
+import * as repo from "@/lib/pay/pay-repo";
+import * as kakao from "@/lib/pay/kakaopay";
 import { GET } from "./route";
 
 const req = (qs: string) => new Request(`https://app.test/api/pay/approve${qs}`);
