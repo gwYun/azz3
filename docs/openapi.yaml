@@ -1,0 +1,205 @@
+openapi: 3.1.0
+info:
+  title: ValueTrack Open News API
+  version: "1.0.0"
+  description: >
+    Read-only API serving ValueTrack (밸류트랙) daily-news content — KBO daily
+    reports (full article body) and soccer daily data (results, standings,
+    leaders) — for card-news generation. Authenticate with a bearer token issued
+    by an admin at /admin/tokens (scope: reports:read). Attribution
+    (meta.attribution) must be shown on any published card.
+servers:
+  - url: https://www.valuetrack.pro
+security:
+  - bearerAuth: []
+paths:
+  /api/v1:
+    get:
+      operationId: getCatalog
+      summary: Catalog / token health check
+      description: >
+        Returns the API description and the authenticated token's name + scopes.
+        A 200 means the token is live; call this first to verify auth.
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /api/v1/kbo/reports:
+    get:
+      operationId: listKboReports
+      summary: KBO daily reports (full body)
+      description: >
+        No params → the latest report per team (10 items). With `team` →
+        that team's most recent reports (up to `limit`). With `team` + `date` →
+        one report (single object). With `from`/`to` → every report in the
+        inclusive date range, newest first (all teams unless `team` is set).
+      parameters:
+        - name: team
+          in: query
+          required: false
+          description: KBO franchise code.
+          schema:
+            type: string
+            enum: [SS, LG, KT, HT, OB, HH, NC, LT, SK, WO]
+        - name: date
+          in: query
+          required: false
+          description: Single day (YYYY-MM-DD). With `team` and no range, returns that one report.
+          schema:
+            type: string
+            pattern: '^\d{4}-\d{2}-\d{2}$'
+        - name: from
+          in: query
+          required: false
+          description: Inclusive range start (YYYY-MM-DD).
+          schema:
+            type: string
+            pattern: '^\d{4}-\d{2}-\d{2}$'
+        - name: to
+          in: query
+          required: false
+          description: Inclusive range end (YYYY-MM-DD).
+          schema:
+            type: string
+            pattern: '^\d{4}-\d{2}-\d{2}$'
+        - name: limit
+          in: query
+          required: false
+          description: Max items for list responses (ignored for the latest-per-team feed).
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 60
+            default: 10
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/kbo/reports/{team}/{date}:
+    get:
+      operationId: getKboReport
+      summary: One KBO report by team + date
+      parameters:
+        - name: team
+          in: path
+          required: true
+          description: KBO franchise code.
+          schema:
+            type: string
+            enum: [SS, LG, KT, HT, OB, HH, NC, LT, SK, WO]
+        - name: date
+          in: path
+          required: true
+          description: Report date (YYYY-MM-DD).
+          schema:
+            type: string
+            pattern: '^\d{4}-\d{2}-\d{2}$'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/soccer/{league}/daily:
+    get:
+      operationId: getSoccerDaily
+      summary: Soccer daily digest (results, table, leaders)
+      description: >
+        Composed daily data for one league: recent results, upcoming fixtures,
+        full standings, and top scorers/assisters. `from`/`to`/`date` scope the
+        results + upcoming lists only; standings/leaders are season-to-date.
+      parameters:
+        - name: league
+          in: path
+          required: true
+          description: League code.
+          schema:
+            type: string
+            enum: [epl, primera, bundesliga, seria, ligue1, kleague, kleague2]
+        - name: date
+          in: query
+          required: false
+          description: Single match day (YYYY-MM-DD).
+          schema:
+            type: string
+            pattern: '^\d{4}-\d{2}-\d{2}$'
+        - name: from
+          in: query
+          required: false
+          description: Inclusive range start (YYYY-MM-DD).
+          schema:
+            type: string
+            pattern: '^\d{4}-\d{2}-\d{2}$'
+        - name: to
+          in: query
+          required: false
+          description: Inclusive range end (YYYY-MM-DD).
+          schema:
+            type: string
+            pattern: '^\d{4}-\d{2}-\d{2}$'
+        - name: limit
+          in: query
+          required: false
+          description: Max items for the results + upcoming lists.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 10
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: Bearer token (azz_live_…) issued at /admin/tokens.
+  responses:
+    Unauthorized:
+      description: Missing / invalid / expired token, or missing scope.
+      content:
+        application/json:
+          schema:
+            type: object
+    BadRequest:
+      description: Invalid parameter (team, date, league, range, or limit).
+      content:
+        application/json:
+          schema:
+            type: object
+    NotFound:
+      description: No such report.
+      content:
+        application/json:
+          schema:
+            type: object

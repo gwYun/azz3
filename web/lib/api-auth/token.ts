@@ -58,7 +58,13 @@ function reject(status: number, error: string, detail?: string): AuthResult {
 }
 
 /**
- * Authenticate an inbound Open API request by its `Authorization: Bearer` token.
+ * Authenticate an inbound Open API request. The token may arrive two ways:
+ *   1. `Authorization: Bearer <token>` header (preferred), or
+ *   2. a `?key=<token>` / `?token=<token>` query param — the convenience path so
+ *      the API is a plain GET URL (openable in a browser, ChatGPT browsing, etc.)
+ *      with no custom header. Trade-off: a URL token lands in access/referrer
+ *      logs and history, so use a dedicated, revocable (ideally short-lived)
+ *      token for URL access. The header form remains the secure default.
  *
  * Returns `{ ok: true, token }` on success, or `{ ok: false, response }` with a
  * ready-to-return error: 401 for a missing / malformed / unknown / revoked /
@@ -70,10 +76,15 @@ export async function authenticateRequest(
   requiredScope: string,
 ): Promise<AuthResult> {
   const header = request.headers.get("authorization") ?? "";
-  const match = header.match(/^Bearer\s+(.+)$/i);
-  if (!match) return reject(401, "unauthorized", "missing bearer token");
+  const bearer = header.match(/^Bearer\s+(.+)$/i);
+  const plain = (
+    bearer?.[1] ??
+    new URL(request.url).searchParams.get("key") ??
+    new URL(request.url).searchParams.get("token") ??
+    ""
+  ).trim();
 
-  const plain = match[1].trim();
+  if (!plain) return reject(401, "unauthorized", "missing token (Authorization: Bearer, or ?key=)");
   if (!plain.startsWith(TOKEN_PREFIX)) return reject(401, "unauthorized", "malformed token");
 
   const admin = createAdminClient();

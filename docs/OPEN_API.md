@@ -53,6 +53,19 @@ so `curl` doesn't drop the `Authorization` header across the redirect.)
 
 ## 3. Try it now (copy-paste)
 
+**Simplest — a plain GET URL (no headers).** The token also works as a `?key=`
+query param, so you can just open a link in a browser, `wget`/`curl` it, or hand
+it to a tool that only does plain GETs. Append `&key=YOUR_TOKEN`:
+
+```
+https://www.valuetrack.pro/api/v1/kbo/reports?team=HH&limit=1&key=azz_live_xxxxxxxx…
+https://www.valuetrack.pro/api/v1/soccer/epl/daily?key=azz_live_xxxxxxxx…
+```
+
+> ⚠️ A token in a URL is visible in browser history and server logs. Use a
+> dedicated, revocable token for this (and prefer the header form below when you
+> can). Both forms are equivalent; the header is just harder to leak.
+
 **For a human/agent at a terminal.** Paste your token once, then run any block.
 
 ```bash
@@ -321,3 +334,30 @@ console.log(epl.standings.slice(0, 5));
 - Prefer a CLI/script issuance path? The same primitives live in
   `web/lib/api-auth/token.ts` (`mintToken`, `hashToken`) — insert a row with the
   hash + prefix directly via the service role.
+
+---
+
+## 10. Using this from ChatGPT / GPT
+
+**The curl and JS snippets above will NOT run inside ChatGPT's code interpreter**
+— that sandbox has no outbound internet, so any `fetch`/`requests`/`curl` fails
+with a connection error. ChatGPT's browsing tool won't attach your bearer token
+either (→ 401). This is a ChatGPT-environment limit, not an API problem.
+
+To call the API from ChatGPT, use a **Custom GPT Action** (ChatGPT runs the call
+server-side and attaches the token):
+
+1. ChatGPT → **Explore/Create a GPT** → **Configure** → **Actions** → **Create new action**.
+2. **Schema**: paste the contents of [`docs/openapi.yaml`](./openapi.yaml)
+   (or, if it's deployed at a public URL, use *Import from URL*).
+3. **Authentication** → **API Key** → Auth Type **Bearer** → paste your
+   `azz_live_…` token.
+4. Save. Now ask the GPT e.g. *"Fetch the latest KBO reports and make a card-news
+   set for 한화."* — it will call `listKboReports` / `getSoccerDaily` itself.
+
+Security: the token grants full (paywall-bypassing) content, so keep the Custom
+GPT **private** — don't publish/share it, or the stored token can leak.
+
+Alternative without a Custom GPT: run the curl in a real terminal yourself and
+paste the JSON into the chat — ChatGPT can format cards from pasted data fine;
+it just can't fetch it.

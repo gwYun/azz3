@@ -121,4 +121,26 @@ describe("authenticateRequest", () => {
     const r = await authenticateRequest(req(`Bearer ${TOKEN_PREFIX}xyz`), scope);
     expect(r.ok).toBe(true);
   });
+
+  it("accepts the token from a ?key= query param (plain-URL GET)", async () => {
+    const url = `https://app.test/api/v1?key=${TOKEN_PREFIX}xyz`;
+    const r = await authenticateRequest(new Request(url), scope);
+    expect(r.ok).toBe(true);
+    expect(h.touched).toEqual(["tok-1"]);
+  });
+
+  it("accepts the token from a ?token= query param too", async () => {
+    const url = `https://app.test/api/v1?token=${TOKEN_PREFIX}xyz`;
+    const r = await authenticateRequest(new Request(url), scope);
+    expect(r.ok).toBe(true);
+  });
+
+  it("prefers the Authorization header over a query param", async () => {
+    const url = `https://app.test/api/v1?key=not_a_valid_prefix`;
+    const r = await authenticateRequest(
+      new Request(url, { headers: { authorization: `Bearer ${TOKEN_PREFIX}xyz` } }),
+      scope,
+    );
+    expect(r.ok).toBe(true); // header wins → valid prefix, not the bad query one
+  });
 });
