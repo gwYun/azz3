@@ -4,9 +4,9 @@ A small, **read-only** HTTP API that serves the daily-news content behind
 ValueTrack / 밸류트랙 — KBO daily articles and soccer daily data — so a bot (e.g.
 Claude) can turn it into **card news**.
 
-This document is written to be handed directly to Claude. If you are Claude:
-everything you need to fetch content and generate cards is below, with runnable
-examples. Read the whole file once, then start at **Quickstart**.
+This document is written to be handed directly to an AI agent (Claude or GPT).
+If you are that agent: everything you need to fetch content and generate cards is
+below, with runnable examples. Skim once, then jump to **§3 Try it now** and run.
 
 ---
 
@@ -42,25 +42,61 @@ All responses are JSON. Errors look like `{ "error": "unauthorized", "detail": "
 ## 2. Base URL
 
 ```
-https://<your-deployment-domain>
+https://www.valuetrack.pro
 ```
 
-Replace `<your-deployment-domain>` with the site's domain (the same host that
-serves the app). All paths below are relative to it.
+This is the live production host — all endpoints below are ready to call against
+it. (`valuetrack.pro` 308-redirects to `www.valuetrack.pro`; use the `www` form
+so `curl` doesn't drop the `Authorization` header across the redirect.)
 
 ---
 
-## 3. Quickstart
+## 3. Try it now (copy-paste)
 
-Confirm the token works and discover endpoints:
+**For a human/agent at a terminal.** Paste your token once, then run any block.
 
 ```bash
-curl -s https://<domain>/api/v1 \
+# 1) Set your token (ask an admin for one; issued at /admin/tokens)
+export AZZ_TOKEN="azz_live_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+
+# 2) Health check — a 200 with "authenticated_as" means the token is live
+curl -s https://www.valuetrack.pro/api/v1 \
   -H "Authorization: Bearer $AZZ_TOKEN" | jq
+
+# 3) Latest KBO report per team (full body — your card-news source)
+curl -s https://www.valuetrack.pro/api/v1/kbo/reports \
+  -H "Authorization: Bearer $AZZ_TOKEN" | jq '.data[0]'
+
+# 4) One team's last 3 reports
+curl -s "https://www.valuetrack.pro/api/v1/kbo/reports?team=HH&limit=3" \
+  -H "Authorization: Bearer $AZZ_TOKEN" | jq '.data[] | {date, title, dek}'
+
+# 5) EPL daily digest (scores, table, top scorers)
+curl -s https://www.valuetrack.pro/api/v1/soccer/epl/daily \
+  -H "Authorization: Bearer $AZZ_TOKEN" | jq '.data | {results: .results[0:3], top: .scorers[0:3]}'
+```
+
+**For Claude / GPT with a code tool.** Drop-in, self-contained — set the token
+and run:
+
+```javascript
+const BASE = "https://www.valuetrack.pro";
+const TOKEN = "azz_live_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"; // ← paste token
+
+const get = async (path) => {
+  const res = await fetch(BASE + path, { headers: { Authorization: `Bearer ${TOKEN}` } });
+  if (!res.ok) throw new Error(`${res.status}: ${await res.text()}`);
+  return res.json();
+};
+
+// Verify the token, then pull today's KBO reports to turn into cards.
+console.log(await get("/api/v1"));                       // { authenticated_as, endpoints, ... }
+const { data } = await get("/api/v1/kbo/reports?limit=3");
+for (const a of data) console.log(a.team_ko, "—", a.title, "\n", a.body_text.slice(0, 120));
 ```
 
 A `200` with `"authenticated_as"` means you're in. A `401` means the token is
-wrong/expired.
+missing/wrong/expired; a `403` means it lacks the `reports:read` scope.
 
 ---
 
@@ -71,7 +107,7 @@ wrong/expired.
 Returns the API description and the token's name + scopes. Use it as a health
 check.
 
-### 4.2 `GET /api/v1/kbo/news` — KBO daily articles (full body)
+### 4.2 `GET /api/v1/kbo/reports` — KBO daily articles (full body)
 
 Query params (all optional):
 
@@ -95,27 +131,27 @@ Invalid or inverted ranges (`from` > `to`) return `400`.
 
 ```bash
 # Latest per team
-curl -s https://<domain>/api/v1/kbo/news -H "Authorization: Bearer $AZZ_TOKEN" | jq
+curl -s https://www.valuetrack.pro/api/v1/kbo/reports -H "Authorization: Bearer $AZZ_TOKEN" | jq
 
 # Hanwha, last 5
-curl -s "https://<domain>/api/v1/kbo/news?team=HH&limit=5" -H "Authorization: Bearer $AZZ_TOKEN" | jq
+curl -s "https://www.valuetrack.pro/api/v1/kbo/reports?team=HH&limit=5" -H "Authorization: Bearer $AZZ_TOKEN" | jq
 
 # One specific article
-curl -s "https://<domain>/api/v1/kbo/news?team=HH&date=2026-09-27" -H "Authorization: Bearer $AZZ_TOKEN" | jq
+curl -s "https://www.valuetrack.pro/api/v1/kbo/reports?team=HH&date=2026-09-27" -H "Authorization: Bearer $AZZ_TOKEN" | jq
 
 # A whole week, all teams (newest first, up to `limit`)
-curl -s "https://<domain>/api/v1/kbo/news?from=2026-09-20&to=2026-09-27&limit=40" -H "Authorization: Bearer $AZZ_TOKEN" | jq
+curl -s "https://www.valuetrack.pro/api/v1/kbo/reports?from=2026-09-20&to=2026-09-27&limit=40" -H "Authorization: Bearer $AZZ_TOKEN" | jq
 
 # One team across a range
-curl -s "https://<domain>/api/v1/kbo/news?team=HH&from=2026-09-01&limit=30" -H "Authorization: Bearer $AZZ_TOKEN" | jq
+curl -s "https://www.valuetrack.pro/api/v1/kbo/reports?team=HH&from=2026-09-01&limit=30" -H "Authorization: Bearer $AZZ_TOKEN" | jq
 ```
 
-### 4.3 `GET /api/v1/kbo/news/{team}/{date}` — one article
+### 4.3 `GET /api/v1/kbo/reports/{team}/{date}` — one article
 
 Path-param twin of the above. `team` = franchise code, `date` = `YYYY-MM-DD`.
 
 ```bash
-curl -s https://<domain>/api/v1/kbo/news/HH/2026-09-27 -H "Authorization: Bearer $AZZ_TOKEN" | jq
+curl -s https://www.valuetrack.pro/api/v1/kbo/reports/HH/2026-09-27 -H "Authorization: Bearer $AZZ_TOKEN" | jq
 ```
 
 ### 4.4 `GET /api/v1/soccer/{league}/daily` — soccer daily digest
@@ -137,13 +173,13 @@ raw material (results, table, leaders) so you compose the cards yourself.
 
 ```bash
 # Latest
-curl -s https://<domain>/api/v1/soccer/epl/daily -H "Authorization: Bearer $AZZ_TOKEN" | jq
+curl -s https://www.valuetrack.pro/api/v1/soccer/epl/daily -H "Authorization: Bearer $AZZ_TOKEN" | jq
 
 # One match day
-curl -s "https://<domain>/api/v1/soccer/epl/daily?date=2026-09-27" -H "Authorization: Bearer $AZZ_TOKEN" | jq
+curl -s "https://www.valuetrack.pro/api/v1/soccer/epl/daily?date=2026-09-27" -H "Authorization: Bearer $AZZ_TOKEN" | jq
 
 # A date range
-curl -s "https://<domain>/api/v1/soccer/epl/daily?from=2026-09-20&to=2026-09-27&limit=20" -H "Authorization: Bearer $AZZ_TOKEN" | jq
+curl -s "https://www.valuetrack.pro/api/v1/soccer/epl/daily?from=2026-09-20&to=2026-09-27&limit=20" -H "Authorization: Bearer $AZZ_TOKEN" | jq
 ```
 
 ---
@@ -239,7 +275,7 @@ Guidelines:
 ## 7. Fetch example (TypeScript)
 
 ```ts
-const BASE = "https://<domain>";
+const BASE = "https://www.valuetrack.pro";
 const TOKEN = process.env.AZZ_TOKEN!;
 
 async function api<T>(path: string): Promise<T> {
@@ -251,7 +287,7 @@ async function api<T>(path: string): Promise<T> {
 }
 
 // Latest KBO articles → card decks
-const { data: articles } = await api<{ data: any[] }>("/api/v1/kbo/news");
+const { data: articles } = await api<{ data: any[] }>("/api/v1/kbo/reports");
 for (const a of articles) {
   console.log(a.team_ko, a.title, "→", a.body_text.slice(0, 80));
 }

@@ -22,14 +22,14 @@ export async function GET(request: Request) {
     endpoints: [
       {
         method: "GET",
-        path: "/api/v1/kbo/news",
+        path: "/api/v1/kbo/reports",
         description:
           "KBO daily articles (full body). Params: team, date (single), " +
           "from + to (inclusive YYYY-MM-DD range), limit (max 60).",
       },
       {
         method: "GET",
-        path: "/api/v1/kbo/news/{team}/{date}",
+        path: "/api/v1/kbo/reports/{team}/{date}",
         description: "One KBO article by franchise code + YYYY-MM-DD, full body.",
       },
       {

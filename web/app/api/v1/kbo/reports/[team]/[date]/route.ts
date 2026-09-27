@@ -7,9 +7,9 @@ import { serializeArticle, envelope, type KboArticleRow } from "@/lib/api-v1/ser
 
 /**
  * One KBO article by team + date, full content. Token-gated path-param twin of
- * /api/v1/kbo/news?team=&date= — handy for direct card-news links.
+ * /api/v1/kbo/reports?team=&date= — handy for direct card-news links.
  *
- *   GET /api/v1/kbo/news/HH/2026-09-27
+ *   GET /api/v1/kbo/reports/HH/2026-09-27
  */
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

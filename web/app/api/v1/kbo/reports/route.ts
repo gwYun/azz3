@@ -18,11 +18,11 @@ import {
  * it returns body_html + a stripped body_text on the service-role client,
  * bypassing the consumer paywall by design.
  *
- *   GET /api/v1/kbo/news                          → latest article per team
- *   GET /api/v1/kbo/news?team=HH&limit=5          → that team's most recent N
- *   GET /api/v1/kbo/news?team=HH&date=2026-09-27  → one specific article
- *   GET /api/v1/kbo/news?from=2026-09-20&to=2026-09-27      → all teams in range
- *   GET /api/v1/kbo/news?team=HH&from=2026-09-01&limit=30   → one team's range
+ *   GET /api/v1/kbo/reports                          → latest article per team
+ *   GET /api/v1/kbo/reports?team=HH&limit=5          → that team's most recent N
+ *   GET /api/v1/kbo/reports?team=HH&date=2026-09-27  → one specific article
+ *   GET /api/v1/kbo/reports?from=2026-09-20&to=2026-09-27      → all teams in range
+ *   GET /api/v1/kbo/reports?team=HH&from=2026-09-01&limit=30   → one team's range
  */
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
