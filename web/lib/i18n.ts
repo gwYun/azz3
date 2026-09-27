@@ -1107,8 +1107,8 @@ const ko: Record<keyof typeof en, string> = {
   "newshub.searchTeams": "구단 검색",
   "newshub.allTeams": "전체 구단",
   "newshub.noTeamMatch": "검색과 일치하는 구단이 없습니다.",
-  "newshub.articles": "기사",
-  "newshub.feedEmpty": "아직 발행된 기사가 없습니다. 데일리 칼럼이 곧 시작됩니다.",
+  "newshub.articles": "리포트",
+  "newshub.feedEmpty": "아직 발행된 리포트가 없습니다. 데일리 칼럼이 곧 시작됩니다.",
 };
 
 export const dict = { en, ko } as const;

@@ -9,7 +9,7 @@ import { FRANCHISES, TEAM_NAMES } from "@/lib/kbo/franchise";
 import { PaidFreeDivider } from "@/components/kbo/PaidFreeDivider";
 
 /**
- * News sub-tab page — one per league (/news/kbo, /news/epl, …). The live league
+ * Report sub-tab page — one per league (/reports/kbo, /reports/epl, …). The live league
  * (KBO) shows the club explorer: search + team filter over the article feed.
  * Not-yet-live leagues show a "coming soon" panel. Deliberately not wired to the
  * DB yet (no articles are published); the feed renders an honest empty state so

@@ -22,7 +22,7 @@ export async function GET(
   request: Request,
   { params }: { params: { league: string } },
 ) {
-  const auth = await authenticateRequest(request, "news:read");
+  const auth = await authenticateRequest(request, "reports:read");
   if (!auth.ok) return auth.response;
 
   const league = params.league;

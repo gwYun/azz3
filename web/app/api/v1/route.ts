@@ -4,14 +4,14 @@ import { authenticateRequest } from "@/lib/api-auth/token";
 /**
  * Open API root — a self-describing catalog that DOUBLES as a token check. A
  * client hits this first to confirm its bearer token works and to discover the
- * available endpoints. Requires a valid `news:read` token like every /api/v1
+ * available endpoints. Requires a valid `reports:read` token like every /api/v1
  * route, so a 200 here means "your token is live".
  */
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
-  const auth = await authenticateRequest(request, "news:read");
+  const auth = await authenticateRequest(request, "reports:read");
   if (!auth.ok) return auth.response;
 
   return NextResponse.json({

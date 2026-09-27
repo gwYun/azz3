@@ -34,7 +34,7 @@ const isFranchise = (c: string | null): c is Franchise =>
   !!c && (FRANCHISES as readonly string[]).includes(c);
 
 export async function GET(request: Request) {
-  const auth = await authenticateRequest(request, "news:read");
+  const auth = await authenticateRequest(request, "reports:read");
   if (!auth.ok) return auth.response;
 
   const url = new URL(request.url);

@@ -20,7 +20,7 @@ Authorization: Bearer azz_live_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 - Tokens are issued by an **admin** in the console at `/admin/tokens`. Ask the
   project owner for one; the plaintext is shown only once at creation.
-- A token carries the `news:read` scope, which grants every endpoint here.
+- A token carries the `reports:read` scope, which grants every endpoint here.
 - The API bypasses the site's consumer paywall on purpose — it is a trusted
   channel. **Treat the token like a password.** Don't commit it, don't paste it
   into shared logs. If it leaks, an admin revokes it (takes effect immediately).

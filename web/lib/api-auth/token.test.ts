@@ -34,7 +34,7 @@ const req = (authorization?: string) =>
 const live = (overrides: Record<string, unknown> = {}) => ({
   id: "tok-1",
   name: "card-news-bot",
-  scopes: ["news:read"],
+  scopes: ["reports:read"],
   expires_at: null,
   revoked_at: null,
   ...overrides,
@@ -66,7 +66,7 @@ describe("hashToken / mintToken", () => {
 });
 
 describe("authenticateRequest", () => {
-  const scope = "news:read";
+  const scope = "reports:read";
 
   it("401 when the Authorization header is missing", async () => {
     const r = await authenticateRequest(req(), scope);

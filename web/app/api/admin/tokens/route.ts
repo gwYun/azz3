@@ -12,7 +12,7 @@ import { mintToken } from "@/lib/api-auth/token";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const VALID_SCOPES = new Set(["news:read"]);
+const VALID_SCOPES = new Set(["reports:read"]);
 const MAX_EXPIRY_DAYS = 3650;
 
 export async function GET() {
@@ -46,9 +46,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "name_required" }, { status: 400 });
   }
 
-  // Validate scopes (default to news:read).
+  // Validate scopes (default to reports:read).
   const scopes =
-    Array.isArray(body?.scopes) && body!.scopes.length > 0 ? body!.scopes : ["news:read"];
+    Array.isArray(body?.scopes) && body!.scopes.length > 0 ? body!.scopes : ["reports:read"];
   if (!scopes.every((s) => VALID_SCOPES.has(s))) {
     return NextResponse.json(
       { error: "invalid_scope", detail: `allowed: ${[...VALID_SCOPES].join(", ")}` },
