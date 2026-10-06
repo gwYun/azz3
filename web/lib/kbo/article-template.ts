@@ -168,7 +168,7 @@ function topPlayerLine(b: ArticleBrief): string {
   return `<p class="fine">팀 내 최고 가치: <strong>${esc(p.name)}</strong>${esc(war)}${esc(metric)}</p>`;
 }
 
-const STYLE = `<style>
+export const ARTICLE_STYLE = `<style>
 .kbo-article{
   --ink:#eef2f7;--ink2:#c3ccd8;--muted:#8a95a5;
   --line:rgba(148,163,184,0.16);--line2:rgba(148,163,184,0.10);
@@ -233,7 +233,7 @@ export function renderArticle(brief: ArticleBrief, prose: ArticleProse): Rendere
     ? `<div class="today"><span class="chip">${esc(brief.yesterday.home ? "홈" : "원정")} vs <b>${esc(brief.yesterday.opp)}</b> · <b>${brief.yesterday.teamScore}–${brief.yesterday.oppScore}</b> ${brief.yesterday.result === "W" ? "승" : brief.yesterday.result === "L" ? "패" : "무"}</span></div>`
     : "";
 
-  const bodyHtml = `${STYLE}
+  const bodyHtml = `${ARTICLE_STYLE}
 <article class="kbo-article">
   <div class="brand">Blinkers · KBO 데일리</div>
   <h1>${esc(title)}</h1>

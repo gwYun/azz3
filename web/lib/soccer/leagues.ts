@@ -14,16 +14,26 @@ export interface LeagueDef {
   ko: string;        // Korean display name
   en: string;        // English display name
   country: string;   // country / region label
+  /** Match model: big-5 have squad-value ratings → hybrid; K League → results only. */
+  model: "hybrid" | "results";
+  /** Table zones the season sim reports (generic "top N / bottom N", not rule claims). */
+  zones: { top: number; bottom: number };
+  /**
+   * Split-season format: after `rounds` league rounds the table splits into a top
+   * and bottom `groupSize` that each play a single round-robin (K League 1:
+   * 33 + 5 = 38). Naver publishes the post-split fixtures only after the split.
+   */
+  split?: { rounds: number; groupSize: number };
 }
 
 export const LEAGUES: LeagueDef[] = [
-  { code: "epl",        upper: "wfootball", ko: "프리미어리그",   en: "Premier League", country: "England" },
-  { code: "primera",    upper: "wfootball", ko: "라리가",         en: "LaLiga",         country: "Spain" },
-  { code: "bundesliga", upper: "wfootball", ko: "분데스리가",     en: "Bundesliga",     country: "Germany" },
-  { code: "seria",      upper: "wfootball", ko: "세리에 A",       en: "Serie A",        country: "Italy" },
-  { code: "ligue1",     upper: "wfootball", ko: "리그 1",         en: "Ligue 1",        country: "France" },
-  { code: "kleague",    upper: "kfootball", ko: "K리그1",         en: "K League 1",     country: "Korea" },
-  { code: "kleague2",   upper: "kfootball", ko: "K리그2",         en: "K League 2",     country: "Korea" },
+  { code: "epl",        upper: "wfootball", ko: "프리미어리그", en: "Premier League", country: "England", model: "hybrid",  zones: { top: 4, bottom: 3 } },
+  { code: "primera",    upper: "wfootball", ko: "라리가",       en: "LaLiga",         country: "Spain",   model: "hybrid",  zones: { top: 4, bottom: 3 } },
+  { code: "bundesliga", upper: "wfootball", ko: "분데스리가",   en: "Bundesliga",     country: "Germany", model: "hybrid",  zones: { top: 4, bottom: 2 } },
+  { code: "seria",      upper: "wfootball", ko: "세리에 A",     en: "Serie A",        country: "Italy",   model: "hybrid",  zones: { top: 4, bottom: 3 } },
+  { code: "ligue1",     upper: "wfootball", ko: "리그 1",       en: "Ligue 1",        country: "France",  model: "hybrid",  zones: { top: 4, bottom: 2 } },
+  { code: "kleague",    upper: "kfootball", ko: "K리그1",       en: "K League 1",     country: "Korea",   model: "results", zones: { top: 4, bottom: 1 }, split: { rounds: 33, groupSize: 6 } },
+  { code: "kleague2",   upper: "kfootball", ko: "K리그2",       en: "K League 2",     country: "Korea",   model: "results", zones: { top: 5, bottom: 1 } },
 ];
 
 export const LEAGUE_CODES = LEAGUES.map((l) => l.code);

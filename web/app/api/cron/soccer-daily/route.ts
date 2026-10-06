@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { runDailyIngest } from "@/lib/soccer/ingest";
+import { runDailyPredictions } from "@/lib/soccer/predictions";
 import { LEAGUE_CODES } from "@/lib/soccer/leagues";
 
 /**
@@ -13,7 +14,10 @@ import { LEAGUE_CODES } from "@/lib/soccer/leagues";
  *
  * Auth: Vercel sends `Authorization: Bearer $CRON_SECRET` on cron invocations;
  * the same header works for a manual trigger (curl with the secret). Query
- * params `?leagues=epl,primera` and `?withPlayers=0` scope a manual run.
+ * params `?leagues=epl,primera`, `?withPlayers=0` and `?predict=0` scope a
+ * manual run. After ingest it refits the match model, freezes pre-kickoff
+ * predictions, and refreshes the season sim (lib/soccer/predictions.ts); the
+ * match reports run separately in /api/cron/soccer-articles.
  *
  * Node runtime + long budget: fetching 7 leagues' full schedules + paginated
  * player feeds takes a while. maxDuration is honored on Fluid-compute plans.
@@ -48,6 +52,20 @@ export async function GET(request: Request) {
 
   try {
     const result = await runDailyIngest(admin, { leagues, trigger, withPlayers });
+
+    // Predictions + season sim from the fresh results. Best-effort: a model
+    // failure is logged in the run detail but never fails the ingest itself.
+    let predictions: Awaited<ReturnType<typeof runDailyPredictions>> | null = null;
+    let predictionsError: string | null = null;
+    if (params.get("predict") !== "0") {
+      try {
+        predictions = await runDailyPredictions(admin, { leagues });
+      } catch (e) {
+        predictionsError = e instanceof Error ? e.message : "unknown";
+        console.error("[soccer-daily] predictions failed:", e);
+      }
+    }
+    result.detail = { ...result.detail, predictions, predictionsError };
 
     if (runId != null) {
       await admin

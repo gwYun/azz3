@@ -9,6 +9,14 @@
     {
       "path": "/api/cron/soccer-daily",
       "schedule": "30 3 * * *"
+    },
+    {
+      "path": "/api/cron/soccer-articles",
+      "schedule": "0 4 * * *"
+    },
+    {
+      "path": "/api/cron/soccer-articles?pass=2",
+      "schedule": "0 5 * * *"
     }
   ]
 }

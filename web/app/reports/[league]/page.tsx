@@ -45,8 +45,17 @@ export default function NewsLeaguePage() {
 
   const [query, setQuery] = useState("");
   const [team, setTeam] = useState<string | null>(null); // null = all clubs
+  const [soccerClubs, setSoccerClubs] = useState<ClubOption[]>([]); // soccer: from the API
+  // Team codes are per league — drop the filter when the league tab changes.
+  useEffect(() => {
+    setTeam(null);
+    setSoccerClubs([]);
+  }, [leagueId]);
 
-  const clubs = useMemo(() => clubsFor(leagueId), [leagueId]);
+  const clubs = useMemo(
+    () => (league?.soccer ? soccerClubs : clubsFor(leagueId)),
+    [league, leagueId, soccerClubs],
+  );
   const filteredClubs = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return clubs;
@@ -57,17 +66,22 @@ export default function NewsLeaguePage() {
   // latest per club (all-clubs view) or a single club's archive when filtered.
   const [posts, setPosts] = useState<NewsCard[] | null>(null);
   useEffect(() => {
-    if (!league?.live || leagueId !== "kbo") {
+    const isSoccer = !!league?.soccer;
+    if (!league?.live || (leagueId !== "kbo" && !isSoccer)) {
       setPosts([]);
       return;
     }
     setPosts(null);
     let active = true;
-    const q = team ? `?team=${team}` : "";
-    fetch(`/api/kbo/articles${q}`, { cache: "no-store" })
+    const url = isSoccer
+      ? `/api/soccer/articles?league=${leagueId}${team ? `&team=${encodeURIComponent(team)}` : ""}`
+      : `/api/kbo/articles${team ? `?team=${team}` : ""}`;
+    fetch(url, { cache: "no-store" })
       .then((r) => r.json())
       .then((j) => {
-        if (active) setPosts((j.cards ?? j.items ?? []) as NewsCard[]);
+        if (!active) return;
+        setPosts((j.cards ?? j.items ?? []) as NewsCard[]);
+        if (isSoccer && Array.isArray(j.clubs) && j.clubs.length) setSoccerClubs(j.clubs as ClubOption[]);
       })
       .catch(() => {
         if (active) setPosts([]);
@@ -154,7 +168,9 @@ export default function NewsLeaguePage() {
                 <p className="text-sm text-fg-muted">
                   {team == null
                     ? t("newshub.feedEmpty")
-                    : t("newshub.teamEmpty", { team: name(TEAM_NAMES[team as keyof typeof TEAM_NAMES]) })}
+                    : t("newshub.teamEmpty", {
+                        team: name(clubs.find((c) => c.code === team) ?? { ko: team, en: team }),
+                      })}
                 </p>
               </div>
             ) : (
@@ -165,7 +181,11 @@ export default function NewsLeaguePage() {
                       <PaidFreeDivider label={t("news.freeDivider")} />
                     )}
                     <Link
-                      href={`/kbo/news/${c.team}/${c.article_date}`}
+                      href={
+                        league.soccer
+                          ? `/reports/${leagueId}/${c.team}/${c.article_date}`
+                          : `/kbo/news/${c.team}/${c.article_date}`
+                      }
                       className="block rounded-2xl border border-line bg-fg/5 p-5 transition hover:border-accent"
                     >
                     <div className="flex items-center justify-between">

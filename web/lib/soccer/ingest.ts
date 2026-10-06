@@ -233,9 +233,10 @@ async function upsert(
 export async function ingestLeague(
   admin: SupabaseClient,
   league: LeagueDef,
-  opts: { withPlayers?: boolean } = {},
+  opts: { withPlayers?: boolean; season?: ResolvedSeason } = {},
 ): Promise<LeagueResult> {
-  const season: ResolvedSeason = await resolveSeason(league);
+  // Default: the live season. The historical backfill passes a past one explicitly.
+  const season: ResolvedSeason = opts.season ?? (await resolveSeason(league));
   const year = season.year;
 
   // 1) Games (full-season window → played + scheduled fixtures, idempotent).
@@ -264,7 +265,8 @@ export async function ingestLeague(
   // 3) Player season stats (paginated for full coverage).
   let playersUpserted = 0;
   if (opts.withPlayers !== false) {
-    const players = await fetchPlayers(league, season.seasonCode);
+    const teamCodes = standings.map((t) => t.teamId).filter((c): c is string => Boolean(c));
+    const players = await fetchPlayers(league, season.seasonCode, teamCodes);
     const playerRows = players
       .map((p) => mapPlayer(p, league.code, year))
       .filter((r): r is NonNullable<typeof r> => r != null);

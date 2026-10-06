@@ -545,6 +545,9 @@ const en = {
   "news.remaining": "{n} games left",
   "news.rank": "#{n}",
   "news.freeDivider": "Free from here",
+  "soccer.points": "{n} pts",
+  "soccer.heroLocked": "Next-match prediction · pre-match forecast check · season table odds",
+  "soccer.paidNote": "Each club's newest match report is paid; older ones open up free.",
 
   // News hub (top-level 뉴스 tab) — multi-league posts explorer
   "nav.news": "Report",
@@ -1091,6 +1094,9 @@ const ko: Record<keyof typeof en, string> = {
   "news.remaining": "잔여 {n}경기",
   "news.rank": "{n}위",
   "news.freeDivider": "여기부터 무료 공개",
+  "soccer.points": "승점 {n}",
+  "soccer.heroLocked": "다음 경기 승부예측 · 지난 경기 예측 검증 · 시즌 순위 확률",
+  "soccer.paidNote": "구단별 최신 매치 리포트 1건은 유료이며, 그 이전 리포트는 무료로 공개됩니다.",
 
   // 뉴스 허브 (최상위 뉴스 탭) — 리그별 게시물 탐색
   "nav.news": "리포트",

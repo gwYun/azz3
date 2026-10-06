@@ -15,13 +15,11 @@
  */
 import type { ArticleBrief, ArticleProse } from "./article-types";
 import { PROSE_KEYS } from "./article-types";
+import { completeJson } from "@/lib/llm-gateway";
 
-const GATEWAY_URL =
-  process.env.AI_GATEWAY_BASE_URL?.replace(/\/$/, "") ?? "https://ai-gateway.vercel.sh/v1";
 // Light model is plenty — the template carries structure + numbers. Swap via env
 // (verify the exact slug in your AI Gateway; a bad slug just triggers the fallback).
 const MODEL = process.env.KBO_ARTICLE_MODEL ?? "anthropic/claude-haiku-4.5";
-const TIMEOUT_MS = 20_000;
 
 const SYSTEM = [
   "당신은 한국 프로야구(KBO) 가을야구 레이스를 심층 분석하는 전문 칼럼니스트입니다.",
@@ -40,15 +38,6 @@ const SYSTEM = [
   "   outlook = 잔여 일정 기준 남은 과제와 전망.",
   "5) 인사말·설명·사과·코드블록(```) 없이 JSON 객체 하나만 출력하세요.",
 ].join("\n");
-
-/** Pull a JSON object out of a completion that may be fenced or prefaced. */
-function extractJsonObject(s: string): string | null {
-  const fence = s.match(/```(?:json)?\s*([\s\S]*?)```/i);
-  const body = fence ? fence[1] : s;
-  const start = body.indexOf("{");
-  const end = body.lastIndexOf("}");
-  return start >= 0 && end > start ? body.slice(start, end + 1) : null;
-}
 
 function userPrompt(brief: ArticleBrief): string {
   return [
@@ -78,45 +67,15 @@ function asProse(v: unknown): ArticleProse | null {
 export async function writeArticleProse(
   brief: ArticleBrief,
 ): Promise<{ prose: ArticleProse; model: string }> {
-  const key = process.env.AI_GATEWAY_API_KEY;
-  if (!key) return { prose: fallbackProse(brief), model: "template" };
-
-  const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), TIMEOUT_MS);
   try {
-    const res = await fetch(`${GATEWAY_URL}/chat/completions`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${key}`,
-      },
-      body: JSON.stringify({
-        model: MODEL,
-        temperature: 0.7,
-        max_tokens: 2000,
-        response_format: { type: "json_object" },
-        messages: [
-          { role: "system", content: SYSTEM },
-          { role: "user", content: userPrompt(brief) },
-        ],
-      }),
-      signal: ctrl.signal,
-    });
-    if (!res.ok) throw new Error(`gateway ${res.status}`);
-    const data = (await res.json()) as {
-      choices?: { message?: { content?: string } }[];
-    };
-    const content = data.choices?.[0]?.message?.content;
-    const jsonStr = content ? extractJsonObject(content) : null;
-    if (!jsonStr) throw new Error("no json object in completion");
-    const prose = asProse(JSON.parse(jsonStr));
+    const parsed = await completeJson(MODEL, SYSTEM, userPrompt(brief));
+    if (parsed === null) return { prose: fallbackProse(brief), model: "template" }; // no key
+    const prose = asProse(parsed);
     if (!prose) throw new Error("malformed prose json");
     return { prose, model: MODEL };
   } catch (err) {
     console.error("[kbo-articles] prose fell back to template:", err instanceof Error ? err.message : err);
     return { prose: fallbackProse(brief), model: "template" };
-  } finally {
-    clearTimeout(timer);
   }
 }
 

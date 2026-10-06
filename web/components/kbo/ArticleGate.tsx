@@ -18,11 +18,17 @@ export function ArticleGate({
   date,
   bodyHtml,
   onUnlocked,
+  unlockBody,
+  lockedNote,
 }: {
   team: string;
   date: string;
   bodyHtml: string | null;
   onUnlocked: () => void;
+  /** POST body for /api/unlock; defaults to the KBO daily article shape. */
+  unlockBody?: Record<string, string>;
+  /** What the lock hides (defaults to the KBO wording). */
+  lockedNote?: string;
 }) {
   const t = useT();
   const { show } = useToast();
@@ -40,7 +46,7 @@ export function ArticleGate({
       const res = await fetch("/api/unlock", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ kind: "article", team, date }),
+        body: JSON.stringify(unlockBody ?? { kind: "article", team, date }),
       });
       if (res.status === 402) {
         show(t("credits.needMore"));
@@ -68,7 +74,7 @@ export function ArticleGate({
         🔒
       </div>
       <p className="mt-3 font-display text-lg font-semibold text-fg">{t("credits.locked")}</p>
-      <p className="mt-1 text-sm text-fg-muted">{t("news.heroLocked")}</p>
+      <p className="mt-1 text-sm text-fg-muted">{lockedNote ?? t("news.heroLocked")}</p>
       <div className="mt-5">
         {loading ? null : !signedIn ? (
           <p className="text-sm text-fg-muted">{t("credits.loginToUnlock")}</p>

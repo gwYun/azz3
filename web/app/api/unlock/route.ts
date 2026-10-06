@@ -2,14 +2,17 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import * as repo from "@/lib/pay/pay-repo";
-import { kboProduct, kboArticleProduct, isFreeTeam, type Slot } from "@/lib/credits";
+import { kboProduct, kboArticleProduct, soccerArticleProduct, isFreeTeam, type Slot } from "@/lib/credits";
 import { FRANCHISES } from "@/lib/kbo/franchise";
 import { isArticleLocked } from "@/lib/kbo/article-access";
+import { isSoccerArticleLocked } from "@/lib/soccer/article-access";
+import { getLeague } from "@/lib/soccer/leagues";
 import { isAdminUser } from "@/lib/admin-access";
 
 /**
  * Spend 1 credit to unlock content. Auth required. Two shapes:
  *   { kind: "article", team, date } → one dated daily article
+ *   { kind: "soccer-article", league, team, date } → one soccer match report
  *   { team, slot }                  → one matchup team-slot (legacy)
  *
  * Atomic + idempotent in the DB (spend_credit_for_unlock): already unlocked → no
@@ -48,7 +51,7 @@ export async function POST(request: Request) {
   }
 
   const body = (await request.json().catch(() => null)) as
-    | { kind?: string; team?: string; slot?: string; date?: string }
+    | { kind?: string; league?: string; team?: string; slot?: string; date?: string }
     | null;
 
   // --- Daily article: { kind:"article", team, date } ---
@@ -64,6 +67,24 @@ export async function POST(request: Request) {
       return NextResponse.json({ status: "free" });
     }
     return spend(user.id, kboArticleProduct(team, date));
+  }
+
+  // --- Soccer match report: { kind:"soccer-article", league, team, date } ---
+  if (body?.kind === "soccer-article") {
+    const league = body.league?.trim() ?? "";
+    const team = body.team?.trim() ?? "";
+    const date = body.date?.trim() ?? "";
+    if (!getLeague(league) || !/^[\w-]{1,32}$/.test(team) || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      return NextResponse.json({ error: "invalid_request" }, { status: 400 });
+    }
+    const admin = createAdminClient();
+    const { count } = await admin.from("soccer_articles").select("id", { count: "exact", head: true })
+      .eq("league", league).eq("team", team).eq("article_date", date);
+    if (!count) return NextResponse.json({ error: "not_found" }, { status: 404 });
+    if (!(await isSoccerArticleLocked(admin, league, team, date))) {
+      return NextResponse.json({ status: "free" });
+    }
+    return spend(user.id, soccerArticleProduct(league, team, date));
   }
 
   // --- Legacy matchup: { team, slot } ---

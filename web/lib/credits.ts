@@ -78,6 +78,17 @@ export function isArticleLockedByRank(rankFromNewest: number): boolean {
   return rankFromNewest >= 0 && rankFromNewest < ARTICLE_LOCK_WINDOW;
 }
 
+/**
+ * Soccer match reports use the same time-lock with a 1-article window: only a
+ * team's newest report is paid. Product key per league-team-date, e.g.
+ * "soccer:article:epl:12:2026-10-07".
+ */
+export const SOCCER_ARTICLE_LOCK_WINDOW = 1;
+
+export function soccerArticleProduct(league: string, team: string, date: string): string {
+  return `soccer:article:${league}:${team}:${date}`;
+}
+
 /** True if the reader may see the full body: not locked by age, or owns it. */
 export function isArticleOpen(
   team: string,

@@ -166,23 +166,33 @@ const dash = (yyyymmdd: string) =>
     ? `${yyyymmdd.slice(0, 4)}-${yyyymmdd.slice(4, 6)}-${yyyymmdd.slice(6, 8)}`
     : yyyymmdd;
 
+const toResolved = (s: NaverSeason): ResolvedSeason => ({
+  year: s.year,
+  seasonCode: s.seasonCode,
+  startDate: dash(s.startDate),
+  endDate: dash(s.endDate),
+});
+
+/**
+ * Every season Naver lists for a league (oldest → newest as served; for the
+ * European leagues that is 2023/24 onward). Used by the historical backfill.
+ */
+export async function listSeasons(league: LeagueDef): Promise<(ResolvedSeason & { current: boolean })[]> {
+  const url = `${API}/statistics/categories/${league.code}/seasons`;
+  const result = await getJson<{ seasons?: NaverSeason[] }>(url);
+  return (result.seasons ?? []).map((s) => ({ ...toResolved(s), current: s.isSeason === "Y" }));
+}
+
 /**
  * Resolve a league's current season: the opaque seasonCode the statistics feeds
  * need, plus the [startDate, endDate] window and the start-year we store as
  * `season`. Prefers the isSeason='Y' entry, else the latest listed.
  */
 export async function resolveSeason(league: LeagueDef): Promise<ResolvedSeason> {
-  const url = `${API}/statistics/categories/${league.code}/seasons`;
-  const result = await getJson<{ seasons?: NaverSeason[] }>(url);
-  const seasons = result.seasons ?? [];
+  const seasons = await listSeasons(league);
   if (seasons.length === 0) throw new Error(`no seasons for ${league.code}`);
-  const current = seasons.find((s) => s.isSeason === "Y") ?? seasons[seasons.length - 1];
-  return {
-    year: current.year,
-    seasonCode: current.seasonCode,
-    startDate: dash(current.startDate),
-    endDate: dash(current.endDate),
-  };
+  const { current: _c, ...current } = seasons.find((s) => s.current) ?? seasons[seasons.length - 1];
+  return current;
 }
 
 /** One league's games in a [fromDate, toDate] window (one request, size=500). */
@@ -236,30 +246,37 @@ export async function fetchStandings(
 }
 
 /**
- * Every player's season stats, walking the paginated /players feed (50/page by
- * default; we request 100) until a short/empty page. maxPages bounds a runaway.
+ * Every player's season stats from the /players feed, pulled ONE TEAM AT A TIME.
+ *
+ * Gotchas (probed 2026-10-06):
+ *  - the league-wide feed IGNORES `page` (echoes it back, same rows every page)
+ *    and caps `pageSize` at 500 (600+ → empty). The 500 it returns are NOT the
+ *    top-minutes players: for a finished season they cover only ~45–90% of each
+ *    team's minutes while including ~100 zero-minute rows.
+ *  - `teamCode` (NOT `teamId` — that's silently ignored) filters to one squad,
+ *    and a squad is < 100 rows, so one request per team is the full roster
+ *    (EPL 2025/26 맨유: 34 players, 37,527 of 37,620 team minutes).
+ * Team codes come from the standings feed. A failed team is skipped, not fatal.
  */
 export async function fetchPlayers(
   league: LeagueDef,
   seasonCode: string,
-  { pageSize = 100, maxPages = 30, delayMs = DEFAULT_DELAY_MS }: {
-    pageSize?: number; maxPages?: number; delayMs?: number;
-  } = {},
+  teamCodes: string[],
+  { pageSize = 100, delayMs = DEFAULT_DELAY_MS }: { pageSize?: number; delayMs?: number } = {},
 ): Promise<NaverPlayerRow[]> {
   const byId = new Map<string, NaverPlayerRow>();
-  for (let page = 1; page <= maxPages; page++) {
+  for (const team of teamCodes) {
     const url =
       `${API}/statistics/categories/${league.code}/seasons/${seasonCode}/players` +
-      `?page=${page}&pageSize=${pageSize}`;
-    let rows: NaverPlayerRow[];
+      `?teamCode=${encodeURIComponent(team)}&page=1&pageSize=${pageSize}`;
     try {
       const result = await getJson<{ seasonPlayerStats?: NaverPlayerRow[] }>(url);
-      rows = result.seasonPlayerStats ?? [];
-    } catch {
-      break; // an errored page ends the walk; keep what we have
+      for (const r of result.seasonPlayerStats ?? []) {
+        if (r.playerId && !byId.has(r.playerId)) byId.set(r.playerId, r);
+      }
+    } catch (e) {
+      console.warn(`[soccer] players ${league.code}/${team} failed:`, e instanceof Error ? e.message : e);
     }
-    for (const r of rows) if (r.playerId && !byId.has(r.playerId)) byId.set(r.playerId, r);
-    if (rows.length < pageSize) break; // last page
     await sleep(delayMs);
   }
   return [...byId.values()];
