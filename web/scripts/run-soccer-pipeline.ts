@@ -14,6 +14,7 @@
  *   npx tsx scripts/run-soccer-pipeline.ts                 # predictions + articles, all leagues
  *   npx tsx scripts/run-soccer-pipeline.ts predictions epl,kleague
  *   npx tsx scripts/run-soccer-pipeline.ts articles
+ *   LOOKBACK_DAYS=17 npx tsx scripts/run-soccer-pipeline.ts articles   # e.g. after a break
  */
 import { createAdminClient } from "../lib/supabase/admin";
 import { runDailyPredictions } from "../lib/soccer/predictions";
@@ -27,7 +28,8 @@ async function main() {
     console.log("predictions:", JSON.stringify(await runDailyPredictions(admin, { leagues }), null, 1));
   }
   if (step === "all" || step === "articles") {
-    console.log("articles:", JSON.stringify(await generateSoccerArticles(admin, { leagues, budgetMs: 15 * 60_000, runId: "manual" }), null, 1));
+    console.log("articles:", JSON.stringify(await generateSoccerArticles(admin, { leagues, budgetMs: 15 * 60_000, runId: "manual",
+      lookbackDays: process.env.LOOKBACK_DAYS ? Number(process.env.LOOKBACK_DAYS) : undefined }), null, 1));
   }
 }
 

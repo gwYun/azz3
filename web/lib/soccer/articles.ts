@@ -113,9 +113,10 @@ async function runLeague(
   now: Date,
   deadline: number,
   runId: string | null,
+  lookbackDays: number,
 ): Promise<LeagueArticleResult> {
   const today = kstDate(now);
-  const since = kstDate(now, -LOOKBACK_DAYS);
+  const since = kstDate(now, -lookbackDays);
   const empty = { league: def.code, due: 0, upserted: 0, deferred: 0, models: {} };
 
   const { data: snap } = await admin.from("soccer_sim_snapshots").select("season, payload")
@@ -285,7 +286,7 @@ async function runLeague(
 /** Generate due reports across leagues within a wall-clock budget (ms). */
 export async function generateSoccerArticles(
   admin: SupabaseClient,
-  opts: { leagues?: string[]; now?: Date; budgetMs?: number; runId?: string } = {},
+  opts: { leagues?: string[]; now?: Date; budgetMs?: number; runId?: string; lookbackDays?: number } = {},
 ): Promise<LeagueArticleResult[]> {
   const now = opts.now ?? new Date();
   const deadline = Date.now() + (opts.budgetMs ?? 240_000);
@@ -297,7 +298,7 @@ export async function generateSoccerArticles(
       continue;
     }
     try {
-      out.push(await runLeague(admin, def, now, deadline, opts.runId ?? null));
+      out.push(await runLeague(admin, def, now, deadline, opts.runId ?? null, opts.lookbackDays ?? LOOKBACK_DAYS));
     } catch (e) {
       console.error(`[soccer-articles] ${def.code} failed:`, e);
       out.push({ league: def.code, due: 0, upserted: 0, deferred: 0, models: {}, error: e instanceof Error ? e.message : String(e) });
