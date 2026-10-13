@@ -90,6 +90,62 @@ export function hostOf(round: PostseasonRound, n: number, higher: string, lower:
   return (PATTERN[round][n] ?? "H") === "H" ? higher : lower;
 }
 
+export interface SeriesOutcome {
+  higherWins: number;
+  lowerWins: number;
+  higherAdvances: boolean; // WC: 1-1 means the higher seed advances
+  prob: number; // 0–1
+}
+
+/**
+ * Exact series-score distribution from a fresh series (no simulation): walks
+ * every game path with the round's host pattern. `pHostWins(host, guest)` is
+ * the single-game model. WC: the higher seed needs 1 win, the lower seed 2.
+ */
+export function seriesOutcomes(
+  round: PostseasonRound,
+  higher: string,
+  lower: string,
+  pHostWins: (host: string, guest: string) => number,
+): { outcomes: SeriesOutcome[]; pHigher: number; expectedGames: number; perGame: { gameNo: number; host: string; pHigher: number; pReached: number }[] } {
+  const hNeed = round === "WC" ? 1 : NEED[round];
+  const lNeed = NEED[round];
+  const outcomes = new Map<string, SeriesOutcome>();
+  const reached = new Array<number>(PATTERN[round].length).fill(0);
+  let expectedGames = 0;
+  const walk = (hw: number, lw: number, n: number, p: number) => {
+    if (hw >= hNeed || lw >= lNeed) {
+      const k = `${hw}-${lw}`;
+      const o = outcomes.get(k) ?? { higherWins: hw, lowerWins: lw, higherAdvances: hw >= hNeed, prob: 0 };
+      o.prob += p;
+      outcomes.set(k, o);
+      expectedGames += p * n;
+      return;
+    }
+    reached[n] += p;
+    const host = hostOf(round, n, higher, lower);
+    const guest = host === higher ? lower : higher;
+    const ph = pHostWins(host, guest);
+    const pHi = host === higher ? ph : 1 - ph;
+    walk(hw + 1, lw, n + 1, p * pHi);
+    walk(hw, lw + 1, n + 1, p * (1 - pHi));
+  };
+  walk(0, 0, 0, 1);
+  const list = [...outcomes.values()].sort((a, b) => b.prob - a.prob);
+  const perGame = PATTERN[round].map((_, n) => {
+    const host = hostOf(round, n, higher, lower);
+    const guest = host === higher ? lower : higher;
+    const ph = pHostWins(host, guest);
+    return { gameNo: n + 1, host, pHigher: host === higher ? ph : 1 - ph, pReached: reached[n] };
+  });
+  return {
+    outcomes: list,
+    pHigher: list.filter((o) => o.higherAdvances).reduce((a, o) => a + o.prob, 0),
+    expectedGames,
+    perGame,
+  };
+}
+
 /** Series states from the seeds + finished postseason games (decisive ones count). */
 export function seriesStates(seeds: string[], games: PsGame[]): SeriesState[] {
   const [s1, s2, s3, s4, s5] = seeds;

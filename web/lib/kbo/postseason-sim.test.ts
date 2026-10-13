@@ -86,3 +86,29 @@ describe("josa", () => {
     expect(josa("한국시리즈", "을/를")).toBe("한국시리즈를");
   });
 });
+
+describe("exact series outcomes", () => {
+  it("WC: three paths that sum to 1 and match 1 − (1 − p)²", async () => {
+    const { seriesOutcomes } = await import("./postseason-sim");
+    const so = seriesOutcomes("WC", "LG", "OB", () => 0.55);
+    expect(so.outcomes).toHaveLength(3); // LG 1-0, LG 1-1, OB 2-0
+    expect(so.outcomes.reduce((a, o) => a + o.prob, 0)).toBeCloseTo(1, 12);
+    expect(so.pHigher).toBeCloseTo(1 - 0.45 ** 2, 12);
+    expect(so.perGame[1].pReached).toBeCloseTo(0.45, 12); // G2 only if OB wins G1
+  });
+  it("best-of-5 at a coin flip is 50/50 with 3-0 … 3-2 paths", async () => {
+    const { seriesOutcomes } = await import("./postseason-sim");
+    const so = seriesOutcomes("SPO", "HT", "LG", () => 0.5);
+    expect(so.pHigher).toBeCloseTo(0.5, 12);
+    expect(so.outcomes).toHaveLength(6);
+    expect(so.expectedGames).toBeCloseTo(4.125, 12);
+  });
+});
+
+describe("WC outcome labels", () => {
+  it("a 1-1 wild card is the higher seed advancing", async () => {
+    const { seriesOutcomes } = await import("./postseason-sim");
+    const tie = seriesOutcomes("WC", "LG", "OB", () => 0.5).outcomes.find((o) => o.higherWins === 1 && o.lowerWins === 1)!;
+    expect(tie.higherAdvances).toBe(true);
+  });
+});

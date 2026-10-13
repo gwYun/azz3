@@ -18,6 +18,8 @@ import { gameWinProb, hostOf, simulatePostseason, type PsGame, type PsResult } f
 import { expectedRuns } from "./season-sim";
 import { ARTICLE_STYLE } from "./article-template";
 import { completeJson } from "@/lib/llm-gateway";
+import { josa } from "./josa";
+import { buildRoundPreviewBrief, renderRoundPreview, writeRoundPreviewProse, type RoundSide } from "./postseason-preview";
 
 const MODEL = process.env.KBO_ARTICLE_MODEL ?? "anthropic/claude-haiku-4.5";
 const SIMS = 40000;
@@ -31,23 +33,6 @@ const FORMAT_KO: Record<PostseasonRound, string> = {
 
 const ko = (c: string) => TEAM_NAMES[c as Franchise]?.ko ?? c;
 
-/** Korean particle by the last syllable's final consonant (받침): 은/는, 이/가, 을/를, 으로/로. */
-export function josa(word: string, pair: "은/는" | "이/가" | "을/를" | "으로/로"): string {
-  const ch = word.trim().slice(-1);
-  const code = ch.charCodeAt(0) - 0xac00;
-  let batchim: boolean;
-  let rieul = false;
-  if (code >= 0 && code <= 11171) {
-    const jong = code % 28;
-    batchim = jong !== 0;
-    rieul = jong === 8;
-  } else {
-    batchim = /[0-9LMNlmn136780]$/.test(ch); // digits/latin read aloud: 일·삼·육·칠·팔·영, 엘·엠·엔
-  }
-  const [withB, without] = pair.split("/");
-  if (pair === "으로/로") return word + (batchim && !rieul ? withB : without);
-  return word + (batchim ? withB : without);
-}
 
 // --------------------------------------------------------------------------- //
 // Brief shapes.                                                               //
@@ -363,6 +348,50 @@ export async function generatePostseasonArticles(
 
   const rows = [];
   const models: Record<string, number> = {};
+
+  // Round previews: the morning BEFORE a round's first game, once both sides are known.
+  const { data: pvData } = await admin.from("kbo_postseason_articles").select("round")
+    .eq("season", season).eq("brief->>kind", "round-preview");
+  const previewed = new Set(((pvData ?? []) as { round: string }[]).map((r) => r.round));
+  const regular = all.filter((g) => !postseasonRound(g.game_id));
+  const sideOf = (c: string): RoundSide => {
+    const st = standings[c];
+    return {
+      code: c, ko: ko(c), seed: seeds.indexOf(c) + 1, record: ratings[c].record,
+      off: st.offRating, def: st.defRating, runsFor: st.rsRate, runsAgainst: st.raRate,
+    };
+  };
+  for (const s of sim.series) {
+    if (!s.higher || !s.lower || s.winner || s.gamesPlayed > 0 || previewed.has(s.round)) continue;
+    const dates = post
+      .filter((g) => postseasonRound(g.game_id) === s.round && !g.cancel && g.game_date)
+      .map((g) => g.game_date!)
+      .sort();
+    if (!dates.length || dates[0] <= today) continue; // starts today/unscheduled → the game-day report covers it
+    const h2h = { higherWins: 0, lowerWins: 0, ties: 0 };
+    for (const g of regular) {
+      if (g.status !== "RESULT" || g.home_score == null || g.away_score == null) continue;
+      const pair = [g.home_team, g.away_team];
+      if (!pair.includes(s.higher) || !pair.includes(s.lower)) continue;
+      const hiScore = g.home_team === s.higher ? g.home_score : g.away_score;
+      const loScore = g.home_team === s.higher ? g.away_score : g.home_score;
+      if (hiScore > loScore) h2h.higherWins++; else if (loScore > hiScore) h2h.lowerWins++; else h2h.ties++;
+    }
+    const brief = buildRoundPreviewBrief({
+      season, date: today, round: s.round, higher: sideOf(s.higher), lower: sideOf(s.lower), seeds,
+      pHostWins: (host, guest) => gameWinProb(rateOf.get(host)!, rateOf.get(guest)!, lgRg),
+      gameDates: [...new Set(dates)], h2h, teams: teams.map(({ alive: _a, ...t }) => t),
+    });
+    const { prose, model } = await writeRoundPreviewProse(brief);
+    const r = renderRoundPreview(brief, prose);
+    models[model] = (models[model] ?? 0) + 1;
+    rows.push({
+      season, round: s.round, article_date: today, higher_team: s.higher, lower_team: s.lower,
+      review_game_id: null, today_game_id: null,
+      title: r.title, dek: r.dek, teaser: r.teaser, body_html: r.bodyHtml, brief, model, run_id: opts.runId ?? null,
+      published_at: new Date().toISOString(), updated_at: new Date().toISOString(),
+    });
+  }
   for (const s of sim.series) {
     if (!s.higher || !s.lower) continue;
     const roundGames = post.filter((g) => postseasonRound(g.game_id) === s.round && !g.cancel);
@@ -423,4 +452,4 @@ export async function generatePostseasonArticles(
 }
 
 // Exposed for tests.
-export { renderPs, hostOf };
+export { renderPs, hostOf, josa };
