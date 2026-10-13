@@ -5,7 +5,7 @@
  * DB (not the client) so it can't be spoofed.
  */
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { ARTICLE_LOCK_WINDOW } from "@/lib/credits";
+import { ARTICLE_LOCK_WINDOW, POSTSEASON_ARTICLE_LOCK_WINDOW } from "@/lib/credits";
 
 /** Count of the team's articles strictly newer than `date` (0 ⇒ it's the latest). */
 export async function newerArticleCount(
@@ -62,4 +62,20 @@ export async function lockedDateSet(
     }
   }
   return locked;
+}
+
+/** Postseason series report time-lock: the newest report of each series is paid. */
+export async function isPostseasonArticleLocked(
+  admin: SupabaseClient,
+  season: number,
+  round: string,
+  date: string,
+): Promise<boolean> {
+  const { count } = await admin
+    .from("kbo_postseason_articles")
+    .select("id", { count: "exact", head: true })
+    .eq("season", season)
+    .eq("round", round)
+    .gt("article_date", date);
+  return (count ?? 0) < POSTSEASON_ARTICLE_LOCK_WINDOW;
 }

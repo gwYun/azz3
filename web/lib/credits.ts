@@ -89,6 +89,16 @@ export function soccerArticleProduct(league: string, team: string, date: string)
   return `soccer:article:${league}:${team}:${date}`;
 }
 
+/**
+ * KBO postseason series reports: newest report per series is paid. Product key
+ * per season-round-date, e.g. "kbo:postseason:2026:WC:2026-10-14".
+ */
+export const POSTSEASON_ARTICLE_LOCK_WINDOW = 1;
+
+export function kboPostseasonProduct(season: number, round: string, date: string): string {
+  return `kbo:postseason:${season}:${round}:${date}`;
+}
+
 /** True if the reader may see the full body: not locked by age, or owns it. */
 export function isArticleOpen(
   team: string,

@@ -21,6 +21,7 @@ import { winProbExact } from "./matchup-sim";
 import { simulateRemaining, type CondTeam } from "./conditional-sim";
 import { writeArticleProse } from "./llm";
 import { renderArticle } from "./article-template";
+import { postseasonRound } from "./postseason-ids";
 import type {
   ArticleBrief,
   ArticleStandings,
@@ -45,7 +46,8 @@ export function kstDateStr(base: Date, offsetDays = 0): string {
   return new Date(ms).toISOString().slice(0, 10);
 }
 
-interface GameRow {
+export interface GameRow {
+  game_id?: string | null;
   game_date: string | null;
   status: string | null;
   stadium: string | null;
@@ -83,7 +85,7 @@ const idx = (code: string): number => FRANCHISES.indexOf(code as Franchise);
  * makes a *backfill* historically accurate instead of stamping today's numbers
  * on every past day.
  */
-function computeStandings(games: GameRow[], season: number, beforeDate: string) {
+export function computeStandings(games: GameRow[], season: number, beforeDate: string) {
   const n = FRANCHISES.length;
   const base = FRANCHISES.map(() => ({ w: 0, l: 0, d: 0, rf: 0, ra: 0, gp: 0 }));
   const playedHome: number[][] = Array.from({ length: n }, () => new Array(n).fill(0));
@@ -91,6 +93,7 @@ function computeStandings(games: GameRow[], season: number, beforeDate: string) 
 
   for (const g of games) {
     if (!g.game_date || g.game_date < start || g.game_date >= beforeDate) continue;
+    if (postseasonRound(g.game_id)) continue; // postseason rows share the season — not standings
     if (g.cancel || g.suspended || g.status !== "RESULT") continue;
     if (g.home_score == null || g.away_score == null) continue;
     const hi = idx(g.home_team ?? "");
@@ -282,10 +285,21 @@ export async function generateDailyArticles(
   // 1) Games → standings + remaining schedule.
   const { data: gamesData, error: gamesErr } = await admin
     .from("kbo_games")
-    .select("game_date, status, stadium, home_team, away_team, home_score, away_score, cancel, suspended")
+    .select("game_id, game_date, status, stadium, home_team, away_team, home_score, away_score, cancel, suspended")
     .eq("season", season);
   if (gamesErr) throw new Error(`articles: read games: ${gamesErr.message}`);
-  const games = (gamesData ?? []) as GameRow[];
+  const allGames = (gamesData ?? []) as GameRow[];
+  // Regular-season daily columns only; the postseason has its own reports.
+  const games = allGames.filter((g) => !postseasonRound(g.game_id));
+
+  // Season over: keep publishing through the morning after the final regular-season
+  // game (final standings), then stop — 100%/0% 가을야구 odds every day are noise.
+  const lastPlayed = games.reduce<string>(
+    (m, g) => (g.status === "RESULT" && g.game_date && g.game_date > m ? g.game_date : m), "");
+  const anyLeft = games.some((g) => g.status === "BEFORE" && !g.cancel && (g.game_date ?? "") >= today);
+  if (lastPlayed && lastPlayed < yesterday && !anyLeft) {
+    return { articlesUpserted: 0, date: today, models: {} };
+  }
 
   const { standings, playedHome, lgRg, gb, leader, cut } = computeStandings(games, season, today);
   const remainingHome = remainingSchedule(playedHome);

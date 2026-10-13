@@ -546,6 +546,7 @@ const en = {
   "news.rank": "#{n}",
   "news.freeDivider": "Free from here",
   "soccer.points": "{n} pts",
+  "postseason.heroLocked": "Today's game prediction · series win odds · title odds",
   "soccer.heroLocked": "Next-match prediction · pre-match forecast check · season table odds",
   "soccer.paidNote": "Each club's newest match report is paid; older ones open up free.",
 
@@ -1095,6 +1096,7 @@ const ko: Record<keyof typeof en, string> = {
   "news.rank": "{n}위",
   "news.freeDivider": "여기부터 무료 공개",
   "soccer.points": "승점 {n}",
+  "postseason.heroLocked": "오늘 경기 승부예측 · 시리즈 승리 확률 · 우승 확률",
   "soccer.heroLocked": "다음 경기 승부예측 · 지난 경기 예측 검증 · 시즌 순위 확률",
   "soccer.paidNote": "구단별 최신 매치 리포트 1건은 유료이며, 그 이전 리포트는 무료로 공개됩니다.",
 

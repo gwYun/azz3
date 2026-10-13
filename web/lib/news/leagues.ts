@@ -7,11 +7,11 @@
  * reports (/api/soccer/articles); `id` is the URL segment (/reports/<id>) and,
  * for soccer, the Naver league code the pipeline keys on.
  */
-export type NewsLeague = { id: string; ko: string; en: string; live: boolean; soccer?: boolean };
+export type NewsLeague = { id: string; ko: string; en: string; live: boolean; soccer?: boolean; postseason?: boolean };
 
 export const NEWS_LEAGUES: NewsLeague[] = [
   { id: "kbo",         ko: "KBO",            en: "KBO",            live: true },
-  { id: "kbo-playoff", ko: "KBO 플레이오프",  en: "KBO Playoffs",   live: false },
+  { id: "kbo-playoff", ko: "KBO 포스트시즌",  en: "KBO Postseason", live: true, postseason: true },
   { id: "epl",         ko: "프리미어리그",    en: "Premier League", live: true, soccer: true },
   { id: "primera",     ko: "라리가",          en: "LaLiga",         live: true, soccer: true },
   { id: "bundesliga",  ko: "분데스리가",      en: "Bundesliga",     live: true, soccer: true },

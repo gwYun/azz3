@@ -6,11 +6,13 @@ import Link from "next/link";
 import { useT } from "@/lib/i18n-context";
 import { ArticleGate } from "@/components/kbo/ArticleGate";
 import type { SoccerTeaser } from "@/lib/soccer/article-types";
+import type { PsTeaser } from "@/lib/kbo/postseason-articles";
 
 /**
- * Soccer match report reader (/reports/<league>/<team>/<date>). Same hard
- * paywall as the KBO reader: the gated route only returns body_html when the
- * report is free-by-age (anything but the team's newest) or owned.
+ * Report reader for soccer match reports (/reports/<league>/<team>/<date>) and
+ * KBO postseason series reports (/reports/kbo-playoff/<round>/<date>). Same
+ * hard paywall as the KBO reader: the gated route only returns body_html when
+ * the report is free-by-age (anything but the newest) or owned.
  */
 type Report = {
   league: string;
@@ -19,7 +21,7 @@ type Report = {
   article_date: string;
   title: string;
   dek: string;
-  teaser: SoccerTeaser | null;
+  teaser: (SoccerTeaser & Partial<PsTeaser>) | (PsTeaser & Partial<SoccerTeaser>) | null;
   locked: boolean;
   owned: boolean;
   body_html: string | null;
@@ -31,13 +33,15 @@ export default function SoccerReportPage() {
   const league = String(params.league);
   const team = String(params.team);
   const date = String(params.date);
+  const isPost = league === "kbo-playoff";
+  const apiUrl = isPost ? `/api/kbo/postseason/article/${team}/${date}` : `/api/soccer/article/${league}/${team}/${date}`;
 
   const [data, setData] = useState<Report | null>(null);
   const [state, setState] = useState<"loading" | "ok" | "error">("loading");
 
   const load = useCallback(async () => {
     try {
-      const res = await fetch(`/api/soccer/article/${league}/${team}/${date}`, { cache: "no-store" });
+      const res = await fetch(apiUrl, { cache: "no-store" });
       if (!res.ok) {
         setState("error");
         return;
@@ -47,7 +51,7 @@ export default function SoccerReportPage() {
     } catch {
       setState("error");
     }
-  }, [league, team, date]);
+  }, [apiUrl]);
 
   useEffect(() => {
     load();
@@ -79,7 +83,14 @@ export default function SoccerReportPage() {
       <h1 className="mt-2 font-display text-3xl font-bold text-fg">{data.title}</h1>
       <p className="mt-2 text-fg-muted">{data.dek}</p>
 
-      {teaser && (
+      {teaser && isPost && (
+        <div className="mt-4 flex flex-wrap gap-2 text-xs">
+          {teaser.seriesLine && <span className={chip}>{teaser.seriesLine}</span>}
+          {teaser.result && <span className={chip}>{teaser.result}</span>}
+          {teaser.today && <span className={chip}>{teaser.today}</span>}
+        </div>
+      )}
+      {teaser && !isPost && teaser.rank != null && (
         <div className="mt-4 flex flex-wrap gap-2 text-xs">
           <span className={chip}>{t("news.rank", { n: String(teaser.rank) })}</span>
           <span className={chip}>
@@ -95,8 +106,8 @@ export default function SoccerReportPage() {
         date={date}
         bodyHtml={data.body_html}
         onUnlocked={load}
-        unlockBody={{ kind: "soccer-article", league, team, date }}
-        lockedNote={t("soccer.heroLocked")}
+        unlockBody={isPost ? { kind: "kbo-postseason-article", round: team, date } : { kind: "soccer-article", league, team, date }}
+        lockedNote={isPost ? t("postseason.heroLocked") : t("soccer.heroLocked")}
       />
     </div>
   );

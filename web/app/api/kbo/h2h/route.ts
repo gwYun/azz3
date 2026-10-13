@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { postseasonRound } from "@/lib/kbo/postseason-ids";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { FRANCHISES } from "@/lib/kbo/franchise";
 
@@ -33,7 +34,10 @@ export async function GET(request: Request) {
     if (error) throw error;
 
     // Drop phantom slots (rain-outs / postponements) — a cancelled game is not a match.
-    const games = (data ?? []).filter((g) => !!g.game_date && !g.cancel && g.status !== "CANCEL");
+    // Regular season only (postseason ids carry a round code, not the year).
+    const games = (data ?? []).filter(
+      (g) => !!g.game_date && !g.cancel && g.status !== "CANCEL" && !postseasonRound(g.game_id),
+    );
     const isPlayed = (g: (typeof games)[number]) =>
       g.status === "RESULT" && g.home_score != null && g.away_score != null;
     // Record from team a's perspective (across both venues), over played games only.

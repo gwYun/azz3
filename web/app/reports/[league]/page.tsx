@@ -28,7 +28,7 @@ type NewsCard = {
 // The club roster for a live league. KBO (and its playoff view) use the 10
 // franchises; soccer rosters arrive with each league's launch.
 function clubsFor(leagueId: string): ClubOption[] {
-  if (leagueId === "kbo" || leagueId === "kbo-playoff") {
+  if (leagueId === "kbo") {
     return FRANCHISES.map((code) => ({ code, ko: TEAM_NAMES[code].ko, en: TEAM_NAMES[code].en }));
   }
   return [];
@@ -53,7 +53,7 @@ export default function NewsLeaguePage() {
   }, [leagueId]);
 
   const clubs = useMemo(
-    () => (league?.soccer ? soccerClubs : clubsFor(leagueId)),
+    () => (league?.soccer || league?.postseason ? soccerClubs : clubsFor(leagueId)),
     [league, leagueId, soccerClubs],
   );
   const filteredClubs = useMemo(() => {
@@ -67,21 +67,25 @@ export default function NewsLeaguePage() {
   const [posts, setPosts] = useState<NewsCard[] | null>(null);
   useEffect(() => {
     const isSoccer = !!league?.soccer;
-    if (!league?.live || (leagueId !== "kbo" && !isSoccer)) {
+    const isPost = !!league?.postseason;
+    if (!league?.live || (leagueId !== "kbo" && !isSoccer && !isPost)) {
       setPosts([]);
       return;
     }
     setPosts(null);
     let active = true;
-    const url = isSoccer
-      ? `/api/soccer/articles?league=${leagueId}${team ? `&team=${encodeURIComponent(team)}` : ""}`
-      : `/api/kbo/articles${team ? `?team=${team}` : ""}`;
+    // Postseason: the "club" filter is a series filter (team = round code).
+    const url = isPost
+      ? `/api/kbo/postseason/articles${team ? `?round=${team}` : ""}`
+      : isSoccer
+        ? `/api/soccer/articles?league=${leagueId}${team ? `&team=${encodeURIComponent(team)}` : ""}`
+        : `/api/kbo/articles${team ? `?team=${team}` : ""}`;
     fetch(url, { cache: "no-store" })
       .then((r) => r.json())
       .then((j) => {
         if (!active) return;
         setPosts((j.cards ?? j.items ?? []) as NewsCard[]);
-        if (isSoccer && Array.isArray(j.clubs) && j.clubs.length) setSoccerClubs(j.clubs as ClubOption[]);
+        if ((isSoccer || isPost) && Array.isArray(j.clubs) && j.clubs.length) setSoccerClubs(j.clubs as ClubOption[]);
       })
       .catch(() => {
         if (active) setPosts([]);
@@ -182,7 +186,7 @@ export default function NewsLeaguePage() {
                     )}
                     <Link
                       href={
-                        league.soccer
+                        league.soccer || league.postseason
                           ? `/reports/${leagueId}/${c.team}/${c.article_date}`
                           : `/kbo/news/${c.team}/${c.article_date}`
                       }

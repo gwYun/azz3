@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { runDailyIngest, CURRENT_SEASON } from "@/lib/kbo/ingest";
 import { generateDailyArticles } from "@/lib/kbo/articles";
+import { generatePostseasonArticles } from "@/lib/kbo/postseason-articles";
 
 /**
  * Nightly KBO refresh — triggered by Vercel Cron (see web/vercel.json).
@@ -65,6 +66,16 @@ export async function GET(request: Request) {
       console.error("[kbo-daily] article generation failed:", e);
     }
 
+    // Postseason series reports (no-op until the first postseason game is listed).
+    let postseason: Awaited<ReturnType<typeof generatePostseasonArticles>> | null = null;
+    let postseasonError: string | null = null;
+    try {
+      postseason = await generatePostseasonArticles(admin, CURRENT_SEASON, { runId: new Date().toISOString() });
+    } catch (e) {
+      postseasonError = e instanceof Error ? e.message : "unknown";
+      console.error("[kbo-daily] postseason reports failed:", e);
+    }
+
     if (runId != null) {
       await admin
         .from("kbo_ingest_runs")
@@ -79,12 +90,14 @@ export async function GET(request: Request) {
             articlesUpserted: articles?.articlesUpserted ?? 0,
             articleModels: articles?.models ?? null,
             articlesError,
+            postseason,
+            postseasonError,
           },
         })
         .eq("id", runId);
     }
 
-    return NextResponse.json({ ok: true, ...result, articles, articlesError });
+    return NextResponse.json({ ok: true, ...result, articles, articlesError, postseason, postseasonError });
   } catch (err) {
     const message = err instanceof Error ? err.message : "unknown error";
     if (runId != null) {
