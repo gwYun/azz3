@@ -98,7 +98,9 @@ export function fitModel(
   asof: string,
   opts: { xi?: number; pen?: number; maxIter?: number } = {},
 ): FitResult {
-  const { xi, pen } = { ...MODEL_SETTINGS[kind], ...opts };
+  // `??`, not spread: an explicit `undefined` option must fall back to the default.
+  const xi = opts.xi ?? MODEL_SETTINGS[kind].xi;
+  const pen = opts.pen ?? MODEL_SETTINGS[kind].pen;
   const teams = [...new Set(games.flatMap((g) => [g.home, g.away]))].sort();
   const idx = new Map(teams.map((t, i) => [t, i]));
   const T = teams.length;

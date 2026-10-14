@@ -122,7 +122,7 @@ describe("soccer report helpers", () => {
 
 const brief: SoccerBrief = {
   league: "epl", leagueKo: "프리미어리그", season: 2026, date: "2026-10-07", team: "1", ko: "아스널<script>",
-  model: "hybrid", zones: { top: 4, bottom: 3 }, remainingFixtures: 330,
+  model: "hybrid", zones: { top: 4, bottom: 3 }, zoneLabels: { top: "상위 4위", bottom: "하위 3위" }, remainingFixtures: 330,
   standings: { rank: 2, played: 7, w: 5, d: 1, l: 1, gf: 14, ga: 6, pts: 16, gapLeader: 2, lastFive: "WWDWL" },
   review: { gameId: "r", date: "2026-10-05", opp: "첼시", oppCode: "2", home: true, teamScore: 2, oppScore: 1, result: "W",
     pred: { win: 55.1, draw: 24.0, loss: 20.9, xgFor: 1.7, xgAgainst: 1.0, topScore: "1-0" }, hit: true },

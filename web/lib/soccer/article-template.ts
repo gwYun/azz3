@@ -120,9 +120,9 @@ function tableBlock(b: SoccerBrief): string {
     })
     .join("");
   return `<div class="tablecard"><table class="race">
-    <thead><tr><th class="c">#</th><th class="l">팀</th><th>경기</th><th>득실</th><th>승점</th><th>상위${b.zones.top}</th><th>하위${b.zones.bottom}</th></tr></thead>
+    <thead><tr><th class="c">#</th><th class="l">팀</th><th>경기</th><th>득실</th><th>승점</th><th>${esc(b.zoneLabels.top)}</th><th>${esc(b.zoneLabels.bottom)}</th></tr></thead>
     <tbody>${rows}</tbody></table></div>
-    <p class="fine">상위${b.zones.top}·하위${b.zones.bottom}: 남은 공개 일정 ${b.remainingFixtures}경기를 2만 회 시뮬레이션해 해당 순위권으로 마칠 확률. 진하게 표시된 행이 ${esc(b.ko)}.</p>`;
+    <p class="fine">${esc(b.zoneLabels.top)}·${esc(b.zoneLabels.bottom)}: 남은 공개 일정 ${b.remainingFixtures}경기를 2만 회 시뮬레이션해 해당 순위권으로 마칠 확률. 진하게 표시된 행이 ${esc(b.ko)}.</p>`;
 }
 
 function outlookBlock(b: SoccerBrief): string {
@@ -133,8 +133,8 @@ function outlookBlock(b: SoccerBrief): string {
     ["득점 · 실점", `${s.gf} · ${s.ga}`],
     ["최근 5경기", s.lastFive ?? "—"],
     ["우승 확률", `${p1(b.sim.title)}%`],
-    [`상위 ${b.zones.top}위 확률`, `${p1(b.sim.top)}%${t(b.sim.trendTop)}`],
-    [`하위 ${b.zones.bottom}위 확률`, `${p1(b.sim.bottom)}%${t(b.sim.trendBottom)}`],
+    [`${b.zoneLabels.top} 확률`, `${p1(b.sim.top)}%${t(b.sim.trendTop)}`],
+    [`${b.zoneLabels.bottom} 확률`, `${p1(b.sim.bottom)}%${t(b.sim.trendBottom)}`],
     ["예상 최종 승점", `${p1(b.sim.expPts)}점`],
   ];
   if (b.value) rows.push(["스쿼드 가치 순위", `리그 ${b.value.of}개 팀 중 ${b.value.rank}위`]);
@@ -154,12 +154,15 @@ function methodology(b: SoccerBrief): string {
   const core =
     b.model === "hybrid"
       ? "각 구단의 <b>시즌 전 스쿼드 가치</b>(밸류트랙 이적료 모델로 평가한 선수 몸값을 시너지 집계한 전력 지수)를 사전 전력으로 두고, 실제 경기 결과로 구단별 전력을 보정하는"
-      : "실제 경기 결과로 구단별 공격·수비력을 추정하는";
+      : b.model === "europe"
+        ? "최근 시즌 UEFA 챔피언스리그·유로파리그·컨퍼런스리그 전 경기 결과로 구단별 공격·수비력을 추정하는"
+        : "실제 경기 결과로 구단별 공격·수비력을 추정하는";
   return `<div class="foot">
     <b>방법론 — 시뮬레이션 기반 예측.</b> ${core} 푸아송 득점 모델(Dixon-Coles 저득점 보정, 최근 경기 가중)로
     경기별 승·무·패 확률과 기대득점을 계산한다. 경기 전 예측은 킥오프 전에 고정 저장되며, 리뷰의 ‘경기 전 예측’은 그 기록이다.
     순위 확률은 현재 승점을 고정한 채 공개된 잔여 일정을 <b>2만 회 몬테카를로</b>로 시뮬레이션한 값이다(동률은 득실차·다득점 순).
     ${b.model === "hybrid" ? "2025/26~2026/27 빅5 리그 2,001경기 사후 검증에서 순위확률점수(RPS) 0.2025(기준선 0.2296)를 기록했다." : ""}
+    ${b.model === "europe" ? "순위 확률은 리그 페이즈(8경기) 기준이다. 2025/26~2026/27 챔피언스리그 216경기 사후 검증에서 RPS 0.1929(기준선 0.2341)를 기록했다." : ""}
     수치는 추정치이며 실제 결과를 보장하지 않는다. 생성 ${esc(b.date)}.
   </div>`;
 }

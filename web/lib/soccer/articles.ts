@@ -234,8 +234,10 @@ async function runLeague(
       const prev = prevSim.get(team);
       const brief: SoccerBrief = {
         league: def.code, leagueKo: def.ko, season, date: today, team, ko: st.name,
-        model: payload.model.startsWith("hybrid") ? "hybrid" : "results",
-        zones: def.zones, remainingFixtures: payload.remainingFixtures,
+        model: payload.model.startsWith("hybrid") ? "hybrid" : payload.model.startsWith("europe") ? "europe" : "results",
+        zones: def.zones,
+        zoneLabels: def.zoneLabels ?? { top: `상위 ${def.zones.top}위`, bottom: `하위 ${def.zones.bottom}위` },
+        remainingFixtures: payload.remainingFixtures,
         standings: {
           rank: st.rank, played: st.played, w: st.w, d: st.d, l: st.l, gf: st.gf, ga: st.ga, pts: st.pts,
           gapLeader: leaderPts - st.pts, lastFive: nv?.last_five ?? null,
@@ -290,7 +292,9 @@ export async function generateSoccerArticles(
 ): Promise<LeagueArticleResult[]> {
   const now = opts.now ?? new Date();
   const deadline = Date.now() + (opts.budgetMs ?? 240_000);
-  const defs = (opts.leagues?.length ? opts.leagues.map(getLeague) : LEAGUES).filter((d): d is LeagueDef => !!d);
+  // Training-only competitions (UEL/UECL) are ingested but never predicted or reported.
+  const defs = (opts.leagues?.length ? opts.leagues.map(getLeague) : LEAGUES)
+    .filter((d): d is LeagueDef => !!d && d.reports !== false);
   const out: LeagueArticleResult[] = [];
   for (const def of defs) {
     if (Date.now() >= deadline) {

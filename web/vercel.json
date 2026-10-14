@@ -7,15 +7,19 @@
       "schedule": "0 20 * * *"
     },
     {
-      "path": "/api/cron/soccer-daily",
+      "path": "/api/cron/soccer-daily/big5",
       "schedule": "30 3 * * *"
+    },
+    {
+      "path": "/api/cron/soccer-daily/rest",
+      "schedule": "45 3 * * *"
     },
     {
       "path": "/api/cron/soccer-articles",
       "schedule": "0 4 * * *"
     },
     {
-      "path": "/api/cron/soccer-articles?pass=2",
+      "path": "/api/cron/soccer-articles",
       "schedule": "0 5 * * *"
     }
   ]

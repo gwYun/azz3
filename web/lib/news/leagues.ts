@@ -19,6 +19,7 @@ export const NEWS_LEAGUES: NewsLeague[] = [
   { id: "ligue1",      ko: "리그 1",          en: "Ligue 1",        live: true, soccer: true },
   { id: "kleague",     ko: "K리그1",          en: "K League 1",     live: true, soccer: true },
   { id: "kleague2",    ko: "K리그2",          en: "K League 2",     live: true, soccer: true },
+  { id: "champs",      ko: "챔피언스리그",    en: "Champions League", live: true, soccer: true },
 ];
 
 /** URL paths of every report sub-tab — the nav uses these to mark the section active. */

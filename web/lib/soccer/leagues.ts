@@ -14,8 +14,11 @@ export interface LeagueDef {
   ko: string;        // Korean display name
   en: string;        // English display name
   country: string;   // country / region label
-  /** Match model: big-5 have squad-value ratings → hybrid; K League → results only. */
-  model: "hybrid" | "results";
+  /**
+   * Match model: big-5 have squad-value ratings → hybrid; K League → results only;
+   * UEFA club competitions → europe (results model pooled over UCL + UEL + UECL).
+   */
+  model: "hybrid" | "results" | "europe";
   /** Table zones the season sim reports (generic "top N / bottom N", not rule claims). */
   zones: { top: number; bottom: number };
   /**
@@ -24,6 +27,14 @@ export interface LeagueDef {
    * 33 + 5 = 38). Naver publishes the post-split fixtures only after the split.
    */
   split?: { rounds: number; groupSize: number };
+  /** Publish per-team reports + appear in the report hub (false = training data only). */
+  reports?: boolean;
+  /** Collect per-team player stats (skip for training-only competitions). */
+  players?: boolean;
+  /** Table-stage games are those before this MM-DD of season+1 (UCL league phase ends in January). */
+  tableUntil?: string;
+  /** Labels for the sim's top / bottom zones (default "상위 N위" / "하위 N위"). */
+  zoneLabels?: { top: string; bottom: string };
 }
 
 export const LEAGUES: LeagueDef[] = [
@@ -34,7 +45,17 @@ export const LEAGUES: LeagueDef[] = [
   { code: "ligue1",     upper: "wfootball", ko: "리그 1",       en: "Ligue 1",        country: "France",  model: "hybrid",  zones: { top: 4, bottom: 2 } },
   { code: "kleague",    upper: "kfootball", ko: "K리그1",       en: "K League 1",     country: "Korea",   model: "results", zones: { top: 4, bottom: 1 }, split: { rounds: 33, groupSize: 6 } },
   { code: "kleague2",   upper: "kfootball", ko: "K리그2",       en: "K League 2",     country: "Korea",   model: "results", zones: { top: 5, bottom: 1 } },
+  { code: "champs",     upper: "wfootball", ko: "UEFA 챔피언스리그", en: "UEFA Champions League", country: "Europe", model: "europe",
+    zones: { top: 8, bottom: 12 }, tableUntil: "02-01", zoneLabels: { top: "16강 직행(1~8위)", bottom: "탈락(25~36위)" } },
+  // Training data for the europe model only; no reports, no player pulls.
+  { code: "europa",     upper: "wfootball", ko: "UEFA 유로파리그", en: "UEFA Europa League", country: "Europe", model: "europe",
+    zones: { top: 8, bottom: 12 }, reports: false, players: false },
+  { code: "uecl",       upper: "wfootball", ko: "UEFA 컨퍼런스리그", en: "UEFA Conference League", country: "Europe", model: "europe",
+    zones: { top: 8, bottom: 12 }, reports: false, players: false },
 ];
+
+/** European club competitions pooled by the europe model. */
+export const EUROPE_CODES = ["champs", "europa", "uecl"];
 
 export const LEAGUE_CODES = LEAGUES.map((l) => l.code);
 

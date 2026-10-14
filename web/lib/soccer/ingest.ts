@@ -264,7 +264,7 @@ export async function ingestLeague(
 
   // 3) Player season stats (paginated for full coverage).
   let playersUpserted = 0;
-  if (opts.withPlayers !== false) {
+  if (opts.withPlayers !== false && league.players !== false) {
     const teamCodes = standings.map((t) => t.teamId).filter((c): c is string => Boolean(c));
     const players = await fetchPlayers(league, season.seasonCode, teamCodes);
     const playerRows = players

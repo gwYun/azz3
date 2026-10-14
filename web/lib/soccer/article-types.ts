@@ -96,8 +96,10 @@ export interface SoccerBrief {
   date: string; // KST publish date
   team: string;
   ko: string;
-  model: "hybrid" | "results";
+  model: "hybrid" | "results" | "europe";
   zones: { top: number; bottom: number };
+  /** Zone names, e.g. "16강 직행(1~8위)" (default: 상위 N위 / 하위 N위). */
+  zoneLabels: { top: string; bottom: string };
   remainingFixtures: number;
   standings: SoccerStanding;
   review: SoccerReview;

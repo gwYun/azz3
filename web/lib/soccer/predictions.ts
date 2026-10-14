@@ -11,7 +11,7 @@
  *   3) Monte-Carlo the rest of the season → soccer_sim_snapshots (kind 'season').
  */
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { LEAGUES, getLeague, type LeagueDef } from "./leagues";
+import { EUROPE_CODES, LEAGUES, getLeague, type LeagueDef } from "./leagues";
 import { fitModel, lambdas, outcomeProbs, type FitResult, type TrainGame } from "./match-model";
 import { buildTable, rankTable, simulateSeason } from "./season-sim";
 
@@ -87,12 +87,34 @@ export interface LeagueModel {
   rating: (season: number, team: string) => number;
 }
 
+/**
+ * UEFA competitions: one results model over every UCL/UEL/UECL game of the last
+ * seasons (no domestic games, no squad-value term). Picked by walk-forward
+ * backtest on 216 UCL games (2025/26 + 2026/27 to date), RPS: European-only
+ * results 0.1929 · UCL-only 0.1969 · joint domestic+European with league
+ * offsets 0.1936–0.1997 · base rate 0.2341. Pooling the three competitions
+ * gives every club more European games without mixing in domestic scoring
+ * environments that did not transfer.
+ */
+async function fitEurope(admin: SupabaseClient, def: LeagueDef, asof: string, season: number): Promise<LeagueModel | null> {
+  const minSeason = season - HISTORY_SEASONS;
+  const byLeague = new Map<string, GameRow[]>();
+  for (const code of EUROPE_CODES) byLeague.set(code, await loadLeagueGames(admin, code, minSeason));
+  const rating = () => 0;
+  const train: TrainGame[] = [...byLeague.values()].flat()
+    .filter((g) => g.status === "RESULT" && !g.cancel && g.home_score != null && g.away_score != null && g.game_date < asof)
+    .map((g) => ({ home: g.home_team, away: g.away_team, hs: g.home_score!, as: g.away_score!, date: g.game_date, rHome: 0, rAway: 0 }));
+  if (train.length < 50) return null;
+  return { def, season, fit: fitModel(train, "results", asof), games: byLeague.get(def.code) ?? [], rating };
+}
+
 /** Fit one league as of `asof` (KST date): history + current season, finished games only. */
 export async function fitLeague(admin: SupabaseClient, def: LeagueDef, asof: string): Promise<LeagueModel | null> {
   const recent = await admin.from("soccer_games").select("season").eq("league", def.code)
     .order("season", { ascending: false }).limit(1).maybeSingle();
   const season = recent.data?.season as number | undefined;
   if (season == null) return null;
+  if (def.model === "europe") return fitEurope(admin, def, asof, season);
   const games = await loadLeagueGames(admin, def.code, season - HISTORY_SEASONS);
   const ratings = def.model === "hybrid" ? await loadRatings(admin, def.code) : new Map<string, number>();
   const rating = (s: number, t: string) => ratings.get(`${s}|${t}`) ?? 0;
@@ -136,7 +158,7 @@ async function runLeague(admin: SupabaseClient, def: LeagueDef, now: Date): Prom
     return {
       game_id: g.game_id, league: def.code, season: g.season, game_date: g.game_date,
       kickoff: new Date(kickoffMs(g)).toISOString(), home_team: g.home_team, away_team: g.away_team,
-      model: `${m.fit.kind}-${MODEL_VERSION}`,
+      model: `${def.model === "europe" ? "europe" : m.fit.kind}-${MODEL_VERSION}`,
       p_home: Number(p.pHome.toFixed(4)), p_draw: Number(p.pDraw.toFixed(4)), p_away: Number(p.pAway.toFixed(4)),
       xg_home: Number(p.lh.toFixed(3)), xg_away: Number(p.la.toFixed(3)), top_score: p.topScore,
       predicted_at: now.toISOString(),
@@ -147,17 +169,20 @@ async function runLeague(admin: SupabaseClient, def: LeagueDef, now: Date): Prom
     if (error) throw new Error(`predictions upsert: ${error.message}`);
   }
 
-  // 3) Season sim over the remaining published fixtures.
-  const teams = [...new Set(cur.flatMap((g) => [g.home_team, g.away_team]))];
+  // 3) Season sim over the remaining published fixtures (table stage only — the
+  // UCL league phase ends in January; knockout ties are not table games).
+  const tableEnd = def.tableUntil ? `${m.season + 1}-${def.tableUntil}` : "9999-12-31";
+  const stage = cur.filter((g) => g.game_date < tableEnd);
+  const teams = [...new Set(stage.flatMap((g) => [g.home_team, g.away_team]))];
   const names = new Map<string, string>();
   for (const g of cur) {
     if (g.home_name) names.set(g.home_team, g.home_name);
     if (g.away_name) names.set(g.away_team, g.away_name);
   }
-  const done = cur.filter((g) => g.status === "RESULT" && g.home_score != null && g.away_score != null)
+  const done = stage.filter((g) => g.status === "RESULT" && g.home_score != null && g.away_score != null)
     .map((g) => ({ home: g.home_team, away: g.away_team, hs: g.home_score!, as: g.away_score! }));
   const table = buildTable(teams, done);
-  const remaining = cur.filter((g) => g.status === "BEFORE" && !g.cancel).map((g) => {
+  const remaining = stage.filter((g) => g.status === "BEFORE" && !g.cancel).map((g) => {
     const p = predictGame(m, g);
     return { home: g.home_team, away: g.away_team, lh: p.lh, la: p.la };
   });
@@ -179,7 +204,7 @@ async function runLeague(admin: SupabaseClient, def: LeagueDef, now: Date): Prom
   const payload = {
     generatedAt: now.toISOString(),
     asof,
-    model: `${m.fit.kind}-${MODEL_VERSION}`,
+    model: `${def.model === "europe" ? "europe" : m.fit.kind}-${MODEL_VERSION}`,
     sims: SIM_DRAWS,
     zones: def.zones,
     remainingFixtures: remaining.length,
@@ -207,7 +232,9 @@ export async function runDailyPredictions(
   opts: { leagues?: string[]; now?: Date } = {},
 ): Promise<PredictionResult[]> {
   const now = opts.now ?? new Date();
-  const defs = (opts.leagues?.length ? opts.leagues.map(getLeague) : LEAGUES).filter((d): d is LeagueDef => !!d);
+  // Training-only competitions (UEL/UECL) are ingested but never predicted or reported.
+  const defs = (opts.leagues?.length ? opts.leagues.map(getLeague) : LEAGUES)
+    .filter((d): d is LeagueDef => !!d && d.reports !== false);
   const out: PredictionResult[] = [];
   for (const def of defs) {
     try {

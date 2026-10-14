@@ -25,7 +25,7 @@ const SYSTEM = [
   "   lede = 지난 경기 결과와 현재 위치 요약.",
   "   recap = 지난 경기의 결과와 의미, 경기 전 예측 대비 평가.",
   "   preview = 다음 상대·홈원정·모델의 승무패 확률과 기대득점, 상대의 순위·최근 흐름.",
-  "   table = table과 sim 근거로 순위 경쟁 구도(상위권/하위권 확률과 직전 리포트 대비 추세).",
+  "   table = table과 sim 근거로 순위 경쟁 구도(zoneLabels의 이름 그대로 상위권/하위권 확률과 직전 리포트 대비 추세).",
   "   outlook = 남은 시즌 과제와 전망(스쿼드 가치 순위가 있으면 활용).",
   "6) 인사말·설명·코드블록 없이 JSON 객체 하나만 출력하세요.",
 ].join("\n");
@@ -80,7 +80,7 @@ export function fallbackSoccerProse(b: SoccerBrief): SoccerProse {
 
   const trend =
     b.sim.trendTop == null ? "" : b.sim.trendTop > 0 ? " 직전 리포트보다 상승했다." : b.sim.trendTop < 0 ? " 직전 리포트보다 하락했다." : "";
-  const table = `시즌 시뮬레이션에서 ${b.ko}가 상위 ${b.zones.top}위 안에서 시즌을 마칠 확률은 ${b.sim.top.toFixed(1)}%다.${trend} 하위 ${b.zones.bottom}위로 마칠 확률은 ${b.sim.bottom.toFixed(1)}%로 집계됐다.`;
+  const table = `시즌 시뮬레이션에서 ${b.ko}의 ${b.zoneLabels.top} 확률은 ${b.sim.top.toFixed(1)}%다.${trend} ${b.zoneLabels.bottom} 확률은 ${b.sim.bottom.toFixed(1)}%로 집계됐다.`;
 
   const outlook = `남은 공개 일정 ${b.remainingFixtures}경기를 반영한 예상 최종 승점은 ${b.sim.expPts.toFixed(1)}점이다. 1위와의 승점 차는 ${s.gapLeader}점이며, 남은 경기 결과에 따라 확률은 크게 움직일 수 있다.`;
 
