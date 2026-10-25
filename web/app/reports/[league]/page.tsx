@@ -7,6 +7,8 @@ import { useI18n, useT } from "@/lib/i18n-context";
 import { getNewsLeague } from "@/lib/news/leagues";
 import { FRANCHISES, TEAM_NAMES } from "@/lib/kbo/franchise";
 import { PaidFreeDivider } from "@/components/kbo/PaidFreeDivider";
+import { ReportSortTabs } from "@/components/reports/ReportSortTabs";
+import { DEFAULT_REPORT_SORT, sortReports, type ReportSort } from "@/lib/reports/sort";
 
 /**
  * Report sub-tab page — one per league (/reports/kbo, /reports/epl, …). The live league
@@ -24,6 +26,7 @@ type NewsCard = {
   dek: string;
   locked: boolean;
   reply_count?: number;
+  view_count?: number;
 };
 
 // The club roster for a live league. KBO (and its playoff view) use the 10
@@ -65,7 +68,9 @@ export default function NewsLeaguePage() {
 
   // Article feed — for the live KBO league, pull the real daily articles: the
   // latest per club (all-clubs view) or a single club's archive when filtered.
-  const [posts, setPosts] = useState<NewsCard[] | null>(null);
+  const [rawPosts, setPosts] = useState<NewsCard[] | null>(null);
+  const [sort, setSort] = useState<ReportSort>(DEFAULT_REPORT_SORT);
+  const posts = useMemo(() => (rawPosts ? sortReports(rawPosts, sort) : null), [rawPosts, sort]);
   useEffect(() => {
     const isSoccer = !!league?.soccer;
     const isPost = !!league?.postseason;
@@ -97,7 +102,8 @@ export default function NewsLeaguePage() {
   }, [league, leagueId, team]);
 
   // Index of the first free (older) article — the paid→free boundary for the divider.
-  const firstFreeIdx = posts ? posts.findIndex((p) => !p.locked) : -1;
+  // Only meaningful in date order.
+  const firstFreeIdx = posts && sort === "latest" ? posts.findIndex((p) => !p.locked) : -1;
 
   if (!league) notFound();
 
@@ -165,7 +171,10 @@ export default function NewsLeaguePage() {
 
           {/* Article feed — the real daily columns from /api/kbo/articles */}
           <section className="mt-8">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-fg-dim">{t("newshub.articles")}</h2>
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="text-sm font-semibold uppercase tracking-wide text-fg-dim">{t("newshub.articles")}</h2>
+              <ReportSortTabs value={sort} onChange={setSort} />
+            </div>
             {posts == null ? (
               <div className="mt-3 py-10 text-center text-fg-dim">{t("loading")}</div>
             ) : posts.length === 0 ? (
@@ -204,11 +213,16 @@ export default function NewsLeaguePage() {
                         {c.locked ? t("news.badge.paid") : t("news.badge.free")}
                       </span>
                     </div>
-                    <p className="mt-2 text-sm font-medium text-fg">{c.title}</p>
+                    <p className="mt-2 text-sm font-medium text-fg">
+                      {c.title}
+                      <span className="ml-1.5 whitespace-nowrap text-xs font-semibold text-accent">
+                        {t("replies.count", { n: String(c.reply_count ?? 0) })}
+                      </span>
+                    </p>
                     <p className="mt-1 line-clamp-2 text-xs text-fg-muted">{c.dek}</p>
                     <div className="mt-3 text-xs font-semibold text-accent">
                       {c.article_date} ·{" "}
-                      <span className="font-normal text-fg-dim">{t("replies.count", { n: String(c.reply_count ?? 0) })}</span>
+                      <span className="font-normal text-fg-dim">{t("reports.views", { n: String(c.view_count ?? 0) })}</span>
                       {" · "}
                       {t("news.read")} →
                     </div>

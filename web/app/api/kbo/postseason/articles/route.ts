@@ -3,7 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { CURRENT_SEASON } from "@/lib/kbo/ingest";
 import { ROUND_KO, type PostseasonRound } from "@/lib/kbo/postseason-ids";
 import { POSTSEASON_ARTICLE_LOCK_WINDOW } from "@/lib/credits";
-import { selectWithReplyCount } from "@/lib/reports/reply-count";
+import { selectWithReportStats } from "@/lib/reports/report-stats";
 
 /**
  * Public KBO postseason report index — PUBLIC fields only (never body_html).
@@ -14,7 +14,7 @@ import { selectWithReplyCount } from "@/lib/reports/reply-count";
 export const revalidate = 300;
 
 const ROUNDS = Object.keys(ROUND_KO) as PostseasonRound[];
-type Row = { round: PostseasonRound; article_date: string; title: string; dek: string; teaser: unknown; reply_count?: number | null };
+type Row = { round: PostseasonRound; article_date: string; title: string; dek: string; teaser: unknown; reply_count?: number | null; view_count?: number | null };
 
 export async function GET(request: Request) {
   const round = new URL(request.url).searchParams.get("round");
@@ -23,7 +23,7 @@ export async function GET(request: Request) {
   }
   const admin = createAdminClient();
   try {
-    const { data, error } = await selectWithReplyCount("round, article_date, title, dek, teaser", (cols) => {
+    const { data, error } = await selectWithReportStats("round, article_date, title, dek, teaser", (cols) => {
       const q = admin.from("kbo_postseason_articles").select(cols)
         .eq("season", CURRENT_SEASON).order("article_date", { ascending: false }).limit(100);
       return round ? q.eq("round", round) : q;
@@ -31,7 +31,7 @@ export async function GET(request: Request) {
     if (error) throw error;
     const rows = (data ?? []) as unknown as Row[];
     const card = (r: Row, locked: boolean) => ({
-      team: r.round, ko: ROUND_KO[r.round], article_date: r.article_date, title: r.title, dek: r.dek, teaser: r.teaser, locked, reply_count: r.reply_count ?? 0,
+      team: r.round, ko: ROUND_KO[r.round], article_date: r.article_date, title: r.title, dek: r.dek, teaser: r.teaser, locked, reply_count: r.reply_count ?? 0, view_count: r.view_count ?? 0,
     });
     const present = ROUNDS.filter((r) => rows.some((x) => x.round === r) || round === r);
     const clubs = present.map((r) => ({ code: r, ko: ROUND_KO[r], en: r }));

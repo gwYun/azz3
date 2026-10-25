@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getLeague } from "@/lib/soccer/leagues";
 import { SOCCER_ARTICLE_LOCK_WINDOW } from "@/lib/credits";
-import { selectWithReplyCount } from "@/lib/reports/reply-count";
+import { selectWithReportStats } from "@/lib/reports/report-stats";
 
 /**
  * Public soccer report index — PUBLIC fields only, never body_html (that's the
@@ -13,7 +13,7 @@ import { selectWithReplyCount } from "@/lib/reports/reply-count";
  */
 export const revalidate = 300;
 
-type Row = { team: string; article_date: string; title: string; dek: string; teaser: unknown; reply_count?: number | null };
+type Row = { team: string; article_date: string; title: string; dek: string; teaser: unknown; reply_count?: number | null; view_count?: number | null };
 const COLS = "team, article_date, title, dek, teaser";
 
 export async function GET(request: Request) {
@@ -36,11 +36,11 @@ export async function GET(request: Request) {
     const clubs = snapTeams.map((t) => ({ code: t.team, ko: t.name, en: t.name }));
 
     const card = (r: Row, locked: boolean) => ({
-      team: r.team, ko: nameOf(r.team), article_date: r.article_date, title: r.title, dek: r.dek, teaser: r.teaser, locked, reply_count: r.reply_count ?? 0,
+      team: r.team, ko: nameOf(r.team), article_date: r.article_date, title: r.title, dek: r.dek, teaser: r.teaser, locked, reply_count: r.reply_count ?? 0, view_count: r.view_count ?? 0,
     });
 
     if (team) {
-      const { data, error } = await selectWithReplyCount(COLS, (cols) => admin.from("soccer_articles")
+      const { data, error } = await selectWithReportStats(COLS, (cols) => admin.from("soccer_articles")
         .select(cols)
         .eq("league", league).eq("team", team)
         .order("article_date", { ascending: false }).limit(60));
@@ -49,7 +49,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ league, team, clubs, items });
     }
 
-    const { data, error } = await selectWithReplyCount(COLS, (cols) => admin.from("soccer_articles")
+    const { data, error } = await selectWithReportStats(COLS, (cols) => admin.from("soccer_articles")
       .select(cols)
       .eq("league", league)
       .order("article_date", { ascending: false }).limit(300));

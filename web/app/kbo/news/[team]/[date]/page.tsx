@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useT } from "@/lib/i18n-context";
 import { ArticleGate } from "@/components/kbo/ArticleGate";
 import { ReplyThread } from "@/components/reports/ReplyThread";
+import { useReportView } from "@/lib/reports/useReportView";
 import type { ArticleTeaser } from "@/lib/kbo/article-types";
 
 type Article = {
@@ -25,6 +26,7 @@ export default function ArticlePage() {
   const params = useParams<{ team: string; date: string }>();
   const team = String(params.team);
   const date = String(params.date);
+  useReportView("kbo-daily", team, date);
 
   const [data, setData] = useState<Article | null>(null);
   const [state, setState] = useState<"loading" | "ok" | "error">("loading");

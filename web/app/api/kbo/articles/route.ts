@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { FRANCHISES, TEAM_NAMES, type Franchise } from "@/lib/kbo/franchise";
 import { ARTICLE_LOCK_WINDOW } from "@/lib/credits";
-import { selectWithReplyCount } from "@/lib/reports/reply-count";
+import { selectWithReportStats } from "@/lib/reports/report-stats";
 
 /**
  * Public article index. PUBLIC fields only — never body_html (that's the gated
@@ -26,6 +26,7 @@ type Row = {
   dek: string;
   teaser: unknown;
   reply_count?: number | null;
+  view_count?: number | null;
 };
 
 const withKo = (r: Row, locked: boolean) => ({
@@ -37,6 +38,7 @@ const withKo = (r: Row, locked: boolean) => ({
   teaser: r.teaser,
   locked,
   reply_count: r.reply_count ?? 0,
+  view_count: r.view_count ?? 0,
 });
 
 export async function GET(request: Request) {
@@ -48,7 +50,7 @@ export async function GET(request: Request) {
       if (!isFranchise(team)) {
         return NextResponse.json({ error: "invalid team" }, { status: 400 });
       }
-      const { data, error } = await selectWithReplyCount(COLS, (cols) =>
+      const { data, error } = await selectWithReportStats(COLS, (cols) =>
         admin
           .from("kbo_articles")
           .select(cols)
@@ -63,7 +65,7 @@ export async function GET(request: Request) {
     }
 
     // Front page: latest article per team. Pull recent rows, keep the newest per team.
-    const { data, error } = await selectWithReplyCount(COLS, (cols) =>
+    const { data, error } = await selectWithReportStats(COLS, (cols) =>
       admin
         .from("kbo_articles")
         .select(cols)

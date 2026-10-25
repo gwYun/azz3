@@ -1,10 +1,12 @@
 "use client";
 
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useT } from "@/lib/i18n-context";
 import { PaidFreeDivider } from "@/components/kbo/PaidFreeDivider";
 import type { ArticleTeaser } from "@/lib/kbo/article-types";
+import { ReportSortTabs } from "@/components/reports/ReportSortTabs";
+import { DEFAULT_REPORT_SORT, sortReports, type ReportSort } from "@/lib/reports/sort";
 
 /**
  * KBO Daily front page — the latest article per team. Public teaser + a paid/free
@@ -19,21 +21,25 @@ type Card = {
   teaser: ArticleTeaser | null;
   locked: boolean;
   reply_count?: number;
+  view_count?: number;
 };
 
 export default function NewsIndexPage() {
   const t = useT();
-  const [cards, setCards] = useState<Card[] | null>(null);
+  const [raw, setRaw] = useState<Card[] | null>(null);
+  const [sort, setSort] = useState<ReportSort>(DEFAULT_REPORT_SORT);
+  const cards = useMemo(() => (raw ? sortReports(raw, sort) : null), [raw, sort]);
 
   useEffect(() => {
     fetch("/api/kbo/articles", { cache: "no-store" })
       .then((r) => r.json())
-      .then((j) => setCards((j.cards ?? []) as Card[]))
-      .catch(() => setCards([]));
+      .then((j) => setRaw((j.cards ?? []) as Card[]))
+      .catch(() => setRaw([]));
   }, []);
 
   // Index of the first free (older) card — the paid→free boundary for the divider.
-  const firstFreeIdx = cards ? cards.findIndex((c) => !c.locked) : -1;
+  // Only meaningful in date order.
+  const firstFreeIdx = cards && sort === "latest" ? cards.findIndex((c) => !c.locked) : -1;
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
@@ -47,7 +53,11 @@ export default function NewsIndexPage() {
       ) : cards.length === 0 ? (
         <div className="py-20 text-center text-fg-dim">{t("news.empty")}</div>
       ) : (
-        <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <>
+        <div className="mt-6 flex justify-end">
+          <ReportSortTabs value={sort} onChange={setSort} />
+        </div>
+        <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-3">
           {cards.map((c, i) => (
             <Fragment key={c.team}>
               {i === firstFreeIdx && firstFreeIdx > 0 && (
@@ -67,7 +77,12 @@ export default function NewsIndexPage() {
                   {c.locked ? t("news.badge.paid") : t("news.badge.free")}
                 </span>
               </div>
-              <p className="mt-2 text-sm font-medium text-fg">{c.title}</p>
+              <p className="mt-2 text-sm font-medium text-fg">
+                {c.title}
+                <span className="ml-1.5 whitespace-nowrap text-xs font-semibold text-accent">
+                  {t("replies.count", { n: String(c.reply_count ?? 0) })}
+                </span>
+              </p>
               <p className="mt-1 line-clamp-2 text-xs text-fg-muted">{c.dek}</p>
               {c.teaser && (
                 <div className="mt-3 flex flex-wrap gap-1.5 text-[11px]">
@@ -80,7 +95,7 @@ export default function NewsIndexPage() {
                 </div>
               )}
               <div className="mt-3 text-xs font-semibold text-accent">
-                <span className="font-normal text-fg-dim">{t("replies.count", { n: String(c.reply_count ?? 0) })}</span>
+                <span className="font-normal text-fg-dim">{t("reports.views", { n: String(c.view_count ?? 0) })}</span>
                 {" · "}
                 {t("news.read")} →
               </div>
@@ -88,6 +103,7 @@ export default function NewsIndexPage() {
             </Fragment>
           ))}
         </div>
+        </>
       )}
     </div>
   );

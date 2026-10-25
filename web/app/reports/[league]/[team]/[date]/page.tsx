@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useT } from "@/lib/i18n-context";
 import { ArticleGate } from "@/components/kbo/ArticleGate";
 import { ReplyThread } from "@/components/reports/ReplyThread";
+import { useReportView } from "@/lib/reports/useReportView";
 import type { SoccerTeaser } from "@/lib/soccer/article-types";
 import type { PsTeaser } from "@/lib/kbo/postseason-articles";
 
@@ -35,6 +36,7 @@ export default function SoccerReportPage() {
   const team = String(params.team);
   const date = String(params.date);
   const isPost = league === "kbo-playoff";
+  useReportView(isPost ? "kbo-postseason" : "soccer", team, date, isPost ? undefined : league);
   const apiUrl = isPost ? `/api/kbo/postseason/article/${team}/${date}` : `/api/soccer/article/${league}/${team}/${date}`;
 
   const [data, setData] = useState<Report | null>(null);
