@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { useT } from "@/lib/i18n-context";
 import { ArticleGate } from "@/components/kbo/ArticleGate";
+import { ReplyThread } from "@/components/reports/ReplyThread";
 import type { ArticleTeaser } from "@/lib/kbo/article-types";
 
 type Article = {
@@ -88,6 +89,7 @@ export default function ArticlePage() {
       )}
 
       <ArticleGate team={team} date={date} bodyHtml={data.body_html} onUnlocked={load} />
+      <ReplyThread kind="kbo-daily" team={team} date={date} reloadKey={data.owned} />
     </div>
   );
 }

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { FRANCHISES, TEAM_NAMES, type Franchise } from "@/lib/kbo/franchise";
 import { ARTICLE_LOCK_WINDOW } from "@/lib/credits";
+import { selectWithReplyCount } from "@/lib/reports/reply-count";
 
 /**
  * Public article index. PUBLIC fields only — never body_html (that's the gated
@@ -14,6 +15,7 @@ import { ARTICLE_LOCK_WINDOW } from "@/lib/credits";
 export const revalidate = 300;
 
 const SEASON = 2026;
+const COLS = "team, article_date, title, dek, teaser";
 const isFranchise = (c: string | null): c is Franchise =>
   !!c && (FRANCHISES as readonly string[]).includes(c);
 
@@ -23,6 +25,7 @@ type Row = {
   title: string;
   dek: string;
   teaser: unknown;
+  reply_count?: number | null;
 };
 
 const withKo = (r: Row, locked: boolean) => ({
@@ -33,6 +36,7 @@ const withKo = (r: Row, locked: boolean) => ({
   dek: r.dek,
   teaser: r.teaser,
   locked,
+  reply_count: r.reply_count ?? 0,
 });
 
 export async function GET(request: Request) {
@@ -44,29 +48,33 @@ export async function GET(request: Request) {
       if (!isFranchise(team)) {
         return NextResponse.json({ error: "invalid team" }, { status: 400 });
       }
-      const { data, error } = await admin
-        .from("kbo_articles")
-        .select("team, article_date, title, dek, teaser")
-        .eq("season", SEASON)
-        .eq("team", team)
-        .order("article_date", { ascending: false })
-        .limit(60);
+      const { data, error } = await selectWithReplyCount(COLS, (cols) =>
+        admin
+          .from("kbo_articles")
+          .select(cols)
+          .eq("season", SEASON)
+          .eq("team", team)
+          .order("article_date", { ascending: false })
+          .limit(60),
+      );
       if (error) throw error;
-      const items = (data ?? []).map((r, i) => withKo(r as Row, i < ARTICLE_LOCK_WINDOW));
+      const items = ((data ?? []) as unknown as Row[]).map((r, i) => withKo(r, i < ARTICLE_LOCK_WINDOW));
       return NextResponse.json({ team, ko: TEAM_NAMES[team].ko, items });
     }
 
     // Front page: latest article per team. Pull recent rows, keep the newest per team.
-    const { data, error } = await admin
-      .from("kbo_articles")
-      .select("team, article_date, title, dek, teaser")
-      .eq("season", SEASON)
-      .order("article_date", { ascending: false })
-      .limit(200);
+    const { data, error } = await selectWithReplyCount(COLS, (cols) =>
+      admin
+        .from("kbo_articles")
+        .select(cols)
+        .eq("season", SEASON)
+        .order("article_date", { ascending: false })
+        .limit(200),
+    );
     if (error) throw error;
 
     const latest = new Map<string, Row>();
-    for (const r of (data ?? []) as Row[]) if (!latest.has(r.team)) latest.set(r.team, r);
+    for (const r of (data ?? []) as unknown as Row[]) if (!latest.has(r.team)) latest.set(r.team, r);
     // Its team's newest → always within the lock window → locked.
     const cards = FRANCHISES.filter((c) => latest.has(c)).map((c) => withKo(latest.get(c)!, true));
     return NextResponse.json({ cards });

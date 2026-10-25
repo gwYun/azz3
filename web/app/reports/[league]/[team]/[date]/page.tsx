@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { useT } from "@/lib/i18n-context";
 import { ArticleGate } from "@/components/kbo/ArticleGate";
+import { ReplyThread } from "@/components/reports/ReplyThread";
 import type { SoccerTeaser } from "@/lib/soccer/article-types";
 import type { PsTeaser } from "@/lib/kbo/postseason-articles";
 
@@ -108,6 +109,13 @@ export default function SoccerReportPage() {
         onUnlocked={load}
         unlockBody={isPost ? { kind: "kbo-postseason-article", round: team, date } : { kind: "soccer-article", league, team, date }}
         lockedNote={isPost ? t("postseason.heroLocked") : t("soccer.heroLocked")}
+      />
+      <ReplyThread
+        kind={isPost ? "kbo-postseason" : "soccer"}
+        team={team}
+        date={date}
+        league={isPost ? undefined : league}
+        reloadKey={data.owned}
       />
     </div>
   );

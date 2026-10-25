@@ -18,6 +18,7 @@ type Card = {
   dek: string;
   teaser: ArticleTeaser | null;
   locked: boolean;
+  reply_count?: number;
 };
 
 export default function NewsIndexPage() {
@@ -78,7 +79,11 @@ export default function NewsIndexPage() {
                   )}
                 </div>
               )}
-              <div className="mt-3 text-xs font-semibold text-accent">{t("news.read")} →</div>
+              <div className="mt-3 text-xs font-semibold text-accent">
+                <span className="font-normal text-fg-dim">{t("replies.count", { n: String(c.reply_count ?? 0) })}</span>
+                {" · "}
+                {t("news.read")} →
+              </div>
               </Link>
             </Fragment>
           ))}

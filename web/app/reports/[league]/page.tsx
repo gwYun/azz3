@@ -23,6 +23,7 @@ type NewsCard = {
   title: string;
   dek: string;
   locked: boolean;
+  reply_count?: number;
 };
 
 // The club roster for a live league. KBO (and its playoff view) use the 10
@@ -206,7 +207,10 @@ export default function NewsLeaguePage() {
                     <p className="mt-2 text-sm font-medium text-fg">{c.title}</p>
                     <p className="mt-1 line-clamp-2 text-xs text-fg-muted">{c.dek}</p>
                     <div className="mt-3 text-xs font-semibold text-accent">
-                      {c.article_date} · {t("news.read")} →
+                      {c.article_date} ·{" "}
+                      <span className="font-normal text-fg-dim">{t("replies.count", { n: String(c.reply_count ?? 0) })}</span>
+                      {" · "}
+                      {t("news.read")} →
                     </div>
                     </Link>
                   </Fragment>

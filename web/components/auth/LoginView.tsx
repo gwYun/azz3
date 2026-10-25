@@ -13,9 +13,14 @@ export function LoginView() {
 
   const signInWith = (provider: "kakao") => async () => {
     const supabase = createClient();
+    // Carry ?next= through to the callback (which re-validates it as same-origin)
+    // so e.g. "log in to reply" lands back on the report.
+    const next = new URLSearchParams(window.location.search).get("next");
+    const callback = new URL("/auth/callback", window.location.origin);
+    if (next && next.startsWith("/") && !next.startsWith("//")) callback.searchParams.set("next", next);
     await supabase.auth.signInWithOAuth({
       provider,
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
+      options: { redirectTo: callback.toString() },
     });
   };
 
