@@ -47,10 +47,10 @@ folders:
 
 - `lib/supabase/` (browser/server/admin clients), `lib/kbo/` (the deep KBO domain: sabermetrics,
   sims, articles, ingest, + `kbo-salary`, `matchup-sim`), `lib/soccer/`, `lib/news/`,
-  `lib/pay/` (KakaoPay: kakaopay, pay-logic, pay-repo, pay-terminal), `lib/api-auth/` +
+  `lib/credits-repo.ts` (credit RPCs; beta — no payment provider), `lib/api-auth/` +
   `lib/api-v1/` (the Open News API). Cross-cutting singletons stay at `lib/` root
   (i18n, format, storage, credits, hooks, contexts, types).
-- `components/{shared,auth,pay,build,kbo,admin}/` — grouped by domain.
+- `components/{shared,auth,credits,build,kbo,admin}/` — grouped by domain.
 - `app/` route tree is unchanged (public URLs are a contract).
 
 ### Data paths the web app reads

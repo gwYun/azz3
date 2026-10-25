@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import * as repo from "@/lib/pay/pay-repo";
+import * as repo from "@/lib/credits-repo";
 import { kboProduct, kboArticleProduct, soccerArticleProduct, kboPostseasonProduct, isFreeTeam, type Slot } from "@/lib/credits";
 import { CURRENT_SEASON } from "@/lib/kbo/ingest";
 import { ROUND_KO } from "@/lib/kbo/postseason-ids";

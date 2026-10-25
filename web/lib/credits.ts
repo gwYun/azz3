@@ -1,28 +1,34 @@
 /**
- * Credit (unlock voucher) config. Users buy credits in bulk via Kakao Pay;
- * 1 credit unlocks 1 KBO matchup result. All amounts are server-defined — the
- * client sends a pack id, the server looks up the price here (never trust a
- * client amount). Tune freely; this is the single source of truth.
+ * Credit (unlock voucher) config. 1 credit unlocks 1 piece of paid content.
+ *
+ * BETA: there is no payment system — charging credits is free of charge. The
+ * client sends a pack id, the server looks up the credit count here (never
+ * trust a client amount). BETA_MAX_BALANCE caps free top-ups so a script can't
+ * mint an unbounded balance. Tune freely; this is the single source of truth.
  */
+export const IS_BETA = true;
+
 export type CreditPack = {
   id: string;
   credits: number;
-  amount: number; // KRW, integer
 };
 
 export const CREDIT_PACKS: readonly CreditPack[] = [
-  { id: "credits-1", credits: 1, amount: 1000 }, //  ₩1,000 / credit
-  { id: "credits-5", credits: 5, amount: 4500 }, //  ₩900   / credit (10% off)
-  { id: "credits-10", credits: 10, amount: 8500 }, // ₩850  / credit (15% off)
-  { id: "credits-30", credits: 30, amount: 24000 }, // ₩800 / credit (20% off)
+  { id: "credits-1", credits: 1 },
+  { id: "credits-5", credits: 5 },
+  { id: "credits-10", credits: 10 },
+  { id: "credits-30", credits: 30 },
 ] as const;
 
 export function getPack(id: string): CreditPack | null {
   return CREDIT_PACKS.find((p) => p.id === id) ?? null;
 }
 
-/** Price of a single unlock in KRW (the 1-credit pack). */
-export const UNLOCK_PRICE_KRW = 1000;
+/** Free top-ups are refused once the balance would exceed this. */
+export const BETA_MAX_BALANCE = 100;
+
+/** One-time sign-up gift, claimed from the first-login popup. */
+export const SIGNUP_GIFT_CREDITS = 10;
 
 export type Slot = "home" | "away";
 

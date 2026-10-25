@@ -7,13 +7,13 @@ import {
 } from "@/lib/supabase/env";
 
 /**
- * Refreshes the Supabase session cookie so server routes (the payment flow)
+ * Refreshes the Supabase session cookie so server routes (credits, unlocks)
  * read a fresh session. Reintroduced in Phase 2 — Phase 1 had no server-side
  * session consumer so it was intentionally omitted.
  *
  * The matcher below excludes the auth-free hot paths (/api/predict = Python
  * inference, /api/fx = FX rate, /api/v1/* = bearer-token Open API) and static
- * assets, so this never adds latency there. It DOES run on /api/pay/* and
+ * assets, so this never adds latency there. It DOES run on /api/credits/*, /api/unlock and
  * pages, which need a live session.
  */
 export async function middleware(request: NextRequest) {

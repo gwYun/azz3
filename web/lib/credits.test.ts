@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
   CREDIT_PACKS,
+  BETA_MAX_BALANCE,
   getPack,
   kboProduct,
   isFreeTeam,
@@ -13,7 +14,7 @@ import {
 
 describe("credits config", () => {
   it("getPack returns the pack for a valid id", () => {
-    expect(getPack("credits-5")).toEqual({ id: "credits-5", credits: 5, amount: 4500 });
+    expect(getPack("credits-5")).toEqual({ id: "credits-5", credits: 5 });
   });
 
   it("getPack returns null for an unknown or empty id", () => {
@@ -21,19 +22,10 @@ describe("credits config", () => {
     expect(getPack("")).toBeNull();
   });
 
-  it("every pack has positive integer amount and credits", () => {
+  it("every pack has a positive integer credit count within the beta cap", () => {
     for (const p of CREDIT_PACKS) {
-      expect(Number.isInteger(p.amount) && p.amount > 0).toBe(true);
       expect(Number.isInteger(p.credits) && p.credits > 0).toBe(true);
-    }
-  });
-
-  it("bulk packs are cheaper per credit than the single", () => {
-    const single = CREDIT_PACKS.find((p) => p.credits === 1);
-    expect(single).toBeTruthy();
-    const perCredit = (p: { amount: number; credits: number }) => p.amount / p.credits;
-    for (const p of CREDIT_PACKS.filter((x) => x.credits > 1)) {
-      expect(perCredit(p)).toBeLessThan(perCredit(single!));
+      expect(p.credits).toBeLessThanOrEqual(BETA_MAX_BALANCE);
     }
   });
 

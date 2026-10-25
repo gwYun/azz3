@@ -4,7 +4,7 @@ import { SUPABASE_URL } from "./env";
 /**
  * Server-only admin client using the Supabase Secret key (sb_secret_…, formerly
  * service_role). BYPASSES Row Level Security — use ONLY in server routes for
- * order / payment / entitlement writes. Never import this in client code, and
+ * credit / entitlement writes. Never import this in client code, and
  * never expose SUPABASE_SECRET_KEY as a NEXT_PUBLIC_ var.
  */
 export function createAdminClient() {

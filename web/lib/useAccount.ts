@@ -18,13 +18,15 @@ export type Account = {
   unlocked: string[];
   /** Staff account — bypasses every paywall (server enforces this too). */
   isAdmin: boolean;
+  /** One-time sign-up gift still unclaimed (drives the first-login popup). */
+  giftAvailable: boolean;
   loading: boolean;
   signedIn: boolean;
-  /** Re-read balance + unlocks (call after a purchase or unlock). */
+  /** Re-read balance + unlocks (call after a top-up or unlock). */
   refresh: () => void;
 };
 
-const EMPTY = { credits: 0, unlocked: [] as string[], isAdmin: false };
+const EMPTY = { credits: 0, unlocked: [] as string[], isAdmin: false, giftAvailable: false };
 const AccountContext = createContext<Account | null>(null);
 
 /**
@@ -56,15 +58,20 @@ export function AccountProvider({ children }: { children: ReactNode }) {
         return;
       }
       const [{ data: profile }, { data: ents }] = await Promise.all([
-        supabase.from("profiles").select("credits, is_admin").eq("id", user.id).maybeSingle(),
+        // "*" so a not-yet-migrated signup_gift_claimed column can't fail the
+        // whole read (it's then undefined → treated as claimed, no popup).
+        supabase.from("profiles").select("*").eq("id", user.id).maybeSingle(),
         supabase.from("entitlements").select("product").eq("user_id", user.id),
       ]);
       if (active) {
-        const p = profile as { credits?: number; is_admin?: boolean } | null;
+        const p = profile as
+          | { credits?: number; is_admin?: boolean; signup_gift_claimed?: boolean }
+          | null;
         setState({
           credits: p?.credits ?? 0,
           unlocked: ((ents ?? []) as { product: string }[]).map((e) => e.product),
           isAdmin: !!p?.is_admin,
+          giftAvailable: p?.signup_gift_claimed === false,
           loading: false,
           signedIn: true,
         });

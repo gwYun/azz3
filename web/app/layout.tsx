@@ -7,6 +7,7 @@ import { ToastProvider } from "@/lib/toast-context";
 import { AccountProvider } from "@/lib/useAccount";
 import { Nav } from "@/components/shared/Nav";
 import { AuthNotice } from "@/components/auth/AuthNotice";
+import { SignupGiftPopup } from "@/components/credits/SignupGiftPopup";
 import { Footer } from "@/components/shared/Footer";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
@@ -39,6 +40,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <Nav />
               <main className="mx-auto max-w-5xl px-6 py-10">{children}</main>
               <Footer />
+              <SignupGiftPopup />
               {/* Reads the ?auth= notice from the OAuth callback. Suspense keeps
                   useSearchParams() from de-opting the static pages. */}
               <Suspense fallback={null}>
