@@ -596,6 +596,13 @@ const en = {
   "newshub.noTeamMatch": "No clubs match your search.",
   "newshub.articles": "Articles",
   "newshub.feedEmpty": "No articles published yet. Daily columns begin soon.",
+  "fav.title": "Favorites",
+  "fav.add": "Add to favorites",
+  "fav.remove": "Remove from favorites",
+  "fav.myTeams": "My teams",
+  "fav.otherTeams": "All clubs",
+  "fav.hint": "Tap ☆ on a club to pin it to the top — favorites follow your account when signed in.",
+  "teams.pick": "Choose a team",
 } as const;
 
 const ko: Record<keyof typeof en, string> = {
@@ -1175,6 +1182,13 @@ const ko: Record<keyof typeof en, string> = {
   "newshub.noTeamMatch": "검색과 일치하는 구단이 없습니다.",
   "newshub.articles": "리포트",
   "newshub.feedEmpty": "아직 발행된 리포트가 없습니다. 데일리 칼럼이 곧 시작됩니다.",
+  "fav.title": "즐겨찾기",
+  "fav.add": "즐겨찾기에 추가",
+  "fav.remove": "즐겨찾기 해제",
+  "fav.myTeams": "내 팀",
+  "fav.otherTeams": "전체 구단",
+  "fav.hint": "구단의 ☆를 누르면 맨 위에 고정됩니다 — 로그인하면 계정에 저장돼요.",
+  "teams.pick": "팀 선택",
 };
 
 export const dict = { en, ko } as const;

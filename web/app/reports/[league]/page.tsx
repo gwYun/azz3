@@ -1,12 +1,17 @@
 "use client";
 
-import { Fragment, useEffect, useMemo, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { notFound, useParams } from "next/navigation";
+import { notFound, useParams, usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useI18n, useT } from "@/lib/i18n-context";
 import { getNewsLeague } from "@/lib/news/leagues";
 import { FRANCHISES, TEAM_NAMES } from "@/lib/kbo/franchise";
+import { useFavorites } from "@/lib/favorites";
 import { PaidFreeDivider } from "@/components/kbo/PaidFreeDivider";
+import { TeamLogo } from "@/components/shared/TeamLogo";
+import { FavStar } from "@/components/teams/FavStar";
+import { FavoritesBar } from "@/components/teams/FavoritesBar";
+import { TeamPicker } from "@/components/teams/TeamPicker";
 import { ReportSortTabs } from "@/components/reports/ReportSortTabs";
 import { DEFAULT_REPORT_SORT, sortReports, type ReportSort } from "@/lib/reports/sort";
 
@@ -47,12 +52,21 @@ export default function NewsLeaguePage() {
 
   const name = (o: { ko: string; en: string }) => (locale === "ko" ? o.ko : o.en);
 
-  const [query, setQuery] = useState("");
-  const [team, setTeam] = useState<string | null>(null); // null = all clubs
+  const { isFavLeague, toggleLeague, isFavTeam } = useFavorites();
+
+  // The club filter lives in the URL (?team=<code>) so a filtered view is
+  // shareable and the favorites bar can deep-link into it. Team codes are per
+  // league, and switching league tabs drops the query, so it resets for free.
+  const router = useRouter();
+  const pathname = usePathname();
+  const team = useSearchParams().get("team"); // null = all clubs
+  const setTeam = useCallback(
+    (code: string | null) =>
+      router.replace(code ? `${pathname}?team=${encodeURIComponent(code)}` : pathname, { scroll: false }),
+    [router, pathname],
+  );
   const [soccerClubs, setSoccerClubs] = useState<ClubOption[]>([]); // soccer: from the API
-  // Team codes are per league — drop the filter when the league tab changes.
   useEffect(() => {
-    setTeam(null);
     setSoccerClubs([]);
   }, [leagueId]);
 
@@ -60,11 +74,10 @@ export default function NewsLeaguePage() {
     () => (league?.soccer || league?.postseason ? soccerClubs : clubsFor(leagueId)),
     [league, leagueId, soccerClubs],
   );
-  const filteredClubs = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return clubs;
-    return clubs.filter((c) => c.ko.toLowerCase().includes(q) || c.en.toLowerCase().includes(q));
-  }, [clubs, query]);
+  const pickerTeams = useMemo(
+    () => clubs.map((c) => ({ code: c.code, name: locale === "ko" ? c.ko : c.en })),
+    [clubs, locale],
+  );
 
   // Article feed — for the live KBO league, pull the real daily articles: the
   // latest per club (all-clubs view) or a single club's archive when filtered.
@@ -110,8 +123,12 @@ export default function NewsLeaguePage() {
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
       <div className="text-xs font-semibold uppercase tracking-wider text-accent">ValueTrack · {t("newshub.title")}</div>
-      <h1 className="mt-1.5 font-display text-3xl font-bold text-fg">{name(league)}</h1>
+      <div className="mt-1.5 flex items-center gap-2">
+        <h1 className="font-display text-3xl font-bold text-fg">{name(league)}</h1>
+        <FavStar on={isFavLeague(league.id)} onToggle={() => toggleLeague(league.id)} label={name(league)} size="md" />
+      </div>
       <p className="mt-2 text-fg-muted">{t("newshub.subtitle")}</p>
+      <FavoritesBar activeLeague={league.id} activeTeam={team} />
 
       {!league.live ? (
         <section className="mt-8 rounded-2xl border border-dashed border-line bg-fg/5 p-10 text-center">
@@ -122,51 +139,15 @@ export default function NewsLeaguePage() {
         </section>
       ) : (
         <>
-          {/* Club search + filter */}
+          {/* Club search + crest grid (favorites pinned first) */}
           <div className="mt-6">
-            <input
-              type="search"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder={t("newshub.searchTeams")}
-              aria-label={t("newshub.searchTeams")}
-              className="w-full rounded-xl border border-line bg-fg/5 px-4 py-2.5 text-sm text-fg outline-none placeholder:text-fg-dim focus:border-accent"
+            <TeamPicker
+              league={league.id}
+              teams={pickerTeams}
+              value={team}
+              onChange={setTeam}
+              logos={!league.postseason}
             />
-            <div className="mt-3 flex flex-wrap gap-2">
-              <button
-                onClick={() => setTeam(null)}
-                aria-pressed={team === null}
-                className={
-                  "rounded-full border px-3 py-1.5 text-sm font-medium transition " +
-                  (team === null
-                    ? "border-accent bg-accent/15 text-fg"
-                    : "border-line text-fg-muted hover:border-accent/60 hover:text-fg")
-                }
-              >
-                {t("newshub.allTeams")}
-              </button>
-              {filteredClubs.map((c) => {
-                const active = team === c.code;
-                return (
-                  <button
-                    key={c.code}
-                    onClick={() => setTeam(active ? null : c.code)}
-                    aria-pressed={active}
-                    className={
-                      "rounded-full border px-3 py-1.5 text-sm font-medium transition " +
-                      (active
-                        ? "border-accent bg-accent/15 text-fg"
-                        : "border-line text-fg-muted hover:border-accent/60 hover:text-fg")
-                    }
-                  >
-                    {name(c)}
-                  </button>
-                );
-              })}
-            </div>
-            {query.trim() !== "" && filteredClubs.length === 0 && (
-              <p className="mt-3 text-sm text-fg-dim">{t("newshub.noTeamMatch")}</p>
-            )}
           </div>
 
           {/* Article feed — the real daily columns from /api/kbo/articles */}
@@ -202,8 +183,14 @@ export default function NewsLeaguePage() {
                       }
                       className="block rounded-2xl border border-line bg-fg/5 p-5 transition hover:border-accent"
                     >
-                    <div className="flex items-center justify-between">
-                      <span className="font-display text-base font-bold text-fg">{c.ko}</span>
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="flex min-w-0 items-center gap-2">
+                        {!league.postseason && <TeamLogo league={leagueId} code={c.team} name={c.ko} size="md" />}
+                        <span className="truncate font-display text-base font-bold text-fg">{c.ko}</span>
+                        {!league.postseason && isFavTeam(leagueId, c.team) && (
+                          <span className="text-xs text-accent" aria-label={t("fav.title")}>★</span>
+                        )}
+                      </span>
                       <span
                         className={
                           "rounded-full px-2 py-0.5 text-xs font-semibold " +

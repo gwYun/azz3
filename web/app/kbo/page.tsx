@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { useI18n, useT } from "@/lib/i18n-context";
 import type { Locale } from "@/lib/i18n";
+import { kboCodeFromName } from "@/lib/teams/logos";
+import { TeamLogo } from "@/components/shared/TeamLogo";
 
 type Team = {
   en: string; ko: string; rank: number;
@@ -32,6 +34,12 @@ type KboData = {
 
 const name = (n: { en: string; ko: string }, locale: Locale) => (locale === "ko" ? n.ko : n.en);
 const fmtPct = (v: number) => `${v.toFixed(1)}%`;
+const TeamCell = ({ team, locale, className }: { team: { en: string; ko: string }; locale: Locale; className?: string }) => (
+  <span className={"flex min-w-0 items-center gap-2 " + (className ?? "")}>
+    <TeamLogo league="kbo" code={kboCodeFromName(team.en) ?? kboCodeFromName(team.ko) ?? ""} name={name(team, locale)} size="xs" />
+    <span className="truncate">{name(team, locale)}</span>
+  </span>
+);
 const HEAD = "grid items-center gap-x-2 border-b border-line bg-ink-850/50 px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-fg-dim";
 
 export default function KboPage() {
@@ -101,7 +109,7 @@ export default function KboPage() {
                 className={"relative grid grid-cols-[2rem_1fr_4rem_4rem_4rem_3.5rem] items-center gap-x-2 px-4 py-2.5 text-sm " + (i % 2 ? "bg-ink-850/40" : "bg-ink-800/20")}>
                 <span aria-hidden className="absolute inset-y-0 left-0 bg-accent/10" style={{ width: `${(c.championship / maxChamp) * 100}%` }} />
                 <span className="relative z-10 text-right font-mono text-fg-dim">{c.rank}</span>
-                <span className={"relative z-10 truncate " + (i < 5 ? "font-semibold text-fg" : "text-fg")}>{name(c, locale)}</span>
+                <TeamCell team={c} locale={locale} className={"relative z-10 " + (i < 5 ? "font-semibold text-fg" : "text-fg")} />
                 <span className="relative z-10 text-right font-mono font-semibold tabular-nums text-fg">{c.championship.toFixed(1)}</span>
                 <span className="relative z-10 text-right font-mono tabular-nums text-fg-dim">{c.pennant.toFixed(0)}</span>
                 <span className="relative z-10 text-right font-mono tabular-nums text-fg-dim">{c.playoff.toFixed(0)}</span>
@@ -129,7 +137,7 @@ export default function KboPage() {
             {byWins.map((s, i) => (
               <li key={s.en} className="grid grid-cols-[2rem_1fr_3.5rem_3.5rem_4rem_4.5rem] items-center gap-x-2 px-4 py-2.5 text-sm">
                 <span className="text-right font-mono text-fg-dim">{i + 1}</span>
-                <span className={i < 5 ? "font-semibold text-fg" : "text-fg"}>{name(s, locale)}</span>
+                <TeamCell team={s} locale={locale} className={i < 5 ? "font-semibold text-fg" : "text-fg"} />
                 <span className="text-right font-mono tabular-nums text-fg">{s.off_rating.toFixed(0)}</span>
                 <span className="text-right font-mono tabular-nums text-fg">{s.def_rating.toFixed(0)}</span>
                 <span className="text-right font-mono font-semibold tabular-nums text-fg">{s.proj_wins.toFixed(1)}</span>
@@ -157,7 +165,10 @@ export default function KboPage() {
             {data.players.map((p, i) => (
               <li key={p.name + i} className="grid grid-cols-[2rem_1fr_3.5rem_5rem_4.5rem_4.5rem] items-center gap-x-2 px-4 py-2.5 text-sm">
                 <span className="text-right font-mono text-fg-dim">{i + 1}</span>
-                <span className="truncate text-fg">{p.name} · <span className="text-fg-dim">{p.franchise_ko}</span></span>
+                <span className="flex min-w-0 items-center gap-2 text-fg">
+                  <TeamLogo league="kbo" code={kboCodeFromName(p.franchise_ko) ?? ""} name={p.franchise_ko} size="xs" />
+                  <span className="truncate">{p.name} · <span className="text-fg-dim">{p.franchise_ko}</span></span>
+                </span>
                 <span className="text-right font-mono font-semibold tabular-nums text-fg">{p.war.toFixed(1)}</span>
                 <span className="text-right font-mono tabular-nums text-fg-dim">{p.metric_label} {p.metric}</span>
                 <span className="text-right font-mono tabular-nums text-accent">
