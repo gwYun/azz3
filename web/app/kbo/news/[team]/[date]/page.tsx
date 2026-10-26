@@ -7,6 +7,7 @@ import { useT } from "@/lib/i18n-context";
 import { ArticleGate } from "@/components/kbo/ArticleGate";
 import { ReplyThread } from "@/components/reports/ReplyThread";
 import { useReportView } from "@/lib/reports/useReportView";
+import { ReportTeamHeader } from "@/components/teams/ReportTeamHeader";
 import type { ArticleTeaser } from "@/lib/kbo/article-types";
 
 type Article = {
@@ -69,6 +70,7 @@ export default function ArticlePage() {
       <Link href="/kbo/news" className="text-sm text-accent">
         {t("news.back")}
       </Link>
+      <ReportTeamHeader league="kbo" code={team} name={data.ko} />
       <div className="mt-4 text-xs font-semibold uppercase tracking-wider text-accent">{teaser?.kicker}</div>
       <h1 className="mt-2 font-display text-3xl font-bold text-fg">{data.title}</h1>
       <p className="mt-2 text-fg-muted">{data.dek}</p>

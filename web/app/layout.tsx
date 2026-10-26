@@ -5,6 +5,7 @@ import "./globals.css";
 import { I18nProvider } from "@/lib/i18n-context";
 import { ToastProvider } from "@/lib/toast-context";
 import { AccountProvider } from "@/lib/useAccount";
+import { FavoritesProvider } from "@/lib/favorites";
 import { Nav } from "@/components/shared/Nav";
 import { AuthNotice } from "@/components/auth/AuthNotice";
 import { SignupGiftPopup } from "@/components/credits/SignupGiftPopup";
@@ -37,15 +38,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <I18nProvider>
           <ToastProvider>
             <AccountProvider>
-              <Nav />
-              <main className="mx-auto max-w-5xl px-6 py-10">{children}</main>
-              <Footer />
-              <SignupGiftPopup />
-              {/* Reads the ?auth= notice from the OAuth callback. Suspense keeps
-                  useSearchParams() from de-opting the static pages. */}
-              <Suspense fallback={null}>
-                <AuthNotice />
-              </Suspense>
+              <FavoritesProvider>
+                <Nav />
+                <main className="mx-auto max-w-5xl px-6 py-10">{children}</main>
+                <Footer />
+                <SignupGiftPopup />
+                {/* Reads the ?auth= notice from the OAuth callback. Suspense keeps
+                    useSearchParams() from de-opting the static pages. */}
+                <Suspense fallback={null}>
+                  <AuthNotice />
+                </Suspense>
+              </FavoritesProvider>
             </AccountProvider>
           </ToastProvider>
         </I18nProvider>

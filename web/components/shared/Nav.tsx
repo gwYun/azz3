@@ -8,8 +8,10 @@ import { LangToggle } from "@/components/shared/LangToggle";
 import { AuthButton } from "@/components/auth/AuthButton";
 import { Logo } from "@/components/shared/Logo";
 import { BetaBadge } from "@/components/credits/BetaBadge";
+import { useFavorites } from "@/lib/favorites";
+import { favoritesFirst } from "@/lib/favorites-core";
 
-type NavItem = { href: string; label: string; activePaths?: string[]; active?: boolean };
+type NavItem = { href: string; label: string; activePaths?: string[]; active?: boolean; fav?: boolean };
 
 // Two parent sections, each with forecasts in a secondary sub-tab row (하단 탭)
 // shown only while inside that section:
@@ -29,6 +31,7 @@ export function Nav() {
   const t = useT();
   const { locale } = useI18n();
   const path = usePathname();
+  const { isFavLeague } = useFavorites();
 
   const matches = (href: string) => path === href || path.startsWith(href + "/");
   // News takes precedence — /kbo/news/* also matches /kbo (Match), so exclude News
@@ -48,11 +51,13 @@ export function Nav() {
   ];
 
   // Report sub-tabs (하단 탭): one per league; labels are locale-picked proper nouns.
-  // The KBO sub-tab also owns the daily-article pages under /kbo/news.
-  const newsSubItems: NavItem[] = NEWS_LEAGUES.map((l) => ({
+  // The KBO sub-tab also owns the daily-article pages under /kbo/news. Favorite
+  // leagues (★ on the league page) float to the front.
+  const newsSubItems: NavItem[] = favoritesFirst(NEWS_LEAGUES, (l) => isFavLeague(l.id)).map((l) => ({
     href: `/reports/${l.id}`,
     label: locale === "ko" ? l.ko : l.en,
     activePaths: l.id === "kbo" ? ["/reports/kbo", "/kbo/news"] : undefined,
+    fav: isFavLeague(l.id),
   }));
 
   const marketSubItems: NavItem[] = [
@@ -107,6 +112,7 @@ export function Nav() {
         }
         aria-current={active ? "page" : undefined}
       >
+        {item.fav && <span className="mr-1 text-accent" aria-hidden>★</span>}
         {item.label}
         {active && (
           <span className="absolute inset-x-3 -bottom-px h-0.5 rounded-full bg-accent" />

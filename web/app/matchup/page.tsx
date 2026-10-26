@@ -10,6 +10,8 @@ import {
 import { KboResultGate } from "@/components/kbo/KboResultGate";
 import { useAccount } from "@/lib/useAccount";
 import { isTeamSlotOpen } from "@/lib/credits";
+import { TeamLogo } from "@/components/shared/TeamLogo";
+import { TeamSelect } from "@/components/teams/TeamSelect";
 
 const teamName = (t: { en: string; ko: string }, l: Locale) => (l === "ko" ? t.ko : t.en);
 const pct = (v: number) => `${(v * 100).toFixed(1)}%`;
@@ -187,7 +189,7 @@ export default function MatchupPage() {
       <section className="mt-8 rounded-2xl border border-line bg-ink-850/50 p-5 sm:p-6">
         <div className="grid grid-cols-[1fr_auto_1fr] items-end gap-3">
           <TeamPick label={t("matchup.home")} value={homeCode} exclude={awayCode} teams={teams} locale={locale} onChange={setHomeCode} locked={homeLocked} />
-          <button onClick={swap} className="btn-secondary mb-0.5 h-9 px-3 text-sm" aria-label={t("matchup.swap")}>⇄</button>
+          <button onClick={swap} className="btn-secondary h-11 px-3 text-sm" aria-label={t("matchup.swap")}>⇄</button>
           <TeamPick label={t("matchup.away")} value={awayCode} exclude={homeCode} teams={teams} locale={locale} onChange={setAwayCode} locked={awayLocked} />
         </div>
         <div className="mt-4 flex flex-wrap items-start justify-between gap-x-5 gap-y-3">
@@ -232,11 +234,13 @@ export default function MatchupPage() {
           </div>
           <div className="mt-4 flex items-center justify-center gap-4 text-center">
             <div className="flex-1">
+              <TeamLogo league="kbo" code={selGame.home_team} name={nameByCode(selGame.home_team)} size="lg" className="mb-1.5" />
               <div className={"font-display text-lg font-semibold " + (selHs > selAs ? "text-fg" : "text-fg-dim")}>{nameByCode(selGame.home_team)}</div>
               <div className="text-[11px] uppercase tracking-wide text-fg-dim">{t("matchup.home")}</div>
             </div>
             <div className="font-mono text-3xl font-semibold tabular-nums text-fg">{selHs} : {selAs}</div>
             <div className="flex-1">
+              <TeamLogo league="kbo" code={selGame.away_team} name={nameByCode(selGame.away_team)} size="lg" className="mb-1.5" />
               <div className={"font-display text-lg font-semibold " + (selAs > selHs ? "text-fg" : "text-fg-dim")}>{nameByCode(selGame.away_team)}</div>
               <div className="text-[11px] uppercase tracking-wide text-fg-dim">{t("matchup.away")}</div>
             </div>
@@ -259,9 +263,9 @@ export default function MatchupPage() {
           </div>
           {/* Win probability */}
           <section className="mt-4">
-            <div className="flex items-baseline justify-between text-sm">
-              <span className="font-display text-lg font-semibold text-fg">{teamName(engine.home, locale)} <span className="text-xs font-normal text-fg-dim">({t("matchup.home")})</span></span>
-              <span className="font-display text-lg font-semibold text-fg">{teamName(engine.away, locale)} <span className="text-xs font-normal text-fg-dim">({t("matchup.away")})</span></span>
+            <div className="flex items-center justify-between text-sm">
+              <span className="flex items-center gap-2 font-display text-lg font-semibold text-fg"><TeamLogo league="kbo" code={engine.home.code} name={teamName(engine.home, locale)} size="md" />{teamName(engine.home, locale)} <span className="text-xs font-normal text-fg-dim">({t("matchup.home")})</span></span>
+              <span className="flex items-center gap-2 font-display text-lg font-semibold text-fg">{teamName(engine.away, locale)} <span className="text-xs font-normal text-fg-dim">({t("matchup.away")})</span><TeamLogo league="kbo" code={engine.away.code} name={teamName(engine.away, locale)} size="md" /></span>
             </div>
             <div className="mt-2 flex h-11 overflow-hidden rounded-xl border border-line">
               <div className="flex items-center justify-start bg-accent/25 pl-3 font-mono text-sm font-semibold text-fg transition-all"
@@ -334,19 +338,15 @@ function TeamPick({ label, value, exclude, teams, locale, onChange, locked }: {
   locked?: (code: string) => boolean;
 }) {
   return (
-    <label className="block">
-      <span className="text-xs font-medium uppercase tracking-wide text-fg-dim">{label}</span>
-      <select value={value} onChange={(e) => onChange(e.target.value)} className="input-text mt-1 w-full">
-        {teams.map((tm) => {
-          const isLocked = tm.code !== exclude && locked?.(tm.code);
-          return (
-            <option key={tm.code} value={tm.code} disabled={tm.code === exclude}>
-              {teamName(tm, locale)}{isLocked ? " 🔒" : ""}
-            </option>
-          );
-        })}
-      </select>
-    </label>
+    <TeamSelect
+      league="kbo"
+      label={label}
+      value={value}
+      exclude={exclude}
+      teams={teams.map((tm) => ({ code: tm.code, name: teamName(tm, locale) }))}
+      onChange={onChange}
+      locked={locked}
+    />
   );
 }
 
@@ -380,7 +380,7 @@ function LineupColumn({ t, locale, team, pen, rotation, starterIdx, onStarterCha
   return (
     <div className="rounded-xl border border-line bg-ink-850/30 p-4">
       <div className="flex items-baseline justify-between">
-        <h3 className="font-display text-base font-semibold text-fg">{teamName(team, locale)}</h3>
+        <h3 className="flex items-center gap-2 font-display text-base font-semibold text-fg"><TeamLogo league="kbo" code={team.code} name={teamName(team, locale)} size="sm" />{teamName(team, locale)}</h3>
         <span className="text-[11px] uppercase tracking-wide text-fg-dim">{side}</span>
       </div>
       <div className="mt-2 flex items-center gap-2 text-xs text-fg-dim">

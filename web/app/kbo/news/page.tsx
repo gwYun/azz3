@@ -7,6 +7,8 @@ import { PaidFreeDivider } from "@/components/kbo/PaidFreeDivider";
 import type { ArticleTeaser } from "@/lib/kbo/article-types";
 import { ReportSortTabs } from "@/components/reports/ReportSortTabs";
 import { DEFAULT_REPORT_SORT, sortReports, type ReportSort } from "@/lib/reports/sort";
+import { TeamLogo } from "@/components/shared/TeamLogo";
+import { FavoritesBar } from "@/components/teams/FavoritesBar";
 
 /**
  * KBO Daily front page — the latest article per team. Public teaser + a paid/free
@@ -47,6 +49,7 @@ export default function NewsIndexPage() {
       <h1 className="mt-2 font-display text-3xl font-bold text-fg">{t("news.title")}</h1>
       <p className="mt-2 text-fg-muted">{t("news.subtitle")}</p>
       <p className="mt-1 text-xs text-fg-dim">{t("news.paidNote")}</p>
+      <FavoritesBar />
 
       {cards == null ? (
         <div className="py-20 text-center text-fg-dim">{t("loading")}</div>
@@ -67,8 +70,11 @@ export default function NewsIndexPage() {
                 href={`/kbo/news/${c.team}/${c.article_date}`}
                 className="block rounded-2xl border border-line bg-fg/5 p-5 transition hover:border-accent"
               >
-              <div className="flex items-center justify-between">
-                <span className="font-display text-lg font-bold text-fg">{c.ko}</span>
+              <div className="flex items-center justify-between gap-2">
+                <span className="flex min-w-0 items-center gap-2">
+                  <TeamLogo league="kbo" code={c.team} name={c.ko} size="md" />
+                  <span className="truncate font-display text-lg font-bold text-fg">{c.ko}</span>
+                </span>
                 <span
                   className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
                     c.locked ? "bg-accent/15 text-accent" : "bg-fg/10 text-fg-muted"
