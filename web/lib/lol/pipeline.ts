@@ -15,7 +15,7 @@ import { fetchMonths, monthRange, type NaverLolMatch } from "./naver";
 import { buildRegionMap, toTrainSeries, type LolMatchRow } from "./data";
 import { fitLol, mapWinProb, seriesOutcomes, type LolFit } from "./model";
 
-export const MODEL_VERSION = "lol-bt-v1";
+export const MODEL_VERSION = "lol-bt-v2";
 export const WORLDS_SEASON = 2026;
 export const WORLDS_LEAGUE_ID = `world_championship_${WORLDS_SEASON}`;
 
@@ -98,10 +98,16 @@ export function predictSeries(fit: LolFit, home: string, away: string, bestOf: n
  * as reconstructions rather than records. Insert-only — never overwrites a real
  * pre-match prediction.
  */
-export async function backfillWalkForward(admin: SupabaseClient, rows: LolMatchRow[]): Promise<number> {
-  const { data, error } = await admin.from("lol_predictions").select("game_id").eq("league_id", WORLDS_LEAGUE_ID);
+export async function backfillWalkForward(
+  admin: SupabaseClient,
+  rows: LolMatchRow[],
+  { rebuild = false }: { rebuild?: boolean } = {},
+): Promise<number> {
+  const { data, error } = await admin.from("lol_predictions").select("game_id, model").eq("league_id", WORLDS_LEAGUE_ID);
   if (error) throw new Error(`lol_predictions read: ${error.message}`);
-  const have = new Set(((data ?? []) as { game_id: string }[]).map((r) => r.game_id));
+  // rebuild: recompute existing reconstructions too (after a model change); real pre-match rows stay frozen.
+  const have = new Set(((data ?? []) as { game_id: string; model: string }[])
+    .filter((r) => !(rebuild && r.model.endsWith("-walkforward"))).map((r) => r.game_id));
   const due = rows.filter(
     (m) => m.league_id === WORLDS_LEAGUE_ID && m.status === "RESULT" && m.home_team !== "TBD" && !have.has(m.game_id),
   );
@@ -116,7 +122,7 @@ export async function backfillWalkForward(admin: SupabaseClient, rows: LolMatchR
     });
   }
   if (out.length) {
-    const { error: upErr } = await admin.from("lol_predictions").upsert(out, { onConflict: "game_id", ignoreDuplicates: true });
+    const { error: upErr } = await admin.from("lol_predictions").upsert(out, { onConflict: "game_id", ignoreDuplicates: !rebuild });
     if (upErr) throw new Error(`lol_predictions backfill: ${upErr.message}`);
   }
   return out.length;

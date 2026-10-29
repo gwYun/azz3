@@ -31,10 +31,12 @@ export interface ModelOptions {
   iterations: number;
 }
 
+// Walk-forward tuned on 2025 international series (scripts/tune-lol.ts):
+// only sdRegion moved (0.6 → 0.4); Worlds 2026 was held out.
 export const DEFAULT_OPTIONS: ModelOptions = {
   halfLifeDays: 240,
   sdTeam: 0.6,
-  sdRegion: 0.6,
+  sdRegion: 0.4,
   intlWeight: 1,
   iterations: 30,
 };
