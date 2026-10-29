@@ -16,6 +16,7 @@ dependencies = [
   "shap>=0.45,<1.0",
   "rapidfuzz>=3.6,<4.0",
   "pyarrow>=15.0,<22.0",
+  "lxml>=5.0,<7.0",  # pandas.read_html (kbo/src/data.py, core/data.py)
 ]
 
 [project.optional-dependencies]
