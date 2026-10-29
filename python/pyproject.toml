@@ -16,7 +16,10 @@ dependencies = [
   "shap>=0.45,<1.0",
   "rapidfuzz>=3.6,<4.0",
   "pyarrow>=15.0,<22.0",
-  "lxml>=5.0,<7.0",  # pandas.read_html (kbo/src/data.py, core/data.py)
+  # pandas.read_html (kbo/src/data.py, core/data.py): lxml first, falls back to bs4 + html5lib.
+  "lxml>=5.0,<7.0",
+  "beautifulsoup4>=4.12,<5.0",
+  "html5lib>=1.1,<2.0",
 ]
 
 [project.optional-dependencies]
