@@ -105,6 +105,16 @@ export function kboPostseasonProduct(season: number, round: string, date: string
   return `kbo:postseason:${season}:${round}:${date}`;
 }
 
+/**
+ * LoL Worlds match-day reports: only the newest report is paid. Product key per
+ * season-date, e.g. "lol:worlds:2026:2026-10-26".
+ */
+export const LOL_ARTICLE_LOCK_WINDOW = 1;
+
+export function lolWorldsProduct(season: number, date: string): string {
+  return `lol:worlds:${season}:${date}`;
+}
+
 /** True if the reader may see the full body: not locked by age, or owns it. */
 export function isArticleOpen(
   team: string,

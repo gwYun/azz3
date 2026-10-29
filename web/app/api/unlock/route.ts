@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import * as repo from "@/lib/credits-repo";
-import { kboProduct, kboArticleProduct, soccerArticleProduct, kboPostseasonProduct, isFreeTeam, type Slot } from "@/lib/credits";
+import { kboProduct, kboArticleProduct, soccerArticleProduct, kboPostseasonProduct, lolWorldsProduct, isFreeTeam, type Slot } from "@/lib/credits";
 import { CURRENT_SEASON } from "@/lib/kbo/ingest";
 import { ROUND_KO } from "@/lib/kbo/postseason-ids";
 import { FRANCHISES } from "@/lib/kbo/franchise";
@@ -10,12 +10,15 @@ import { isArticleLocked, isPostseasonArticleLocked } from "@/lib/kbo/article-ac
 import { isSoccerArticleLocked } from "@/lib/soccer/article-access";
 import { getLeague } from "@/lib/soccer/leagues";
 import { isAdminUser } from "@/lib/admin-access";
+import { isLolArticleLocked } from "@/lib/lol/article-access";
+import { WORLDS_SEASON } from "@/lib/lol/pipeline";
 
 /**
  * Spend 1 credit to unlock content. Auth required. Two shapes:
  *   { kind: "article", team, date } → one dated daily article
  *   { kind: "soccer-article", league, team, date } → one soccer match report
  *   { kind: "kbo-postseason-article", round, date } → one KBO postseason series report
+ *   { kind: "lol-article", date }   → one LoL Worlds match-day report
  *   { team, slot }                  → one matchup team-slot (legacy)
  *
  * Atomic + idempotent in the DB (spend_credit_for_unlock): already unlocked → no
@@ -105,6 +108,22 @@ export async function POST(request: Request) {
       return NextResponse.json({ status: "free" });
     }
     return spend(user.id, kboPostseasonProduct(CURRENT_SEASON, round, date));
+  }
+
+  // --- LoL Worlds match-day report: { kind:"lol-article", date } ---
+  if (body?.kind === "lol-article") {
+    const date = body.date?.trim() ?? "";
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      return NextResponse.json({ error: "invalid_request" }, { status: 400 });
+    }
+    const admin = createAdminClient();
+    const { count } = await admin.from("lol_articles").select("id", { count: "exact", head: true })
+      .eq("season", WORLDS_SEASON).eq("event", "worlds").eq("article_date", date);
+    if (!count) return NextResponse.json({ error: "not_found" }, { status: 404 });
+    if (!(await isLolArticleLocked(admin, WORLDS_SEASON, date))) {
+      return NextResponse.json({ status: "free" });
+    }
+    return spend(user.id, lolWorldsProduct(WORLDS_SEASON, date));
   }
 
   // --- Legacy matchup: { team, slot } ---

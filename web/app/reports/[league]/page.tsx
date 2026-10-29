@@ -71,7 +71,7 @@ export default function NewsLeaguePage() {
   }, [leagueId]);
 
   const clubs = useMemo(
-    () => (league?.soccer || league?.postseason ? soccerClubs : clubsFor(leagueId)),
+    () => (league?.soccer || league?.postseason || league?.lol ? soccerClubs : clubsFor(leagueId)),
     [league, leagueId, soccerClubs],
   );
   const pickerTeams = useMemo(
@@ -87,14 +87,18 @@ export default function NewsLeaguePage() {
   useEffect(() => {
     const isSoccer = !!league?.soccer;
     const isPost = !!league?.postseason;
-    if (!league?.live || (leagueId !== "kbo" && !isSoccer && !isPost)) {
+    const isLol = !!league?.lol;
+    if (!league?.live || (leagueId !== "kbo" && !isSoccer && !isPost && !isLol)) {
       setPosts([]);
       return;
     }
     setPosts(null);
     let active = true;
     // Postseason: the "club" filter is a series filter (team = round code).
-    const url = isPost
+    // LoL: one report per match day; the team filter narrows to reports featuring that team.
+    const url = isLol
+      ? `/api/lol/articles${team ? `?team=${encodeURIComponent(team)}` : ""}`
+      : isPost
       ? `/api/kbo/postseason/articles${team ? `?round=${team}` : ""}`
       : isSoccer
         ? `/api/soccer/articles?league=${leagueId}${team ? `&team=${encodeURIComponent(team)}` : ""}`
@@ -104,7 +108,7 @@ export default function NewsLeaguePage() {
       .then((j) => {
         if (!active) return;
         setPosts((j.cards ?? j.items ?? []) as NewsCard[]);
-        if ((isSoccer || isPost) && Array.isArray(j.clubs) && j.clubs.length) setSoccerClubs(j.clubs as ClubOption[]);
+        if ((isSoccer || isPost || isLol) && Array.isArray(j.clubs) && j.clubs.length) setSoccerClubs(j.clubs as ClubOption[]);
       })
       .catch(() => {
         if (active) setPosts([]);
@@ -146,7 +150,7 @@ export default function NewsLeaguePage() {
               teams={pickerTeams}
               value={team}
               onChange={setTeam}
-              logos={!league.postseason}
+              logos={!league.postseason && !league.lol}
             />
           </div>
 
@@ -177,7 +181,7 @@ export default function NewsLeaguePage() {
                     )}
                     <Link
                       href={
-                        league.soccer || league.postseason
+                        league.soccer || league.postseason || league.lol
                           ? `/reports/${leagueId}/${c.team}/${c.article_date}`
                           : `/kbo/news/${c.team}/${c.article_date}`
                       }
@@ -185,9 +189,9 @@ export default function NewsLeaguePage() {
                     >
                     <div className="flex items-center justify-between gap-2">
                       <span className="flex min-w-0 items-center gap-2">
-                        {!league.postseason && <TeamLogo league={leagueId} code={c.team} name={c.ko} size="md" />}
+                        {!league.postseason && !league.lol && <TeamLogo league={leagueId} code={c.team} name={c.ko} size="md" />}
                         <span className="truncate font-display text-base font-bold text-fg">{c.ko}</span>
-                        {!league.postseason && isFavTeam(leagueId, c.team) && (
+                        {!league.postseason && !league.lol && isFavTeam(leagueId, c.team) && (
                           <span className="text-xs text-accent" aria-label={t("fav.title")}>★</span>
                         )}
                       </span>

@@ -10,10 +10,12 @@ import { useReportView } from "@/lib/reports/useReportView";
 import { ReportTeamHeader } from "@/components/teams/ReportTeamHeader";
 import type { SoccerTeaser } from "@/lib/soccer/article-types";
 import type { PsTeaser } from "@/lib/kbo/postseason-articles";
+import type { ReportKind } from "@/lib/reports/types";
 
 /**
  * Report reader for soccer match reports (/reports/<league>/<team>/<date>) and
- * KBO postseason series reports (/reports/kbo-playoff/<round>/<date>). Same
+ * KBO postseason series reports (/reports/kbo-playoff/<round>/<date>) and LoL
+ * Worlds match-day reports (/reports/worlds/worlds/<date>). Same
  * hard paywall as the KBO reader: the gated route only returns body_html when
  * the report is free-by-age (anything but the newest) or owned.
  */
@@ -36,9 +38,16 @@ export default function SoccerReportPage() {
   const league = String(params.league);
   const team = String(params.team);
   const date = String(params.date);
-  const isPost = league === "kbo-playoff";
-  useReportView(isPost ? "kbo-postseason" : "soccer", team, date, isPost ? undefined : league);
-  const apiUrl = isPost ? `/api/kbo/postseason/article/${team}/${date}` : `/api/soccer/article/${league}/${team}/${date}`;
+  const isLol = league === "worlds";
+  // Postseason + LoL reports share the series-style header (no club crest, chip row).
+  const isPost = league === "kbo-playoff" || isLol;
+  const kind: ReportKind = isLol ? "lol" : league === "kbo-playoff" ? "kbo-postseason" : "soccer";
+  useReportView(kind, team, date, isPost ? undefined : league);
+  const apiUrl = isLol
+    ? `/api/lol/article/${date}`
+    : isPost
+      ? `/api/kbo/postseason/article/${team}/${date}`
+      : `/api/soccer/article/${league}/${team}/${date}`;
 
   const [data, setData] = useState<Report | null>(null);
   const [state, setState] = useState<"loading" | "ok" | "error">("loading");
@@ -111,11 +120,17 @@ export default function SoccerReportPage() {
         date={date}
         bodyHtml={data.body_html}
         onUnlocked={load}
-        unlockBody={isPost ? { kind: "kbo-postseason-article", round: team, date } : { kind: "soccer-article", league, team, date }}
-        lockedNote={isPost ? t("postseason.heroLocked") : t("soccer.heroLocked")}
+        unlockBody={
+          isLol
+            ? { kind: "lol-article", date }
+            : isPost
+              ? { kind: "kbo-postseason-article", round: team, date }
+              : { kind: "soccer-article", league, team, date }
+        }
+        lockedNote={isLol ? t("lol.heroLocked") : isPost ? t("postseason.heroLocked") : t("soccer.heroLocked")}
       />
       <ReplyThread
-        kind={isPost ? "kbo-postseason" : "soccer"}
+        kind={kind}
         team={team}
         date={date}
         league={isPost ? undefined : league}

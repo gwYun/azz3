@@ -71,7 +71,10 @@ Migrations cover: auth/profiles, payments/orders, credits/entitlements, KBO
 
 Web app → Vercel. Two **Vercel Cron** jobs (`web/vercel.json`): `/api/cron/kbo-daily`
 and `/api/cron/soccer-daily` run the TypeScript ingest (`web/lib/{kbo,soccer}/ingest.ts`)
-→ write Supabase → log runs. The Python sim apps are **run manually** and their outputs
+→ write Supabase → log runs. `/api/cron/lol-worlds` (LoL Worlds, `web/lib/lol/`) fires
+several times through the KST morning so each match-day report goes out right after
+that day's last series; its rating model is fit in TypeScript on every run (no Python
+side) — `web/scripts/backfill-lol.ts` loads history once. The Python sim apps are **run manually** and their outputs
 committed. (Supabase migrations are applied via `supabase db push`; wire this into CI —
 `.github/` is currently minimal.)
 

@@ -9,10 +9,12 @@ import { FRANCHISES } from "@/lib/kbo/franchise";
 import { CURRENT_SEASON } from "@/lib/kbo/ingest";
 import { ROUND_KO } from "@/lib/kbo/postseason-ids";
 import { getLeague } from "@/lib/soccer/leagues";
-import { kboArticleProduct, kboPostseasonProduct, soccerArticleProduct } from "@/lib/credits";
+import { kboArticleProduct, kboPostseasonProduct, soccerArticleProduct, lolWorldsProduct } from "@/lib/credits";
 import { isArticleLocked, isPostseasonArticleLocked } from "@/lib/kbo/article-access";
 import { isSoccerArticleLocked } from "@/lib/soccer/article-access";
 import { isAdminUser } from "@/lib/admin-access";
+import { isLolArticleLocked } from "@/lib/lol/article-access";
+import { WORLDS_SEASON } from "@/lib/lol/pipeline";
 
 import type { ReportKind } from "@/lib/reports/types";
 
@@ -23,10 +25,11 @@ export { MAX_REPLY_LEN } from "@/lib/reports/types";
 export type ReportKey = { kind: ReportKind; team: string; date: string; league?: string };
 
 /** report_replies FK column per kind. */
-export const REPLY_FK: Record<ReportKind, "kbo_article_id" | "kbo_postseason_id" | "soccer_article_id"> = {
+export const REPLY_FK: Record<ReportKind, "kbo_article_id" | "kbo_postseason_id" | "soccer_article_id" | "lol_article_id"> = {
   "kbo-daily": "kbo_article_id",
   "kbo-postseason": "kbo_postseason_id",
   soccer: "soccer_article_id",
+  lol: "lol_article_id",
 };
 
 export type ResolvedReport = {
@@ -53,6 +56,9 @@ export function parseReportKey(raw: {
   }
   if (kind === "kbo-postseason") {
     return team in ROUND_KO ? { kind, team, date } : null;
+  }
+  if (kind === "lol") {
+    return team === "worlds" ? { kind, team, date } : null;
   }
   if (kind === "soccer") {
     if (typeof league !== "string" || !getLeague(league) || !/^[\w-]{1,32}$/.test(team)) return null;
@@ -82,6 +88,16 @@ export async function resolveReport(admin: SupabaseClient, key: ReportKey): Prom
       kind, id: data.id, reply_count: data.reply_count ?? 0,
       locked: await isPostseasonArticleLocked(admin, CURRENT_SEASON, team, date),
       product: kboPostseasonProduct(CURRENT_SEASON, team, date),
+    };
+  }
+  if (kind === "lol") {
+    const { data } = await admin.from("lol_articles").select("id, reply_count")
+      .eq("season", WORLDS_SEASON).eq("event", "worlds").eq("article_date", date).maybeSingle();
+    if (!data) return null;
+    return {
+      kind, id: data.id, reply_count: data.reply_count ?? 0,
+      locked: await isLolArticleLocked(admin, WORLDS_SEASON, date),
+      product: lolWorldsProduct(WORLDS_SEASON, date),
     };
   }
   const league = key.league!;

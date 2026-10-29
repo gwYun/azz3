@@ -53,12 +53,16 @@ export function Nav() {
   // Report sub-tabs (하단 탭): one per league; labels are locale-picked proper nouns.
   // The KBO sub-tab also owns the daily-article pages under /kbo/news. Favorite
   // leagues (★ on the league page) float to the front.
-  const newsSubItems: NavItem[] = favoritesFirst(NEWS_LEAGUES, (l) => isFavLeague(l.id)).map((l) => ({
-    href: `/reports/${l.id}`,
-    label: locale === "ko" ? l.ko : l.en,
-    activePaths: l.id === "kbo" ? ["/reports/kbo", "/kbo/news"] : undefined,
-    fav: isFavLeague(l.id),
-  }));
+  // The ★ Favorites tab (all favorite clubs/leagues in one feed) always comes first.
+  const newsSubItems: NavItem[] = [
+    { href: "/reports/favorites", label: t("fav.tab"), fav: true },
+    ...favoritesFirst(NEWS_LEAGUES, (l) => isFavLeague(l.id)).map((l) => ({
+      href: `/reports/${l.id}`,
+      label: locale === "ko" ? l.ko : l.en,
+      activePaths: l.id === "kbo" ? ["/reports/kbo", "/kbo/news"] : undefined,
+      fav: isFavLeague(l.id),
+    })),
+  ];
 
   const marketSubItems: NavItem[] = [
     { href: "/transfers", label: t("nav.sub.soccer") },

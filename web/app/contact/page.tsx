@@ -4,10 +4,9 @@ import type { ReactNode } from "react";
 import { useI18n, useT } from "@/lib/i18n-context";
 import type { Locale } from "@/lib/i18n";
 
-const EMAIL = "admin@blinkers.company";
+const EMAIL = "contact@valuetrack.pro";
 
-// Phone formatting mirrors the footer: international format in English,
-// domestic format in Korean.
+// International format in English, domestic format in Korean.
 const PHONE: Record<Locale, { display: string; href: string }> = {
   en: { display: "+82-70-5100-1526", href: "tel:+827051001526" },
   ko: { display: "070-5100-1526", href: "tel:07051001526" },

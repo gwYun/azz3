@@ -27,7 +27,7 @@ export function soccerLogoUrl(league: string, code: string): string | null {
 /** Emblem for a team in a report-hub league id ("kbo", "epl", …); null if none (postseason rounds). */
 export function teamLogoUrl(league: string, code: string): string | null {
   if (league === "kbo") return kboLogoUrl(code);
-  if (league === "kbo-playoff") return null;
+  if (league === "kbo-playoff" || league === "worlds") return null;
   return soccerLogoUrl(league, code);
 }
 

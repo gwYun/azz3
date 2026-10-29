@@ -21,6 +21,10 @@
     {
       "path": "/api/cron/soccer-articles",
       "schedule": "0 5 * * *"
+    },
+    {
+      "path": "/api/cron/lol-worlds",
+      "schedule": "0 4 * * *"
     }
   ]
 }

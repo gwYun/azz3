@@ -4,6 +4,7 @@ import { Fragment, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useI18n } from "@/lib/i18n-context";
+import { POLICIES, POLICY_ORDER } from "@/lib/legal/policies";
 
 function FootLink({ href, children }: { href: string; children: ReactNode }) {
   return (
@@ -30,26 +31,28 @@ function LegalLine({ segments }: { segments: ReactNode[] }) {
   );
 }
 
+// Required disclosures — docs/ValueTrack_Terms_and_Policies_2026.docx, Section 4.
+const EMAIL = "contact@valuetrack.pro";
+const SITE = "https://www.valuetrack.pro";
+
 const koSegments: ReactNode[] = [
-  "블링커스 주식회사",
+  "상호: 블링커스(주) (Blinkers Inc.)",
+  "대표자: 박상욱",
+  "사업자등록번호: 247-81-02402",
+  "통신판매업신고번호: 제 2022-대전유성-0485호",
   "본점: 대전광역시 유성구 과학나래2길 1, 201-2호 (구룡동)",
-  "지점(서울): 서울특별시 영등포구 63로 50, 6층(여의도동, 63한화생명빌딩)",
-  "사업자등록번호: 842-85-02262",
-  "통신판매업 신고번호 : 제 2022-대전유성-0485호",
-  "대표 박상욱",
-  <Fragment key="ko-email">문의: <FootLink href="mailto:admin@blinkers.company">admin@blinkers.company</FootLink></Fragment>,
-  <FootLink key="ko-tel" href="tel:07051001526">070-5100-1526</FootLink>,
+  <Fragment key="ko-email">문의: <FootLink href={`mailto:${EMAIL}`}>{EMAIL}</FootLink></Fragment>,
+  <Fragment key="ko-site">웹사이트: <FootLink href={SITE}>{SITE}</FootLink></Fragment>,
 ];
 
 const enSegments: ReactNode[] = [
-  "Blinkers Co., Ltd.",
-  "Head Office: 1 Gwahaknarae 2-gil, Yuseong-gu, Daejeon, Suite 201-2 (Guryong-dong)",
-  "Branch (Seoul): 6th Floor, 63 Hanwha Life Insurance Building, 50, 63-ro, Yeongdeungpo-gu, Seoul (Yeouido-dong)",
-  "Business Registration Number: 842-85-02262",
-  "Mail-order Business Registration Number: 2022-Daejeon Yuseong-0485",
+  "Blinkers Inc. (블링커스(주))",
   "Representative: Sangwook Park",
-  <Fragment key="en-email">Inquiries: <FootLink href="mailto:admin@blinkers.company">admin@blinkers.company</FootLink></Fragment>,
-  <FootLink key="en-tel" href="tel:+827051001526">+82-70-5100-1526</FootLink>,
+  "Business Registration Number: 247-81-02402",
+  "Mail-order Business Registration Number: 2022-Daejeon Yuseong-0485",
+  "Head Office: 1 Gwahaknarae 2-gil, Yuseong-gu, Daejeon, Suite 201-2 (Guryong-dong)",
+  <Fragment key="en-email">Inquiries: <FootLink href={`mailto:${EMAIL}`}>{EMAIL}</FootLink></Fragment>,
+  <Fragment key="en-site">Website: <FootLink href={SITE}>{SITE}</FootLink></Fragment>,
 ];
 
 export function Footer() {
@@ -99,9 +102,18 @@ export function Footer() {
 
         {/* Copyright + legal */}
         <p className="mt-8 text-sm text-fg-muted">
-          Copyright © 2024 Blinkers, Inc. All rights reserved.
+          Copyright © 2021 Blinkers, Inc. All rights reserved.
         </p>
-        <div className="mt-5 space-y-3">
+        <nav className="mt-4" aria-label={locale === "ko" ? "법적 고지" : "Legal"}>
+          <LegalLine
+            segments={POLICY_ORDER.map((id) => (
+              <Link key={id} href={`/${id}`} className="font-semibold text-fg-muted transition-colors hover:text-fg">
+                {locale === "ko" ? POLICIES[id].title : POLICIES[id].titleEn}
+              </Link>
+            ))}
+          />
+        </nav>
+        <div className="mt-3 space-y-3">
           <LegalLine segments={locale === "ko" ? koSegments : enSegments} />
         </div>
       </div>
