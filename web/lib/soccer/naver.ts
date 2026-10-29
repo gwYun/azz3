@@ -13,6 +13,7 @@
  * 2026/27 = 'gMoc'), NOT the year — resolveSeason maps a league to it and caches.
  */
 import type { LeagueDef } from "./leagues";
+import { naverGetJson } from "../naver-http";
 
 const API = "https://api-gw.sports.naver.com";
 const HEADERS: Record<string, string> = {
@@ -30,19 +31,13 @@ async function getJson<T = unknown>(
 ): Promise<T> {
   let lastErr: unknown;
   for (let attempt = 0; attempt <= retries; attempt++) {
-    const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), timeoutMs);
     try {
-      const res = await fetch(url, { headers: HEADERS, signal: ctrl.signal });
-      clearTimeout(timer);
-      if (!res.ok) throw new Error(`naver ${res.status} for ${url}`);
-      const json = (await res.json()) as { success?: boolean; result?: T };
+      const json = (await naverGetJson(url, HEADERS, timeoutMs)) as { success?: boolean; result?: T };
       if (json?.success === false || json?.result == null) {
         throw new Error(`naver returned no result for ${url}`);
       }
       return json.result as T;
     } catch (err) {
-      clearTimeout(timer);
       lastErr = err;
       if (attempt < retries) await sleep(500 * (attempt + 1));
     }
