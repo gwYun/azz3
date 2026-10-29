@@ -9,6 +9,7 @@ import json
 
 import numpy as np
 import pandas as pd
+import pytest
 
 from kbo.src import boxscore_data as bd, salary_model as sal, roster, config, data
 from kbo.src import player_value as pv, matchup_export as mx
@@ -81,6 +82,13 @@ def test_salary_diagnostics_level_calibrated():
     assert d["r2_level"] < 0                                      # per-player error stays large
 
 
+_LIVE_2026_CACHE = [f"{k}_2026.parquet" for k in ("team_batting", "team_pitching", "player_batting", "player_pitching")]
+
+
+@pytest.mark.skipif(
+    not all((config.INTERIM_DIR / f).exists() for f in _LIVE_2026_CACHE),
+    reason="needs the cached 2026 KBO /Record pulls (kbo/data/interim); this suite stays network-free",
+)
 def test_sim_uses_war_not_salary():
     # The winning-environment factor must depend on WAR (talent), not estimated salary.
     # Multiplying every salary by 5 must leave team rs/ra untouched, while the env is
