@@ -12,7 +12,8 @@ import {
  * session consumer so it was intentionally omitted.
  *
  * The matcher below excludes the auth-free hot paths (/api/predict = Python
- * inference, /api/fx = FX rate, /api/v1/* = bearer-token Open API) and static
+ * inference, /api/fx = FX rate, /api/v1/* = bearer-token Open API, the public
+ * CDN-cached report lists /api/{kbo,kbo/postseason,soccer,lol}/articles) and static
  * assets, so this never adds latency there. It DOES run on /api/credits/*, /api/unlock and
  * pages, which need a live session.
  */
@@ -48,7 +49,7 @@ export const config = {
   matcher: [
     // Everything EXCEPT static assets, image files, and the auth-free API
     // hot paths (/api/predict, /api/fx, /api/v1 — Open API uses bearer tokens,
-    // not the session cookie).
-    "/((?!_next/static|_next/image|favicon.ico|api/predict|api/fx|api/v1|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
+    // not the session cookie; public report lists — session-free, CDN-cached).
+    "/((?!_next/static|_next/image|favicon.ico|api/predict|api/fx|api/v1|api/kbo/articles|api/kbo/postseason/articles|api/soccer/articles|api/lol/articles|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
   ],
 };

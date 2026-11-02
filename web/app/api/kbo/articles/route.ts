@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { publicListJson } from "@/lib/reports/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { FRANCHISES, TEAM_NAMES, type Franchise } from "@/lib/kbo/franchise";
 import { ARTICLE_LOCK_WINDOW } from "@/lib/credits";
@@ -12,7 +13,7 @@ import { selectWithReportStats } from "@/lib/reports/report-stats";
  *   GET /api/kbo/articles            → latest article per team (front page cards)
  *   GET /api/kbo/articles?team=HH    → that team's archive, newest first
  */
-export const revalidate = 300;
+// Cached at the CDN via publicListJson (route `revalidate` is ignored: handler reads request.url).
 
 const SEASON = 2026;
 const COLS = "team, article_date, title, dek, teaser";
@@ -61,7 +62,7 @@ export async function GET(request: Request) {
       );
       if (error) throw error;
       const items = ((data ?? []) as unknown as Row[]).map((r, i) => withKo(r, i < ARTICLE_LOCK_WINDOW));
-      return NextResponse.json({ team, ko: TEAM_NAMES[team].ko, items });
+      return publicListJson({ team, ko: TEAM_NAMES[team].ko, items });
     }
 
     // Front page: latest article per team. Pull recent rows, keep the newest per team.
@@ -79,11 +80,8 @@ export async function GET(request: Request) {
     for (const r of (data ?? []) as unknown as Row[]) if (!latest.has(r.team)) latest.set(r.team, r);
     // Its team's newest → always within the lock window → locked.
     const cards = FRANCHISES.filter((c) => latest.has(c)).map((c) => withKo(latest.get(c)!, true));
-    return NextResponse.json({ cards });
+    return publicListJson({ cards });
   } catch (e) {
-    return NextResponse.json(
-      { cards: [], items: [], error: e instanceof Error ? e.message : "err" },
-      { status: 200 },
-    );
+    return publicListJson({ cards: [], items: [], error: e instanceof Error ? e.message : "err" }, false);
   }
 }

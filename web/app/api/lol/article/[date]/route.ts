@@ -18,14 +18,18 @@ export async function GET(_request: Request, { params }: { params: { date: strin
     return NextResponse.json({ error: "invalid_request" }, { status: 400 });
   }
   const admin = createAdminClient();
-  const { data: row, error } = await admin.from("lol_articles")
-    .select("article_date, title, dek, teaser, body_html")
-    .eq("season", WORLDS_SEASON).eq("event", "worlds").eq("article_date", date).maybeSingle();
+  // Row + lock check are independent — fetch them together.
+  const [{ data: row, error }, locked] = await Promise.all([
+    admin.from("lol_articles")
+      .select("article_date, title, dek, teaser, body_html")
+      .eq("season", WORLDS_SEASON).eq("event", "worlds").eq("article_date", date).maybeSingle(),
+    isLolArticleLocked(admin, WORLDS_SEASON, date),
+  ]);
   if (error) return NextResponse.json({ error: "server_error" }, { status: 500 });
   if (!row) return NextResponse.json({ error: "not_found" }, { status: 404 });
 
   const header = { league: "worlds", team: "worlds", ko: "롤드컵", article_date: row.article_date, title: row.title, dek: row.dek, teaser: row.teaser };
-  if (!(await isLolArticleLocked(admin, WORLDS_SEASON, date))) {
+  if (!locked) {
     return NextResponse.json({ ...header, locked: false, owned: true, body_html: row.body_html });
   }
   const supabase = createClient();

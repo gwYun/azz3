@@ -19,14 +19,18 @@ export async function GET(_request: Request, { params }: { params: { round: stri
     return NextResponse.json({ error: "invalid_request" }, { status: 400 });
   }
   const admin = createAdminClient();
-  const { data: row, error } = await admin.from("kbo_postseason_articles")
-    .select("round, article_date, title, dek, teaser, body_html")
-    .eq("season", CURRENT_SEASON).eq("round", round).eq("article_date", date).maybeSingle();
+  // Row + lock check are independent — fetch them together.
+  const [{ data: row, error }, locked] = await Promise.all([
+    admin.from("kbo_postseason_articles")
+      .select("round, article_date, title, dek, teaser, body_html")
+      .eq("season", CURRENT_SEASON).eq("round", round).eq("article_date", date).maybeSingle(),
+    isPostseasonArticleLocked(admin, CURRENT_SEASON, round, date),
+  ]);
   if (error) return NextResponse.json({ error: "server_error" }, { status: 500 });
   if (!row) return NextResponse.json({ error: "not_found" }, { status: 404 });
 
   const header = { round, ko: ROUND_KO[round as keyof typeof ROUND_KO], article_date: row.article_date, title: row.title, dek: row.dek, teaser: row.teaser };
-  if (!(await isPostseasonArticleLocked(admin, CURRENT_SEASON, round, date))) {
+  if (!locked) {
     return NextResponse.json({ ...header, locked: false, owned: true, body_html: row.body_html });
   }
   const supabase = createClient();

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { publicListJson } from "@/lib/reports/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { LOL_ARTICLE_LOCK_WINDOW } from "@/lib/credits";
 import { WORLDS_SEASON } from "@/lib/lol/pipeline";
@@ -9,7 +10,7 @@ import { WORLDS_SEASON } from "@/lib/lol/pipeline";
  *   GET /api/lol/articles?team=GEN   → reports featuring that team (review or preview)
  * Cards carry team='worlds' (the reader URL segment); `clubs` feeds the hub's team filter.
  */
-export const revalidate = 300;
+// Cached at the CDN via publicListJson (route `revalidate` is ignored: handler reads request.url).
 
 type Row = { article_date: string; teams: string[]; title: string; dek: string; teaser: unknown; reply_count: number | null; view_count: number | null };
 
@@ -33,8 +34,8 @@ export async function GET(request: Request) {
     }));
     const codes = [...new Set(rows.flatMap((r) => r.teams))].sort();
     const clubs = codes.map((c) => ({ code: c, ko: c, en: c }));
-    return NextResponse.json({ clubs, cards: team ? items.filter((r) => r.teams.includes(team)) : items });
+    return publicListJson({ clubs, cards: team ? items.filter((r) => r.teams.includes(team)) : items });
   } catch (e) {
-    return NextResponse.json({ clubs: [], cards: [], error: e instanceof Error ? e.message : "err" }, { status: 200 });
+    return publicListJson({ clubs: [], cards: [], error: e instanceof Error ? e.message : "err" }, false);
   }
 }

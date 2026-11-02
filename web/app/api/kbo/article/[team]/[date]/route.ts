@@ -32,13 +32,17 @@ export async function GET(
   }
 
   const admin = createAdminClient();
-  const { data: row, error } = await admin
-    .from("kbo_articles")
-    .select("team, article_date, title, dek, teaser, body_html")
-    .eq("season", SEASON)
-    .eq("team", team)
-    .eq("article_date", date)
-    .maybeSingle();
+  // Row + lock check are independent — fetch them together.
+  const [{ data: row, error }, locked] = await Promise.all([
+    admin
+      .from("kbo_articles")
+      .select("team, article_date, title, dek, teaser, body_html")
+      .eq("season", SEASON)
+      .eq("team", team)
+      .eq("article_date", date)
+      .maybeSingle(),
+    isArticleLocked(admin, team, date),
+  ]);
   if (error) {
     return NextResponse.json({ error: "server_error" }, { status: 500 });
   }
@@ -55,7 +59,6 @@ export async function GET(
     teaser: row.teaser,
   };
 
-  const locked = await isArticleLocked(admin, team, date);
   if (!locked) {
     // Old enough → free for everyone.
     return NextResponse.json({ ...header, locked: false, owned: true, body_html: row.body_html });
