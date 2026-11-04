@@ -38,7 +38,9 @@ export async function GET(request: Request) {
     const fit = fitAll(rows, now.getTime());
     const predicted = await writePredictions(admin, rows, fit, now);
     const report = await generateLolArticle(admin, rows, fit, { now, force, runId: `lol-worlds-${now.toISOString()}` });
-    return NextResponse.json({ ok: true, date: kstDate(now), ingested, predicted, report });
+    const result = { ok: true, date: kstDate(now), ingested, predicted, report };
+    console.log("[lol-worlds] done:", JSON.stringify(result));
+    return NextResponse.json(result);
   } catch (err) {
     const message = err instanceof Error ? err.message : "unknown error";
     console.error("[lol-worlds] failed:", err);
